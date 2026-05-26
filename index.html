@@ -1,0 +1,854 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>kWen’s Gardening Almanac — Pip-Boy Edition</title>
+<style>
+:root{
+  --bg:#041006;
+  --panel:#071b0d;
+  --panel2:#0b2612;
+  --green:#9DFF62;
+  --green2:#C9FF9D;
+  --dim:#76b86a;
+  --amber:#E1B749;
+  --red:#ff6f4f;
+  --border:rgba(157,255,98,.45);
+  --soft:rgba(157,255,98,.10);
+  --glow:0 0 18px rgba(157,255,98,.35);
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  min-height:100vh;
+  background:
+    radial-gradient(circle at 15% 8%, rgba(157,255,98,.14), transparent 22rem),
+    radial-gradient(circle at 85% 3%, rgba(225,183,73,.10), transparent 18rem),
+    linear-gradient(180deg,#07140c 0%,#081b0f 42%,#040905 100%);
+  color:var(--green);
+  font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Courier New",monospace;
+  overflow-x:hidden;
+}
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  opacity:.14;
+  background:repeating-linear-gradient(0deg,rgba(157,255,98,.22) 0 1px,transparent 1px 4px);
+  mix-blend-mode:screen;
+  z-index:10;
+}
+body::after{
+  content:"";
+  position:fixed;
+  inset:-20%;
+  pointer-events:none;
+  opacity:.20;
+  background:radial-gradient(ellipse at center, transparent 0 56%, rgba(0,0,0,.72) 100%);
+  z-index:11;
+}
+.app{
+  position:relative;
+  z-index:1;
+  min-height:100vh;
+  display:grid;
+  grid-template-columns:310px minmax(0,1fr);
+}
+.sidebar{
+  height:100vh;
+  position:sticky;
+  top:0;
+  overflow:auto;
+  padding:20px;
+  border-right:2px solid var(--border);
+  background:rgba(1,12,5,.78);
+  box-shadow:inset 0 0 28px rgba(157,255,98,.08);
+}
+.brand{
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:16px;
+  margin-bottom:14px;
+  background:rgba(157,255,98,.05);
+}
+.kicker{
+  color:var(--amber);
+  font-size:.78rem;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+}
+h1{
+  margin:8px 0 6px;
+  font-size:2.2rem;
+  line-height:.9;
+  text-transform:uppercase;
+  text-shadow:var(--glow);
+}
+.brand p{
+  margin:8px 0 0;
+  color:var(--green2);
+  font-size:.86rem;
+}
+.nav-title{
+  margin:18px 0 8px;
+  color:var(--amber);
+  text-transform:uppercase;
+  letter-spacing:.12em;
+  font-size:.8rem;
+}
+.btn, .plant-btn, .month-btn, .year-btn{
+  border:1px solid var(--border);
+  background:rgba(9,34,15,.72);
+  color:var(--green);
+  border-radius:12px;
+  padding:10px 12px;
+  font-weight:900;
+  letter-spacing:.04em;
+  cursor:pointer;
+  box-shadow:inset 0 0 16px rgba(157,255,98,.08);
+}
+.btn:hover,.plant-btn:hover,.month-btn:hover,.year-btn:hover,
+.btn.active,.plant-btn.active,.month-btn.active,.year-btn.active{
+  background:var(--green);
+  color:#061007;
+  box-shadow:0 0 18px rgba(157,255,98,.45);
+}
+.year-row, .month-row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+.month-row{margin-top:8px}
+.plant-list{
+  display:grid;
+  gap:8px;
+  margin-top:8px;
+}
+.plant-btn{
+  width:100%;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  text-align:left;
+  gap:8px;
+}
+.plant-btn span:first-child{
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.main{
+  padding:20px;
+  min-width:0;
+}
+.top{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:16px;
+  margin-bottom:16px;
+}
+.title-block{
+  border:1px solid var(--border);
+  border-radius:22px;
+  background:rgba(1,12,5,.66);
+  padding:18px;
+  flex:1;
+}
+.title-block h2{
+  margin:0;
+  font-size:clamp(1.9rem,5vw,4rem);
+  line-height:.9;
+  text-transform:uppercase;
+  text-shadow:var(--glow);
+}
+.title-block p{
+  color:var(--green2);
+  margin:10px 0 0;
+}
+.status{
+  min-width:260px;
+  border:1px solid var(--border);
+  border-radius:22px;
+  background:rgba(1,12,5,.66);
+  padding:16px;
+}
+.status-row{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  padding:7px 0;
+  border-bottom:1px dashed rgba(157,255,98,.20);
+}
+.status-row:last-child{border-bottom:0}
+.status b{color:var(--green2)}
+.grid{
+  display:grid;
+  grid-template-columns:minmax(0,1.25fr) minmax(280px,.75fr);
+  gap:16px;
+  align-items:start;
+}
+.panel{
+  border:1px solid var(--border);
+  border-radius:22px;
+  background:rgba(1,12,5,.72);
+  padding:16px;
+  box-shadow:inset 0 0 24px rgba(157,255,98,.07);
+}
+.panel h3{
+  margin:0 0 12px;
+  color:var(--amber);
+  text-transform:uppercase;
+  letter-spacing:.12em;
+  font-size:1rem;
+}
+.calendar-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:12px;
+}
+.month-title{
+  color:var(--green2);
+  text-transform:uppercase;
+  letter-spacing:.14em;
+  font-weight:900;
+}
+.cal{
+  display:grid;
+  grid-template-columns:repeat(7,1fr);
+  gap:6px;
+}
+.dow{
+  text-align:center;
+  color:var(--amber);
+  font-size:.75rem;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  padding-bottom:4px;
+}
+.day{
+  min-height:88px;
+  border:1px solid rgba(157,255,98,.22);
+  border-radius:12px;
+  background:rgba(157,255,98,.04);
+  padding:7px;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+.day.muted{opacity:.25}
+.day.today{
+  border-color:var(--amber);
+  box-shadow:0 0 0 1px rgba(225,183,73,.40),0 0 18px rgba(225,183,73,.18);
+}
+.day-num{
+  font-weight:900;
+  color:var(--green2);
+}
+.icons{
+  display:flex;
+  flex-wrap:wrap;
+  gap:4px;
+  line-height:1;
+}
+.event-pill{
+  display:inline-flex;
+  align-items:center;
+  gap:1px;
+  border:1px solid rgba(157,255,98,.20);
+  background:rgba(0,0,0,.18);
+  border-radius:999px;
+  padding:2px 4px;
+  font-size:1.02rem;
+}
+.legend{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-top:12px;
+  color:var(--green2);
+  font-size:.86rem;
+}
+.task-list{
+  display:grid;
+  gap:10px;
+}
+.task{
+  display:grid;
+  grid-template-columns:52px 1fr;
+  gap:12px;
+  padding:10px;
+  border:1px solid rgba(157,255,98,.20);
+  border-radius:14px;
+  background:rgba(157,255,98,.04);
+}
+.task .big{
+  font-size:1.6rem;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.task b{color:var(--green2)}
+.task small{
+  display:block;
+  color:var(--dim);
+  margin-top:4px;
+}
+.plant-detail{
+  display:grid;
+  gap:12px;
+}
+.stats{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:8px;
+}
+.stat{
+  border:1px solid rgba(157,255,98,.22);
+  border-radius:14px;
+  padding:10px;
+  background:rgba(157,255,98,.04);
+}
+.stat small{
+  display:block;
+  color:var(--dim);
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  font-size:.66rem;
+  margin-bottom:4px;
+}
+.stat b{color:var(--green2)}
+.timeline{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:8px;
+}
+.tblock{
+  border:1px solid rgba(157,255,98,.22);
+  border-radius:14px;
+  padding:10px;
+  min-height:92px;
+  background:rgba(0,0,0,.18);
+}
+.tblock small{
+  display:block;
+  color:var(--amber);
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  font-size:.64rem;
+  margin-bottom:5px;
+}
+.notes{
+  color:var(--green2);
+  line-height:1.4;
+}
+.mobile-open{
+  display:none;
+  position:fixed;
+  top:12px;
+  left:12px;
+  z-index:30;
+}
+.backdrop{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.55);
+  z-index:20;
+}
+@media(max-width:980px){
+  .app{grid-template-columns:1fr}
+  .sidebar{
+    position:fixed;
+    z-index:25;
+    inset:0 auto 0 0;
+    width:310px;
+    transform:translateX(-105%);
+    transition:.22s ease;
+  }
+  body.menu-open .sidebar{transform:translateX(0)}
+  body.menu-open .backdrop{display:block}
+  .mobile-open{display:block}
+  .main{padding:64px 12px 18px}
+  .top{display:grid}
+  .status{min-width:0}
+  .grid{grid-template-columns:1fr}
+  .timeline{grid-template-columns:1fr 1fr}
+}
+@media(max-width:620px){
+  .cal{gap:3px}
+  .day{min-height:60px;border-radius:9px;padding:5px}
+  .event-pill{font-size:.78rem;padding:1px 2px}
+  .dow{font-size:.64rem}
+  .stats{grid-template-columns:1fr}
+  .timeline{grid-template-columns:1fr}
+  h1{font-size:1.75rem}
+}
+</style>
+</head>
+<body>
+<button class="btn mobile-open" id="menuOpen">☰ MENU</button>
+<div class="backdrop" id="backdrop"></div>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="kicker">kWen Systems</div>
+      <h1>Garden Almanac</h1>
+      <p>Pip-Boy style seasonal planner for Riverview / Moncton growing conditions.</p>
+    </div>
+
+    <div class="nav-title">Year</div>
+    <div class="year-row" id="yearRow"></div>
+
+    <div class="nav-title">Month</div>
+    <div class="month-row" id="monthRow"></div>
+
+    <div class="nav-title">Plants</div>
+    <div class="plant-list" id="plantList"></div>
+
+    <div class="nav-title">Legend</div>
+    <div class="legend">
+      <span>🌱 Sow</span>
+      <span>🪴 Move Out</span>
+      <span>💧 Fertilize</span>
+      <span>🧺 Harvest</span>
+    </div>
+  </aside>
+
+  <main class="main">
+    <section class="top">
+      <div class="title-block">
+        <div class="kicker">Vault-Garden Utility v1.0</div>
+        <h2>Seasonal Ops</h2>
+        <p>Calendar icons are action + plant. Example: <strong>💧🍅</strong> means fertilize tomatoes. <strong>🌱🟡</strong> means sow golden beets.</p>
+      </div>
+      <div class="status">
+        <div class="status-row"><span>Region</span><b>Riverview, NB</b></div>
+        <div class="status-row"><span>Frost-Safe Target</span><b>Early June</b></div>
+        <div class="status-row"><span>Mode</span><b>Seed-first planner</b></div>
+        <div class="status-row"><span>Calendar</span><b id="statusMonth">—</b></div>
+      </div>
+    </section>
+
+    <section class="grid">
+      <div class="panel">
+        <div class="calendar-head">
+          <button class="month-btn" id="prevMonth">◀</button>
+          <div class="month-title" id="monthTitle">Month</div>
+          <button class="month-btn" id="nextMonth">▶</button>
+        </div>
+        <div class="cal" id="calendar"></div>
+        <div class="legend">
+          <span>🍅 Tomatoes</span>
+          <span>🥒 Cucumbers</span>
+          <span>🫛 Peas</span>
+          <span>🍟 Yellow Wax Beans</span>
+          <span>🟡 Golden Beets</span>
+          <span>🫑 Peppers</span>
+          <span>🧄 Garlic</span>
+          <span>🌿 Basil</span>
+          <span>🌱 Thyme</span>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>This Month</h3>
+        <div class="task-list" id="monthTasks"></div>
+      </div>
+
+      <div class="panel">
+        <h3>Selected Plant</h3>
+        <div class="plant-detail" id="plantDetail"></div>
+      </div>
+
+      <div class="panel">
+        <h3>Growing Notes</h3>
+        <div class="notes">
+          <p><strong>Reminder:</strong> grow bags dry out faster than beds. Water before fertilizing if soil is dry.</p>
+          <p><strong>Fertilizer shorthand:</strong> 10-10-10 = balanced; 5-10-10 = lower nitrogen for flowers/fruit; herbs need lighter feeding.</p>
+          <p><strong>Garlic:</strong> plant in fall for next summer harvest. It lives on a different rhythm than your summer crops.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+const years = [2026, 2027];
+const monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+const visibleMonths = [2,3,4,5,6,7,8,9,10]; // Mar-Nov
+const today = new Date();
+
+const plants = {
+  tomatoes: {
+    name:"Tomatoes — San Marzano + Cherry",
+    icon:"🍅",
+    best:"10–15 gal grow bag or sunny raised bed",
+    sow:"Start indoors March / early April",
+    move:"Transplant outdoors early June after frost risk",
+    feed:"10-10-10 at planting, then 5-10-10 once flowering/fruiting",
+    harvest:"Cherry: late July onward. San Marzano: August–September",
+    water:"Deep, consistent watering. Avoid swings to reduce blossom-end rot.",
+    notes:"Use a cage/trellis. In bags, water more often and feed lightly but consistently."
+  },
+  cucumbers: {
+    name:"Cucumbers",
+    icon:"🥒",
+    best:"Raised bed or 7–10 gal grow bag with trellis",
+    sow:"Direct sow late May to June",
+    move:"Usually direct sow; seedlings can move out early June",
+    feed:"10-10-10 at planting, then light 5-10-10 when vines bloom",
+    harvest:"July–September",
+    water:"Heavy drinkers. Keep evenly moist.",
+    notes:"Trellis keeps fruit cleaner and saves space."
+  },
+  peas: {
+    name:"Peas",
+    icon:"🫛",
+    best:"Raised bed with trellis",
+    sow:"Direct sow April to May; possible late summer sowing",
+    move:"Direct sow preferred",
+    feed:"Little to none. Avoid high nitrogen.",
+    harvest:"June–July; fall crop if re-sown",
+    water:"Keep moist during flowering/pod set.",
+    notes:"Cool-season crop. Plant earlier than beans."
+  },
+  waxbeans: {
+    name:"Yellow Wax Beans",
+    icon:"🍟",
+    best:"Raised bed; grow bag works if wide/deep enough",
+    sow:"Direct sow after soil warms: late May through June",
+    move:"Direct sow preferred",
+    feed:"Very light balanced fertilizer only if soil is poor",
+    harvest:"July–September",
+    water:"Moderate, consistent water during pod set.",
+    notes:"Too much fertilizer makes leaves instead of beans."
+  },
+  beets: {
+    name:"Golden Beets",
+    icon:"🟡",
+    best:"Raised bed or deep container/grow bag",
+    sow:"Direct sow May to July; succession sow every 2–3 weeks",
+    move:"Direct sow preferred",
+    feed:"Light 10-10-10 after thinning; avoid heavy nitrogen",
+    harvest:"Baby beets in ~45 days; full size ~55–70 days",
+    water:"Even moisture for tender roots.",
+    notes:"Thin seedlings so roots can size up properly."
+  },
+  peppers: {
+    name:"Green Peppers",
+    icon:"🫑",
+    best:"5–7 gal grow bag or raised bed hot spot",
+    sow:"Start indoors March. For 2026: buy starter plant.",
+    move:"Transplant outdoors early June once nights are warm",
+    feed:"10-10-10 at planting, then 5-10-10 when flowering",
+    harvest:"August–September",
+    water:"Consistent moisture; avoid waterlogging.",
+    notes:"Warmth matters. Bags can help soil heat up faster."
+  },
+  garlic: {
+    name:"Garlic",
+    icon:"🧄",
+    best:"Raised bed",
+    sow:"Plant cloves in October",
+    move:"No transplanting",
+    feed:"Nitrogen-rich feed in early spring, stop feeding by early summer",
+    harvest:"Late July to August when lower leaves brown",
+    water:"Moist in spring, drier near harvest.",
+    notes:"Mulch after fall planting."
+  },
+  basil: {
+    name:"Basil",
+    icon:"🌿",
+    best:"Pot/grow bag near kitchen or warm raised bed",
+    sow:"Start indoors April; direct sow only after warm weather",
+    move:"Move outdoors early June",
+    feed:"Light balanced feed every 3–4 weeks",
+    harvest:"Pinch often from June onward",
+    water:"Likes consistent moisture but not soggy roots.",
+    notes:"Pinching prevents early flowering."
+  },
+  thaibasil: {
+    name:"Thai Basil",
+    icon:"🌿",
+    best:"Pot/grow bag; warm protected spot",
+    sow:"Start indoors April",
+    move:"Move outdoors early June after warm nights",
+    feed:"Light 10-10-10 or fish fertilizer every 3–4 weeks",
+    harvest:"Pinch regularly from June onward",
+    water:"Consistent moisture, warmer spot than regular basil.",
+    notes:"Great container herb. Keep harvesting tips."
+  },
+  thyme: {
+    name:"Thyme",
+    icon:"🌱",
+    best:"Pot, grow bag edge, or raised bed edge",
+    sow:"Start indoors March/April; slow from seed",
+    move:"Move outdoors after frost",
+    feed:"Minimal fertilizer; too much weakens flavor",
+    harvest:"Light harvest once established",
+    water:"Drier than basil. Don’t overwater.",
+    notes:"Slow and steady from seed. Great in a pot with sharp drainage."
+  }
+};
+
+function d(year, month, day){ return `${year}-${String(month+1).padStart(2,"0")}-${String(day).padStart(2,"0")}`; }
+
+function buildEventsForYear(year){
+  let e = [];
+  function add(month, day, action, plant, text){
+    e.push({date:d(year,month,day), action, plant, text});
+  }
+
+  // Seed-starting / sowing
+  add(2, 15, "🌱", "tomatoes", "Start tomato seeds indoors.");
+  add(2, 20, "🌱", "peppers", "Start pepper seeds indoors. For 2026, buy starter plant instead.");
+  add(2, 25, "🌱", "thyme", "Start thyme indoors. It is slow from seed.");
+  add(3, 10, "🌱", "basil", "Start basil indoors.");
+  add(3, 10, "🌱", "thaibasil", "Start Thai basil indoors.");
+  add(3, 20, "🌱", "peas", "Direct sow peas when soil can be worked.");
+  add(4, 10, "🌱", "beets", "Direct sow first golden beet row.");
+  add(4, 25, "🌱", "beets", "Succession sow golden beets.");
+  add(4, 28, "🌱", "cucumbers", "Direct sow cucumbers if soil is warm, or wait into June.");
+  add(4, 30, "🌱", "waxbeans", "Direct sow yellow wax beans once soil is warm.");
+  add(5, 10, "🌱", "beets", "Succession sow golden beets.");
+  add(5, 15, "🌱", "cucumbers", "Second cucumber sowing if desired.");
+  add(5, 18, "🌱", "waxbeans", "Second yellow wax bean sowing.");
+  add(6, 5, "🌱", "beets", "Optional final beet sowing for fall harvest.");
+
+  // Move out / transplant
+  add(5, 5, "🪴", "tomatoes", "Transplant tomatoes outdoors after frost risk.");
+  add(5, 5, "🪴", "peppers", "Transplant pepper starter outdoors after nights warm.");
+  add(5, 7, "🪴", "basil", "Move basil outdoors.");
+  add(5, 7, "🪴", "thaibasil", "Move Thai basil outdoors.");
+  add(5, 8, "🪴", "thyme", "Move thyme outdoors.");
+
+  // Fertilizer cadence
+  add(5, 5, "💧", "tomatoes", "Feed tomatoes at planting with 10-10-10.");
+  add(5, 5, "💧", "peppers", "Feed peppers at planting with 10-10-10.");
+  add(5, 10, "💧", "basil", "Light feed basil.");
+  add(5, 10, "💧", "thaibasil", "Light feed Thai basil.");
+  add(5, 15, "💧", "cucumbers", "Balanced feed for cucumbers.");
+  add(5, 18, "💧", "beets", "Light balanced feed after thinning beets.");
+  add(5, 20, "💧", "waxbeans", "Very light balanced feed only if soil is poor.");
+  add(5, 25, "💧", "tomatoes", "Switch tomatoes toward 5-10-10 as flowering starts.");
+  add(5, 25, "💧", "peppers", "Use 5-10-10 once peppers start flowering.");
+  add(6, 10, "💧", "cucumbers", "Light 5-10-10 feed as vines bloom.");
+  add(6, 12, "💧", "tomatoes", "Fruiting feed: 5-10-10.");
+  add(6, 12, "💧", "peppers", "Fruiting feed: 5-10-10.");
+  add(6, 15, "💧", "basil", "Light herb feed.");
+  add(6, 15, "💧", "thaibasil", "Light herb feed.");
+  add(7, 1, "💧", "tomatoes", "Light fruiting feed if plants are producing heavily.");
+  add(7, 1, "💧", "peppers", "Light fruiting feed if plants are producing.");
+  add(7, 5, "💧", "cucumbers", "Light feed if vines are still productive.");
+  add(7, 10, "💧", "basil", "Light herb feed.");
+  add(7, 10, "💧", "thaibasil", "Light herb feed.");
+
+  // Garlic fall/spring
+  add(2, 30, "💧", "garlic", "Early spring nitrogen feed for garlic.");
+  add(3, 20, "💧", "garlic", "Second spring garlic feed.");
+  add(9, 15, "🌱", "garlic", "Plant garlic cloves for next year.");
+
+  // Harvest windows / cues
+  add(5, 25, "🧺", "peas", "Begin checking peas for harvest.");
+  add(6, 15, "🧺", "beets", "Baby beet harvest window starts.");
+  add(6, 20, "🧺", "waxbeans", "Begin checking yellow wax beans.");
+  add(6, 25, "🧺", "cucumbers", "Begin cucumber harvest checks.");
+  add(6, 30, "🧺", "basil", "Regular basil harvest/pinching.");
+  add(6, 30, "🧺", "thaibasil", "Regular Thai basil harvest/pinching.");
+  add(7, 10, "🧺", "tomatoes", "Cherry tomato harvest window begins.");
+  add(7, 20, "🧺", "garlic", "Garlic harvest window.");
+  add(7, 25, "🧺", "peppers", "Begin checking peppers.");
+  add(7, 30, "🧺", "tomatoes", "San Marzano harvest window begins.");
+  add(8, 10, "🧺", "beets", "Main golden beet harvest.");
+  add(8, 15, "🧺", "cucumbers", "Keep harvesting cucumbers regularly.");
+  add(8, 15, "🧺", "waxbeans", "Keep harvesting wax beans regularly.");
+  add(8, 20, "🧺", "tomatoes", "Peak tomato harvest.");
+  add(8, 20, "🧺", "peppers", "Peak pepper harvest.");
+
+  return e;
+}
+
+let currentYear = today.getFullYear() <= 2026 ? 2026 : 2027;
+if(!years.includes(currentYear)) currentYear = 2026;
+let currentMonth = Math.min(Math.max(today.getMonth(),2),10);
+let selectedPlant = "tomatoes";
+
+const yearRow = document.getElementById("yearRow");
+const monthRow = document.getElementById("monthRow");
+const plantList = document.getElementById("plantList");
+const calendar = document.getElementById("calendar");
+const monthTitle = document.getElementById("monthTitle");
+const monthTasks = document.getElementById("monthTasks");
+const plantDetail = document.getElementById("plantDetail");
+const statusMonth = document.getElementById("statusMonth");
+
+function renderControls(){
+  yearRow.innerHTML = "";
+  years.forEach(y=>{
+    const b=document.createElement("button");
+    b.className="year-btn" + (y===currentYear ? " active" : "");
+    b.textContent=y;
+    b.onclick=()=>{currentYear=y; renderAll();}
+    yearRow.appendChild(b);
+  });
+
+  monthRow.innerHTML = "";
+  visibleMonths.forEach(m=>{
+    const b=document.createElement("button");
+    b.className="month-btn" + (m===currentMonth ? " active" : "");
+    b.textContent=monthNames[m].slice(0,3).toUpperCase();
+    b.onclick=()=>{currentMonth=m; renderAll();}
+    monthRow.appendChild(b);
+  });
+
+  plantList.innerHTML = "";
+  Object.entries(plants).forEach(([key,p])=>{
+    const b=document.createElement("button");
+    b.className="plant-btn" + (key===selectedPlant ? " active" : "");
+    b.innerHTML=`<span>${p.icon} ${p.name}</span><span>›</span>`;
+    b.onclick=()=>{selectedPlant=key; renderAll(); closeMenu();}
+    plantList.appendChild(b);
+  });
+}
+
+function eventsForCurrentMonth(){
+  return buildEventsForYear(currentYear).filter(ev=>{
+    const dt = new Date(ev.date + "T12:00:00");
+    return dt.getMonth() === currentMonth;
+  });
+}
+
+function renderCalendar(){
+  const evs = buildEventsForYear(currentYear);
+  const eventMap = {};
+  evs.forEach(ev=>{
+    if(!eventMap[ev.date]) eventMap[ev.date]=[];
+    eventMap[ev.date].push(ev);
+  });
+
+  calendar.innerHTML = "";
+  ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].forEach(x=>{
+    const div=document.createElement("div");
+    div.className="dow";
+    div.textContent=x;
+    calendar.appendChild(div);
+  });
+
+  const first = new Date(currentYear,currentMonth,1);
+  const startDay = first.getDay();
+  const daysInMonth = new Date(currentYear,currentMonth+1,0).getDate();
+  const prevDays = new Date(currentYear,currentMonth,0).getDate();
+  const totalCells = Math.ceil((startDay + daysInMonth)/7)*7;
+
+  monthTitle.textContent = `${monthNames[currentMonth]} ${currentYear}`;
+  statusMonth.textContent = `${monthNames[currentMonth]} ${currentYear}`;
+
+  for(let i=0;i<totalCells;i++){
+    const cell=document.createElement("div");
+    cell.className="day";
+    let dayNum, muted=false, cellMonth=currentMonth, cellYear=currentYear;
+    if(i<startDay){
+      dayNum=prevDays-startDay+i+1;
+      muted=true;
+      cellMonth=currentMonth-1;
+    } else if(i>=startDay+daysInMonth){
+      dayNum=i-(startDay+daysInMonth)+1;
+      muted=true;
+      cellMonth=currentMonth+1;
+    } else {
+      dayNum=i-startDay+1;
+    }
+    if(muted) cell.classList.add("muted");
+    const key = d(cellYear, cellMonth, dayNum);
+    if(today.getFullYear()===cellYear && today.getMonth()===cellMonth && today.getDate()===dayNum) cell.classList.add("today");
+
+    const num=document.createElement("div");
+    num.className="day-num";
+    num.textContent=dayNum;
+    cell.appendChild(num);
+
+    const icons=document.createElement("div");
+    icons.className="icons";
+    (eventMap[key]||[]).forEach(ev=>{
+      const pill=document.createElement("span");
+      pill.className="event-pill";
+      pill.title=ev.text;
+      pill.textContent = `${ev.action}${plants[ev.plant].icon}`;
+      icons.appendChild(pill);
+    });
+    cell.appendChild(icons);
+    calendar.appendChild(cell);
+  }
+}
+
+function renderTasks(){
+  const evs = eventsForCurrentMonth().sort((a,b)=>a.date.localeCompare(b.date));
+  monthTasks.innerHTML = "";
+  if(!evs.length){
+    monthTasks.innerHTML = `<div class="task"><div class="big">✓</div><div><b>No scheduled events</b><small>This month is quiet.</small></div></div>`;
+    return;
+  }
+  evs.forEach(ev=>{
+    const dt = new Date(ev.date + "T12:00:00");
+    const p=plants[ev.plant];
+    const div=document.createElement("div");
+    div.className="task";
+    div.innerHTML = `<div class="big">${ev.action}${p.icon}</div>
+      <div><b>${monthNames[dt.getMonth()]} ${dt.getDate()} — ${p.name}</b>
+      <small>${ev.text}</small></div>`;
+    monthTasks.appendChild(div);
+  });
+}
+
+function renderPlantDetail(){
+  const p=plants[selectedPlant];
+  plantDetail.innerHTML = `
+    <div class="task"><div class="big">${p.icon}</div><div><b>${p.name}</b><small>${p.notes}</small></div></div>
+    <div class="stats">
+      <div class="stat"><small>Best Spot</small><b>${p.best}</b></div>
+      <div class="stat"><small>Water</small><b>${p.water}</b></div>
+      <div class="stat"><small>Fertilizer</small><b>${p.feed}</b></div>
+      <div class="stat"><small>Harvest</small><b>${p.harvest}</b></div>
+    </div>
+    <div class="timeline">
+      <div class="tblock"><small>🌱 Sow</small>${p.sow}</div>
+      <div class="tblock"><small>🪴 Move Out</small>${p.move}</div>
+      <div class="tblock"><small>💧 Feed</small>${p.feed}</div>
+      <div class="tblock"><small>🧺 Harvest</small>${p.harvest}</div>
+    </div>
+  `;
+}
+
+function renderAll(){
+  renderControls();
+  renderCalendar();
+  renderTasks();
+  renderPlantDetail();
+}
+
+document.getElementById("prevMonth").onclick=()=>{
+  const idx=visibleMonths.indexOf(currentMonth);
+  if(idx>0) currentMonth=visibleMonths[idx-1];
+  else { currentMonth=visibleMonths[visibleMonths.length-1]; currentYear = currentYear===2026 ? 2027 : 2026; }
+  renderAll();
+};
+document.getElementById("nextMonth").onclick=()=>{
+  const idx=visibleMonths.indexOf(currentMonth);
+  if(idx<visibleMonths.length-1) currentMonth=visibleMonths[idx+1];
+  else { currentMonth=visibleMonths[0]; currentYear = currentYear===2026 ? 2027 : 2026; }
+  renderAll();
+};
+
+function closeMenu(){ document.body.classList.remove("menu-open"); }
+document.getElementById("menuOpen").onclick=()=>document.body.classList.add("menu-open");
+document.getElementById("backdrop").onclick=closeMenu;
+
+renderAll();
+</script>
+</body>
+</html>
