@@ -98,7 +98,7 @@ h1{
   letter-spacing:.12em;
   font-size:.8rem;
 }
-.btn, .plant-btn, .month-btn, .year-btn{
+.btn, .plant-btn, .month-btn, .year-btn, .link-btn{
   border:1px solid var(--border);
   background:rgba(9,34,15,.72);
   color:var(--green);
@@ -108,12 +108,19 @@ h1{
   letter-spacing:.04em;
   cursor:pointer;
   box-shadow:inset 0 0 16px rgba(157,255,98,.08);
+  text-decoration:none;
 }
+.link-btn{width:100%;}
 .btn:hover,.plant-btn:hover,.month-btn:hover,.year-btn:hover,
 .btn.active,.plant-btn.active,.month-btn.active,.year-btn.active{
   background:var(--green);
   color:#061007;
   box-shadow:0 0 18px rgba(157,255,98,.45);
+}
+.link-row{
+  display:grid;
+  gap:8px;
+  margin-top:10px;
 }
 .year-row, .month-row{
   display:flex;
@@ -399,6 +406,9 @@ h1{
       <div class="kicker">kWen Systems</div>
       <h1>Garden Almanac</h1>
       <p>Pip-Boy style seasonal planner for Riverview / Moncton growing conditions.</p>
+      <div class="link-row">
+        <a class="link-btn" href="https://kensheretohelp.github.io/kWens-cookbook/">🍳 Back to Cookbook</a>
+      </div>
     </div>
 
     <div class="nav-title">Year</div>
@@ -406,6 +416,9 @@ h1{
 
     <div class="nav-title">Month</div>
     <div class="month-row" id="monthRow"></div>
+
+    <div class="nav-title">Calendar Filter</div>
+    <button class="plant-btn active" id="allPlantsBtn" type="button"><span>📡 All Garden Events</span><span>›</span></button>
 
     <div class="nav-title">Plants</div>
     <div class="plant-list" id="plantList"></div>
@@ -424,22 +437,23 @@ h1{
       <div class="title-block">
         <div class="kicker">Vault-Garden Utility v1.0</div>
         <h2>Seasonal Ops</h2>
-        <p>Calendar icons are action + plant. Example: <strong>💧🍅</strong> means fertilize tomatoes. <strong>🌱🟡</strong> means sow golden beets.</p>
+        <p>Calendar icons are action + plant. Example: <strong>💧🍅</strong> means fertilize tomatoes. <strong>🌱🟡</strong> means sow golden beets. Choose a plant to filter the calendar.</p>
       </div>
       <div class="status">
         <div class="status-row"><span>Region</span><b>Riverview, NB</b></div>
         <div class="status-row"><span>Frost-Safe Target</span><b>Early June</b></div>
         <div class="status-row"><span>Mode</span><b>Seed-first planner</b></div>
         <div class="status-row"><span>Calendar</span><b id="statusMonth">—</b></div>
+        <div class="status-row"><span>Filter</span><b id="statusFilter">All</b></div>
       </div>
     </section>
 
     <section class="grid">
       <div class="panel">
         <div class="calendar-head">
-          <button class="month-btn" id="prevMonth">◀</button>
+          <button class="month-btn" id="prevMonth" type="button">◀</button>
           <div class="month-title" id="monthTitle">Month</div>
-          <button class="month-btn" id="nextMonth">▶</button>
+          <button class="month-btn" id="nextMonth" type="button">▶</button>
         </div>
         <div class="cal" id="calendar"></div>
         <div class="legend">
@@ -677,6 +691,7 @@ let currentYear = today.getFullYear() <= 2026 ? 2026 : 2027;
 if(!years.includes(currentYear)) currentYear = 2026;
 let currentMonth = Math.min(Math.max(today.getMonth(),2),10);
 let selectedPlant = "tomatoes";
+let calendarFilter = "all";
 
 const yearRow = document.getElementById("yearRow");
 const monthRow = document.getElementById("monthRow");
@@ -686,11 +701,22 @@ const monthTitle = document.getElementById("monthTitle");
 const monthTasks = document.getElementById("monthTasks");
 const plantDetail = document.getElementById("plantDetail");
 const statusMonth = document.getElementById("statusMonth");
+const statusFilter = document.getElementById("statusFilter");
+const allPlantsBtn = document.getElementById("allPlantsBtn");
+
+function filteredEvents(){
+  let evs = buildEventsForYear(currentYear);
+  if(calendarFilter !== "all"){
+    evs = evs.filter(ev => ev.plant === calendarFilter);
+  }
+  return evs;
+}
 
 function renderControls(){
   yearRow.innerHTML = "";
   years.forEach(y=>{
     const b=document.createElement("button");
+    b.type="button";
     b.className="year-btn" + (y===currentYear ? " active" : "");
     b.textContent=y;
     b.onclick=()=>{currentYear=y; renderAll();}
@@ -700,31 +726,40 @@ function renderControls(){
   monthRow.innerHTML = "";
   visibleMonths.forEach(m=>{
     const b=document.createElement("button");
+    b.type="button";
     b.className="month-btn" + (m===currentMonth ? " active" : "");
     b.textContent=monthNames[m].slice(0,3).toUpperCase();
     b.onclick=()=>{currentMonth=m; renderAll();}
     monthRow.appendChild(b);
   });
 
+  allPlantsBtn.classList.toggle("active", calendarFilter === "all");
+  allPlantsBtn.onclick = () => {
+    calendarFilter = "all";
+    renderAll();
+    closeMenu();
+  };
+
   plantList.innerHTML = "";
   Object.entries(plants).forEach(([key,p])=>{
     const b=document.createElement("button");
-    b.className="plant-btn" + (key===selectedPlant ? " active" : "");
+    b.type="button";
+    b.className="plant-btn" + (key===calendarFilter ? " active" : "");
     b.innerHTML=`<span>${p.icon} ${p.name}</span><span>›</span>`;
-    b.onclick=()=>{selectedPlant=key; renderAll(); closeMenu();}
+    b.onclick=()=>{selectedPlant=key; calendarFilter=key; renderAll(); closeMenu();}
     plantList.appendChild(b);
   });
 }
 
 function eventsForCurrentMonth(){
-  return buildEventsForYear(currentYear).filter(ev=>{
+  return filteredEvents().filter(ev=>{
     const dt = new Date(ev.date + "T12:00:00");
     return dt.getMonth() === currentMonth;
   });
 }
 
 function renderCalendar(){
-  const evs = buildEventsForYear(currentYear);
+  const evs = filteredEvents();
   const eventMap = {};
   evs.forEach(ev=>{
     if(!eventMap[ev.date]) eventMap[ev.date]=[];
@@ -747,6 +782,7 @@ function renderCalendar(){
 
   monthTitle.textContent = `${monthNames[currentMonth]} ${currentYear}`;
   statusMonth.textContent = `${monthNames[currentMonth]} ${currentYear}`;
+  statusFilter.textContent = calendarFilter === "all" ? "All" : plants[calendarFilter].name;
 
   for(let i=0;i<totalCells;i++){
     const cell=document.createElement("div");
@@ -790,7 +826,7 @@ function renderTasks(){
   const evs = eventsForCurrentMonth().sort((a,b)=>a.date.localeCompare(b.date));
   monthTasks.innerHTML = "";
   if(!evs.length){
-    monthTasks.innerHTML = `<div class="task"><div class="big">✓</div><div><b>No scheduled events</b><small>This month is quiet.</small></div></div>`;
+    monthTasks.innerHTML = `<div class="task"><div class="big">✓</div><div><b>No scheduled events</b><small>This month is quiet for the current filter.</small></div></div>`;
     return;
   }
   evs.forEach(ev=>{
