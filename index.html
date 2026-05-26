@@ -364,14 +364,14 @@ h1{
   .app{grid-template-columns:1fr}
   .sidebar{
     position:fixed;
-    z-index:25;
+    z-index:120;
     inset:0 auto 0 0;
     width:310px;
     transform:translateX(-105%);
     transition:.22s ease;
   }
   body.menu-open .sidebar{transform:translateX(0)}
-  body.menu-open .backdrop{display:block}
+  body.menu-open .backdrop{display:block; z-index:90;}
   .mobile-open{display:block}
   .main{padding:64px 12px 18px}
   .top{display:grid}
@@ -399,7 +399,7 @@ h1{
       <div class="kicker">kWen Systems</div>
       <h1>Garden Almanac</h1>
       <p>Pip-Boy style seasonal planner for Riverview / Moncton growing conditions.</p>
-      <a class="btn" style="width:100%;margin-top:12px;text-decoration:none;display:flex;justify-content:center;" href="https://kensheretohelp.github.io/kWens-cookbook/">🍳 Back to Cookbook</a>
+      <a class="btn" style="width:100%;margin-top:12px;text-decoration:none;display:flex;justify-content:center;" href="https://kensheretohelp.github.io/kWens-cookbook/" target="_self" rel="noopener">🍳 Back to Cookbook</a>
     </div>
 
     <div class="nav-title">Year</div>
@@ -696,6 +696,24 @@ const allPlantsBtn = document.getElementById("allPlantsBtn");
 
 function closeMenu(){ document.body.classList.remove("menu-open"); }
 
+function bindTap(el, handler){
+  let touchHandled = false;
+  el.addEventListener("touchend", function(e){
+    touchHandled = true;
+    e.preventDefault();
+    e.stopPropagation();
+    handler(e);
+    setTimeout(() => { touchHandled = false; }, 450);
+  }, {passive:false});
+
+  el.addEventListener("click", function(e){
+    if(touchHandled) return;
+    e.preventDefault();
+    e.stopPropagation();
+    handler(e);
+  });
+}
+
 function filteredEvents(){
   let evs = buildEventsForYear(currentYear);
   if(calendarFilter !== "all"){
@@ -711,7 +729,7 @@ function renderControls(){
     b.type = "button";
     b.className = "year-btn" + (y === currentYear ? " active" : "");
     b.textContent = y;
-    b.addEventListener("click", () => {
+    bindTap(b, () => {
       currentYear = y;
       renderAll();
     });
@@ -724,7 +742,7 @@ function renderControls(){
     b.type = "button";
     b.className = "month-btn" + (m === currentMonth ? " active" : "");
     b.textContent = monthNames[m].slice(0,3).toUpperCase();
-    b.addEventListener("click", () => {
+    bindTap(b, () => {
       currentMonth = m;
       renderAll();
     });
@@ -733,11 +751,10 @@ function renderControls(){
 
   if(allPlantsBtn){
     allPlantsBtn.classList.toggle("active", calendarFilter === "all");
-    allPlantsBtn.onclick = () => {
+    bindTap(allPlantsBtn, () => {
       calendarFilter = "all";
       renderAll();
-      closeMenu();
-    };
+    });
   }
 
   plantList.innerHTML = "";
@@ -746,11 +763,10 @@ function renderControls(){
     b.type = "button";
     b.className = "plant-btn" + (key === calendarFilter ? " active" : "");
     b.innerHTML = `<span>${p.icon} ${p.name}</span><span>›</span>`;
-    b.addEventListener("click", () => {
+    bindTap(b, () => {
       selectedPlant = key;
       calendarFilter = key;
       renderAll();
-      closeMenu();
     });
     plantList.appendChild(b);
   });
@@ -885,7 +901,7 @@ const prev = document.getElementById("prevMonth");
 const next = document.getElementById("nextMonth");
 
 if(prev){
-  prev.onclick = () => {
+  bindTap(prev, () => {
     const idx = visibleMonths.indexOf(currentMonth);
     if(idx > 0) currentMonth = visibleMonths[idx-1];
     else {
@@ -893,11 +909,11 @@ if(prev){
       currentYear = currentYear === 2026 ? 2027 : 2026;
     }
     renderAll();
-  };
+  });
 }
 
 if(next){
-  next.onclick = () => {
+  bindTap(next, () => {
     const idx = visibleMonths.indexOf(currentMonth);
     if(idx < visibleMonths.length-1) currentMonth = visibleMonths[idx+1];
     else {
@@ -905,14 +921,18 @@ if(next){
       currentYear = currentYear === 2026 ? 2027 : 2026;
     }
     renderAll();
-  };
+  });
 }
 
 const menuOpen = document.getElementById("menuOpen");
 const backdrop = document.getElementById("backdrop");
 
-if(menuOpen) menuOpen.onclick = () => document.body.classList.add("menu-open");
-if(backdrop) backdrop.onclick = closeMenu;
+if(menuOpen){
+  bindTap(menuOpen, () => document.body.classList.add("menu-open"));
+}
+if(backdrop){
+  bindTap(backdrop, closeMenu);
+}
 
 renderAll();
 </script>
