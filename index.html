@@ -389,6 +389,66 @@ h1{
   h1{font-size:1.75rem}
 }
 </style>
+
+<style id="iphone-sidebar-hard-fix">
+@media(max-width:980px){
+  .sidebar{
+    background:#061207 !important;
+    opacity:1 !important;
+    backdrop-filter:none !important;
+    -webkit-backdrop-filter:none !important;
+    width:min(88vw, 350px) !important;
+    max-width:350px !important;
+    height:100dvh !important;
+    max-height:100dvh !important;
+    overflow-y:auto !important;
+    overflow-x:hidden !important;
+    -webkit-overflow-scrolling:touch !important;
+    padding:18px 18px calc(120px + env(safe-area-inset-bottom)) !important;
+    z-index:9999 !important;
+    box-shadow:18px 0 48px rgba(0,0,0,.78), inset 0 0 32px rgba(157,255,98,.08) !important;
+    border-right:2px solid rgba(157,255,98,.75) !important;
+  }
+
+  body.menu-open .sidebar{
+    transform:translateX(0) !important;
+  }
+
+  body.menu-open .backdrop{
+    display:block !important;
+    opacity:.72 !important;
+    background:rgba(0,0,0,.72) !important;
+    z-index:9990 !important;
+  }
+
+  .sidebar .brand,
+  .sidebar .plant-btn,
+  .sidebar .month-btn,
+  .sidebar .year-btn,
+  .sidebar .btn,
+  .sidebar .link-btn{
+    opacity:1 !important;
+    position:relative !important;
+    z-index:10001 !important;
+  }
+
+  .sidebar button,
+  .sidebar a{
+    pointer-events:auto !important;
+    touch-action:manipulation !important;
+    -webkit-tap-highlight-color:rgba(157,255,98,.30) !important;
+  }
+
+  body.menu-open .main{
+    pointer-events:none !important;
+  }
+
+  .mobile-open{
+    z-index:10020 !important;
+  }
+}
+</style>
+
 </head>
 <body>
 <button class="btn mobile-open" id="menuOpen">☰ MENU</button>
@@ -483,123 +543,24 @@ h1{
 </div>
 
 
+
 <script>
 const years = [2026, 2027];
 const monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
-const visibleMonths = [2,3,4,5,6,7,8,9,10]; // Mar-Nov
+const visibleMonths = [2,3,4,5,6,7,8,9,10];
 const today = new Date();
 
 const plants = {
-  tomatoes: {
-    name:"Tomatoes — San Marzano + Cherry",
-    icon:"🍅",
-    best:"10–15 gal grow bag or sunny raised bed",
-    sow:"Start indoors March / early April",
-    move:"Transplant outdoors early June after frost risk",
-    feed:"10-10-10 at planting, then 5-10-10 once flowering/fruiting",
-    harvest:"Cherry: late July onward. San Marzano: August–September",
-    water:"Deep, consistent watering. Avoid swings to reduce blossom-end rot.",
-    notes:"Use a cage/trellis. In bags, water more often and feed lightly but consistently."
-  },
-  cucumbers: {
-    name:"Cucumbers",
-    icon:"🥒",
-    best:"Raised bed or 7–10 gal grow bag with trellis",
-    sow:"Direct sow late May to June",
-    move:"Usually direct sow; seedlings can move out early June",
-    feed:"10-10-10 at planting, then light 5-10-10 when vines bloom",
-    harvest:"July–September",
-    water:"Heavy drinkers. Keep evenly moist.",
-    notes:"Trellis keeps fruit cleaner and saves space."
-  },
-  peas: {
-    name:"Peas",
-    icon:"🫛",
-    best:"Raised bed with trellis",
-    sow:"Direct sow April to May; possible late summer sowing",
-    move:"Direct sow preferred",
-    feed:"Little to none. Avoid high nitrogen.",
-    harvest:"June–July; fall crop if re-sown",
-    water:"Keep moist during flowering/pod set.",
-    notes:"Cool-season crop. Plant earlier than beans."
-  },
-  waxbeans: {
-    name:"Yellow Wax Beans",
-    icon:"🍟",
-    best:"Raised bed; grow bag works if wide/deep enough",
-    sow:"Direct sow after soil warms: late May through June",
-    move:"Direct sow preferred",
-    feed:"Very light balanced fertilizer only if soil is poor",
-    harvest:"July–September",
-    water:"Moderate, consistent water during pod set.",
-    notes:"Too much fertilizer makes leaves instead of beans."
-  },
-  beets: {
-    name:"Golden Beets",
-    icon:"🟡",
-    best:"Raised bed or deep container/grow bag",
-    sow:"Direct sow May to July; succession sow every 2–3 weeks",
-    move:"Direct sow preferred",
-    feed:"Light 10-10-10 after thinning; avoid heavy nitrogen",
-    harvest:"Baby beets in ~45 days; full size ~55–70 days",
-    water:"Even moisture for tender roots.",
-    notes:"Thin seedlings so roots can size up properly."
-  },
-  peppers: {
-    name:"Green Peppers",
-    icon:"🫑",
-    best:"5–7 gal grow bag or raised bed hot spot",
-    sow:"Start indoors March. For 2026: buy starter plant.",
-    move:"Transplant outdoors early June once nights are warm",
-    feed:"10-10-10 at planting, then 5-10-10 when flowering",
-    harvest:"August–September",
-    water:"Consistent moisture; avoid waterlogging.",
-    notes:"Warmth matters. Bags can help soil heat up faster."
-  },
-  garlic: {
-    name:"Garlic",
-    icon:"🧄",
-    best:"Raised bed",
-    sow:"Plant cloves in October",
-    move:"No transplanting",
-    feed:"Nitrogen-rich feed in early spring, stop feeding by early summer",
-    harvest:"Late July to August when lower leaves brown",
-    water:"Moist in spring, drier near harvest.",
-    notes:"Mulch after fall planting."
-  },
-  basil: {
-    name:"Basil",
-    icon:"🌿",
-    best:"Pot/grow bag near kitchen or warm raised bed",
-    sow:"Start indoors April; direct sow only after warm weather",
-    move:"Move outdoors early June",
-    feed:"Light balanced feed every 3–4 weeks",
-    harvest:"Pinch often from June onward",
-    water:"Likes consistent moisture but not soggy roots.",
-    notes:"Pinching prevents early flowering."
-  },
-  thaibasil: {
-    name:"Thai Basil",
-    icon:"🌿",
-    best:"Pot/grow bag; warm protected spot",
-    sow:"Start indoors April",
-    move:"Move outdoors early June after warm nights",
-    feed:"Light 10-10-10 or fish fertilizer every 3–4 weeks",
-    harvest:"Pinch regularly from June onward",
-    water:"Consistent moisture, warmer spot than regular basil.",
-    notes:"Great container herb. Keep harvesting tips."
-  },
-  thyme: {
-    name:"Thyme",
-    icon:"🌱",
-    best:"Pot, grow bag edge, or raised bed edge",
-    sow:"Start indoors March/April; slow from seed",
-    move:"Move outdoors after frost",
-    feed:"Minimal fertilizer; too much weakens flavor",
-    harvest:"Light harvest once established",
-    water:"Drier than basil. Don’t overwater.",
-    notes:"Slow and steady from seed. Great in a pot with sharp drainage."
-  }
+  tomatoes: { name:"Tomatoes — San Marzano + Cherry", icon:"🍅", best:"10–15 gal grow bag or sunny raised bed", sow:"Start indoors March / early April", move:"Transplant outdoors early June after frost risk", feed:"10-10-10 at planting, then 5-10-10 once flowering/fruiting", harvest:"Cherry: late July onward. San Marzano: August–September", water:"Deep, consistent watering. Avoid swings to reduce blossom-end rot.", notes:"Use a cage/trellis. In bags, water more often and feed lightly but consistently." },
+  cucumbers: { name:"Cucumbers", icon:"🥒", best:"Raised bed or 7–10 gal grow bag with trellis", sow:"Direct sow late May to June", move:"Usually direct sow; seedlings can move out early June", feed:"10-10-10 at planting, then light 5-10-10 when vines bloom", harvest:"July–September", water:"Heavy drinkers. Keep evenly moist.", notes:"Trellis keeps fruit cleaner and saves space." },
+  peas: { name:"Peas", icon:"🫛", best:"Raised bed with trellis", sow:"Direct sow April to May; possible late summer sowing", move:"Direct sow preferred", feed:"Little to none. Avoid high nitrogen.", harvest:"June–July; fall crop if re-sown", water:"Keep moist during flowering/pod set.", notes:"Cool-season crop. Plant earlier than beans." },
+  waxbeans: { name:"Yellow Wax Beans", icon:"🍟", best:"Raised bed; grow bag works if wide/deep enough", sow:"Direct sow after soil warms: late May through June", move:"Direct sow preferred", feed:"Very light balanced fertilizer only if soil is poor", harvest:"July–September", water:"Moderate, consistent water during pod set.", notes:"Too much fertilizer makes leaves instead of beans." },
+  beets: { name:"Golden Beets", icon:"🟡", best:"Raised bed or deep container/grow bag", sow:"Direct sow May to July; succession sow every 2–3 weeks", move:"Direct sow preferred", feed:"Light 10-10-10 after thinning; avoid heavy nitrogen", harvest:"Baby beets in ~45 days; full size ~55–70 days", water:"Even moisture for tender roots.", notes:"Thin seedlings so roots can size up properly." },
+  peppers: { name:"Green Peppers", icon:"🫑", best:"5–7 gal grow bag or raised bed hot spot", sow:"Start indoors March. For 2026: buy starter plant.", move:"Transplant outdoors early June once nights are warm", feed:"10-10-10 at planting, then 5-10-10 when flowering", harvest:"August–September", water:"Consistent moisture; avoid waterlogging.", notes:"Warmth matters. Bags can help soil heat up faster." },
+  garlic: { name:"Garlic", icon:"🧄", best:"Raised bed", sow:"Plant cloves in October", move:"No transplanting", feed:"Nitrogen-rich feed in early spring, stop feeding by early summer", harvest:"Late July to August when lower leaves brown", water:"Moist in spring, drier near harvest.", notes:"Mulch after fall planting." },
+  basil: { name:"Basil", icon:"🌿", best:"Pot/grow bag near kitchen or warm raised bed", sow:"Start indoors April; direct sow only after warm weather", move:"Move outdoors early June", feed:"Light balanced feed every 3–4 weeks", harvest:"Pinch often from June onward", water:"Likes consistent moisture but not soggy roots.", notes:"Pinching prevents early flowering." },
+  thaibasil: { name:"Thai Basil", icon:"🌿", best:"Pot/grow bag; warm protected spot", sow:"Start indoors April", move:"Move outdoors early June after warm nights", feed:"Light 10-10-10 or fish fertilizer every 3–4 weeks", harvest:"Pinch regularly from June onward", water:"Consistent moisture, warmer spot than regular basil.", notes:"Great container herb. Keep harvesting tips." },
+  thyme: { name:"Thyme", icon:"🌱", best:"Pot, grow bag edge, or raised bed edge", sow:"Start indoors March/April; slow from seed", move:"Move outdoors after frost", feed:"Minimal fertilizer; too much weakens flavor", harvest:"Light harvest once established", water:"Drier than basil. Don’t overwater.", notes:"Slow and steady from seed. Great in a pot with sharp drainage." }
 };
 
 function dateKey(year, month, day){
@@ -610,7 +571,6 @@ function buildEventsForYear(year){
   const e = [];
   const add = (month, day, action, plant, text) => e.push({date:dateKey(year,month,day), action, plant, text});
 
-  // Seed-starting / sowing
   add(2,15,"🌱","tomatoes","Start tomato seeds indoors.");
   add(2,20,"🌱","peppers","Start pepper seeds indoors. For 2026, buy starter plant instead.");
   add(2,25,"🌱","thyme","Start thyme indoors. It is slow from seed.");
@@ -626,14 +586,12 @@ function buildEventsForYear(year){
   add(5,18,"🌱","waxbeans","Second yellow wax bean sowing.");
   add(6,5,"🌱","beets","Optional final beet sowing for fall harvest.");
 
-  // Move outdoors
   add(5,5,"🪴","tomatoes","Transplant tomatoes outdoors after frost risk.");
   add(5,5,"🪴","peppers","Transplant pepper starter outdoors after nights warm.");
   add(5,7,"🪴","basil","Move basil outdoors.");
   add(5,7,"🪴","thaibasil","Move Thai basil outdoors.");
   add(5,8,"🪴","thyme","Move thyme outdoors.");
 
-  // Fertilizer
   add(5,5,"💧","tomatoes","Feed tomatoes at planting with 10-10-10.");
   add(5,5,"💧","peppers","Feed peppers at planting with 10-10-10.");
   add(5,10,"💧","basil","Light feed basil.");
@@ -657,7 +615,6 @@ function buildEventsForYear(year){
   add(3,20,"💧","garlic","Second spring garlic feed.");
   add(9,15,"🌱","garlic","Plant garlic cloves for next year.");
 
-  // Harvest
   add(5,25,"🧺","peas","Begin checking peas for harvest.");
   add(6,15,"🧺","beets","Baby beet harvest window starts.");
   add(6,20,"🧺","waxbeans","Begin checking yellow wax beans.");
@@ -683,93 +640,33 @@ let currentMonth = Math.min(Math.max(today.getMonth(),2),10);
 let selectedPlant = "tomatoes";
 let calendarFilter = "all";
 
-const yearRow = document.getElementById("yearRow");
-const monthRow = document.getElementById("monthRow");
-const plantList = document.getElementById("plantList");
-const calendar = document.getElementById("calendar");
-const monthTitle = document.getElementById("monthTitle");
-const monthTasks = document.getElementById("monthTasks");
-const plantDetail = document.getElementById("plantDetail");
-const statusMonth = document.getElementById("statusMonth");
-const statusFilter = document.getElementById("statusFilter");
-const allPlantsBtn = document.getElementById("allPlantsBtn");
+function $(id){ return document.getElementById(id); }
 
 function closeMenu(){ document.body.classList.remove("menu-open"); }
 
-function bindTap(el, handler){
-  let touchHandled = false;
-  el.addEventListener("touchend", function(e){
-    touchHandled = true;
-    e.preventDefault();
-    e.stopPropagation();
-    handler(e);
-    setTimeout(() => { touchHandled = false; }, 450);
-  }, {passive:false});
-
-  el.addEventListener("click", function(e){
-    if(touchHandled) return;
-    e.preventDefault();
-    e.stopPropagation();
-    handler(e);
-  });
-}
-
 function filteredEvents(){
   let evs = buildEventsForYear(currentYear);
-  if(calendarFilter !== "all"){
-    evs = evs.filter(ev => ev.plant === calendarFilter);
-  }
+  if(calendarFilter !== "all") evs = evs.filter(ev => ev.plant === calendarFilter);
   return evs;
 }
 
 function renderControls(){
-  yearRow.innerHTML = "";
-  years.forEach(y => {
-    const b = document.createElement("button");
-    b.type = "button";
-    b.className = "year-btn" + (y === currentYear ? " active" : "");
-    b.textContent = y;
-    bindTap(b, () => {
-      currentYear = y;
-      renderAll();
-    });
-    yearRow.appendChild(b);
-  });
+  $("yearRow").innerHTML = years.map(y =>
+    `<button type="button" class="year-btn ${y===currentYear ? "active" : ""}" data-year="${y}">${y}</button>`
+  ).join("");
 
-  monthRow.innerHTML = "";
-  visibleMonths.forEach(m => {
-    const b = document.createElement("button");
-    b.type = "button";
-    b.className = "month-btn" + (m === currentMonth ? " active" : "");
-    b.textContent = monthNames[m].slice(0,3).toUpperCase();
-    bindTap(b, () => {
-      currentMonth = m;
-      renderAll();
-    });
-    monthRow.appendChild(b);
-  });
+  $("monthRow").innerHTML = visibleMonths.map(m =>
+    `<button type="button" class="month-btn ${m===currentMonth ? "active" : ""}" data-month="${m}">${monthNames[m].slice(0,3).toUpperCase()}</button>`
+  ).join("");
 
-  if(allPlantsBtn){
-    allPlantsBtn.classList.toggle("active", calendarFilter === "all");
-    bindTap(allPlantsBtn, () => {
-      calendarFilter = "all";
-      renderAll();
-    });
-  }
+  const all = $("allPlantsBtn");
+  if(all) all.classList.toggle("active", calendarFilter === "all");
 
-  plantList.innerHTML = "";
-  Object.entries(plants).forEach(([key,p]) => {
-    const b = document.createElement("button");
-    b.type = "button";
-    b.className = "plant-btn" + (key === calendarFilter ? " active" : "");
-    b.innerHTML = `<span>${p.icon} ${p.name}</span><span>›</span>`;
-    bindTap(b, () => {
-      selectedPlant = key;
-      calendarFilter = key;
-      renderAll();
-    });
-    plantList.appendChild(b);
-  });
+  $("plantList").innerHTML = Object.entries(plants).map(([key,p]) =>
+    `<button type="button" class="plant-btn ${key===calendarFilter ? "active" : ""}" data-plant="${key}">
+      <span>${p.icon} ${p.name}</span><span>›</span>
+    </button>`
+  ).join("");
 }
 
 function eventsForCurrentMonth(){
@@ -787,13 +684,8 @@ function renderCalendar(){
     eventMap[ev.date].push(ev);
   });
 
-  calendar.innerHTML = "";
-  ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].forEach(x => {
-    const div = document.createElement("div");
-    div.className = "dow";
-    div.textContent = x;
-    calendar.appendChild(div);
-  });
+  const calendar = $("calendar");
+  calendar.innerHTML = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].map(x => `<div class="dow">${x}</div>`).join("");
 
   const first = new Date(currentYear,currentMonth,1);
   const startDay = first.getDay();
@@ -801,15 +693,12 @@ function renderCalendar(){
   const prevDays = new Date(currentYear,currentMonth,0).getDate();
   const totalCells = Math.ceil((startDay + daysInMonth)/7)*7;
 
-  monthTitle.textContent = `${monthNames[currentMonth]} ${currentYear}`;
-  statusMonth.textContent = `${monthNames[currentMonth]} ${currentYear}`;
-  if(statusFilter){
-    statusFilter.textContent = calendarFilter === "all" ? "All" : plants[calendarFilter].name;
-  }
+  $("monthTitle").textContent = `${monthNames[currentMonth]} ${currentYear}`;
+  $("statusMonth").textContent = `${monthNames[currentMonth]} ${currentYear}`;
+  const statusFilter = $("statusFilter");
+  if(statusFilter) statusFilter.textContent = calendarFilter === "all" ? "All" : plants[calendarFilter].name;
 
   for(let i=0; i<totalCells; i++){
-    const cell = document.createElement("div");
-    cell.className = "day";
     let dayNum, muted=false, cellMonth=currentMonth, cellYear=currentYear;
 
     if(i < startDay){
@@ -824,56 +713,44 @@ function renderCalendar(){
       dayNum = i - startDay + 1;
     }
 
-    if(muted) cell.classList.add("muted");
-
     const key = dateKey(cellYear, cellMonth, dayNum);
-    if(today.getFullYear()===cellYear && today.getMonth()===cellMonth && today.getDate()===dayNum){
-      cell.classList.add("today");
-    }
+    const isToday = today.getFullYear()===cellYear && today.getMonth()===cellMonth && today.getDate()===dayNum;
+    const icons = (eventMap[key] || []).map(ev =>
+      `<span class="event-pill" title="${ev.text}">${ev.action}${plants[ev.plant].icon}</span>`
+    ).join("");
 
-    const num = document.createElement("div");
-    num.className = "day-num";
-    num.textContent = dayNum;
-    cell.appendChild(num);
-
-    const icons = document.createElement("div");
-    icons.className = "icons";
-    (eventMap[key] || []).forEach(ev => {
-      const pill = document.createElement("span");
-      pill.className = "event-pill";
-      pill.title = ev.text;
-      pill.textContent = `${ev.action}${plants[ev.plant].icon}`;
-      icons.appendChild(pill);
-    });
-    cell.appendChild(icons);
-    calendar.appendChild(cell);
+    calendar.insertAdjacentHTML("beforeend", `
+      <div class="day ${muted ? "muted" : ""} ${isToday ? "today" : ""}">
+        <div class="day-num">${dayNum}</div>
+        <div class="icons">${icons}</div>
+      </div>
+    `);
   }
 }
 
 function renderTasks(){
   const evs = eventsForCurrentMonth().sort((a,b) => a.date.localeCompare(b.date));
-  monthTasks.innerHTML = "";
+  const monthTasks = $("monthTasks");
 
   if(!evs.length){
     monthTasks.innerHTML = `<div class="task"><div class="big">✓</div><div><b>No scheduled events</b><small>This month is quiet for the current filter.</small></div></div>`;
     return;
   }
 
-  evs.forEach(ev => {
+  monthTasks.innerHTML = evs.map(ev => {
     const dt = new Date(ev.date + "T12:00:00");
     const p = plants[ev.plant];
-    const div = document.createElement("div");
-    div.className = "task";
-    div.innerHTML = `<div class="big">${ev.action}${p.icon}</div>
+    return `<div class="task">
+      <div class="big">${ev.action}${p.icon}</div>
       <div><b>${monthNames[dt.getMonth()]} ${dt.getDate()} — ${p.name}</b>
-      <small>${ev.text}</small></div>`;
-    monthTasks.appendChild(div);
-  });
+      <small>${ev.text}</small></div>
+    </div>`;
+  }).join("");
 }
 
 function renderPlantDetail(){
   const p = plants[selectedPlant];
-  plantDetail.innerHTML = `
+  $("plantDetail").innerHTML = `
     <div class="task"><div class="big">${p.icon}</div><div><b>${p.name}</b><small>${p.notes}</small></div></div>
     <div class="stats">
       <div class="stat"><small>Best Spot</small><b>${p.best}</b></div>
@@ -897,11 +774,36 @@ function renderAll(){
   renderPlantDetail();
 }
 
-const prev = document.getElementById("prevMonth");
-const next = document.getElementById("nextMonth");
+function handleAction(target){
+  const yearBtn = target.closest("[data-year]");
+  if(yearBtn){
+    currentYear = Number(yearBtn.dataset.year);
+    renderAll();
+    return;
+  }
 
-if(prev){
-  bindTap(prev, () => {
+  const monthBtn = target.closest("[data-month]");
+  if(monthBtn){
+    currentMonth = Number(monthBtn.dataset.month);
+    renderAll();
+    return;
+  }
+
+  const plantBtn = target.closest("[data-plant]");
+  if(plantBtn){
+    selectedPlant = plantBtn.dataset.plant;
+    calendarFilter = plantBtn.dataset.plant;
+    renderAll();
+    return;
+  }
+
+  if(target.closest("#allPlantsBtn")){
+    calendarFilter = "all";
+    renderAll();
+    return;
+  }
+
+  if(target.closest("#prevMonth")){
     const idx = visibleMonths.indexOf(currentMonth);
     if(idx > 0) currentMonth = visibleMonths[idx-1];
     else {
@@ -909,11 +811,10 @@ if(prev){
       currentYear = currentYear === 2026 ? 2027 : 2026;
     }
     renderAll();
-  });
-}
+    return;
+  }
 
-if(next){
-  bindTap(next, () => {
+  if(target.closest("#nextMonth")){
     const idx = visibleMonths.indexOf(currentMonth);
     if(idx < visibleMonths.length-1) currentMonth = visibleMonths[idx+1];
     else {
@@ -921,21 +822,36 @@ if(next){
       currentYear = currentYear === 2026 ? 2027 : 2026;
     }
     renderAll();
-  });
+    return;
+  }
+
+  if(target.closest("#menuOpen")){
+    document.body.classList.add("menu-open");
+    return;
+  }
+
+  if(target.closest("#backdrop")){
+    closeMenu();
+    return;
+  }
 }
 
-const menuOpen = document.getElementById("menuOpen");
-const backdrop = document.getElementById("backdrop");
+document.addEventListener("click", function(e){
+  if(e.target.closest("a")) return;
+  handleAction(e.target);
+});
 
-if(menuOpen){
-  bindTap(menuOpen, () => document.body.classList.add("menu-open"));
-}
-if(backdrop){
-  bindTap(backdrop, closeMenu);
-}
+document.addEventListener("touchend", function(e){
+  if(e.target.closest("a")) return;
+  if(e.target.closest("button") || e.target.closest("#backdrop")){
+    e.preventDefault();
+    handleAction(e.target);
+  }
+}, {passive:false});
 
 renderAll();
 </script>
+
 
 </body>
 </html>
