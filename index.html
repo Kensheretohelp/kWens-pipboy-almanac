@@ -388,6 +388,77 @@ h1{
   .timeline{grid-template-columns:1fr}
   h1{font-size:1.75rem}
 }
+
+.weather-card{
+  border:1px solid var(--border);
+  border-radius:22px;
+  background:rgba(1,12,5,.66);
+  padding:16px;
+  min-width:300px;
+}
+.weather-card h3{
+  margin:0 0 10px;
+  color:var(--amber);
+  text-transform:uppercase;
+  letter-spacing:.12em;
+  font-size:1rem;
+}
+.weather-main{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+}
+.weather-chip,.alert-card,.stage-chip{
+  border:1px solid rgba(157,255,98,.22);
+  border-radius:14px;
+  padding:10px;
+  background:rgba(157,255,98,.04);
+}
+.weather-chip small,.alert-card small,.stage-chip small{
+  display:block;
+  color:var(--dim);
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  font-size:.66rem;
+  margin-bottom:4px;
+}
+.weather-chip b,.alert-card b,.stage-chip b{color:var(--green2)}
+.alert-stack{
+  display:grid;
+  gap:10px;
+}
+.alert-card.safe{border-color:rgba(157,255,98,.42)}
+.alert-card.warn{border-color:rgba(225,183,73,.72); box-shadow:0 0 16px rgba(225,183,73,.12)}
+.alert-card.danger{border-color:rgba(255,111,79,.80); box-shadow:0 0 16px rgba(255,111,79,.16)}
+.alert-card.heat{border-color:rgba(255,165,79,.80); box-shadow:0 0 16px rgba(255,165,79,.14)}
+.stage-row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  margin-top:8px;
+}
+.stage-chip{
+  padding:7px 9px;
+  font-size:.78rem;
+}
+.forecast-list{
+  display:grid;
+  gap:8px;
+  margin-top:10px;
+}
+.forecast-day{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  border-bottom:1px dashed rgba(157,255,98,.20);
+  padding-bottom:6px;
+  color:var(--green2);
+}
+.forecast-day:last-child{border-bottom:0}
+@media(max-width:980px){
+  .weather-card{min-width:0}
+}
+
 </style>
 
 <style id="iphone-sidebar-hard-fix">
@@ -537,17 +608,28 @@ h1{
   <main class="main">
     <section class="top">
       <div class="title-block">
-        <div class="kicker">Vault-Garden Utility v1.0</div>
+        <div class="kicker">Vault-Garden Utility v2.0</div>
         <h2>Seasonal Ops</h2>
-        <p>Calendar icons are action + plant. Example: <strong>💧🍅</strong> means fertilize tomatoes. <strong>🌱🟡</strong> means sow golden beets.</p>
+        <p>Live Riverview weather alerts + plant-stage guidance for your actual garden setup. Example: <strong>💧🍅</strong> means fertilize tomatoes.</p>
       </div>
       <div class="status">
         <div class="status-row"><span>Region</span><b>Riverview, NB</b></div>
         <div class="status-row"><span>Frost-Safe Target</span><b>Early June</b></div>
-        <div class="status-row"><span>Mode</span><b>Seed-first planner</b></div>
+        <div class="status-row"><span>Mode</span><b>Mixed Garden Planner</b></div>
         <div class="status-row"><span>Calendar</span><b id="statusMonth">—</b></div>
         <div class="status-row"><span>Filter</span><b id="statusFilter">All</b></div>
       </div>
+      <div class="weather-card" id="weatherPanel">
+        <h3>Live Riverview Weather</h3>
+        <div class="weather-main">
+          <div class="weather-chip"><small>Now</small><b id="weatherNow">Loading…</b></div>
+          <div class="weather-chip"><small>Tonight Low</small><b id="weatherLow">—</b></div>
+          <div class="weather-chip"><small>Tomorrow High</small><b id="weatherHigh">—</b></div>
+          <div class="weather-chip"><small>Garden Risk</small><b id="weatherRisk">Checking…</b></div>
+        </div>
+        <div class="forecast-list" id="forecastList"></div>
+      </div>
+
     </section>
 
     <section class="grid">
@@ -559,15 +641,26 @@ h1{
         </div>
         <div class="cal" id="calendar"></div>
         <div class="legend">
-          <span>🍅 Tomatoes</span>
+          <span>🍅 San Marzano</span>
+          <span>🍒 Cherry Tomatoes</span>
+          <span>🫑 Sweet Red Peppers</span>
           <span>🥒 Cucumbers</span>
           <span>🫛 Peas</span>
           <span>🍟 Yellow Wax Beans</span>
           <span>🟡 Golden Beets</span>
-          <span>🫑 Peppers</span>
           <span>🧄 Garlic</span>
-          <span>🌿 Basil</span>
-          <span>🌱 Thyme</span>
+          <span>🌿 Thai Basil</span>
+          <span>🌱 Chives</span>
+          <span>🌱 Mint</span>
+          <span>🌿 Summer Savory</span>
+        </div>
+      </div>
+
+
+      <div class="panel">
+        <h3>Garden Alerts</h3>
+        <div class="alert-stack" id="gardenAlerts">
+          <div class="alert-card"><b>Checking Riverview forecast…</b><small>Cold, heat, watering, and shade alerts will appear here.</small></div>
         </div>
       </div>
 
@@ -584,9 +677,10 @@ h1{
       <div class="panel">
         <h3>Growing Notes</h3>
         <div class="notes">
-          <p><strong>Reminder:</strong> grow bags dry out faster than beds. Water before fertilizing if soil is dry.</p>
-          <p><strong>Fertilizer shorthand:</strong> 10-10-10 = balanced; 5-10-10 = lower nitrogen for flowers/fruit; herbs need lighter feeding.</p>
-          <p><strong>Garlic:</strong> plant in fall for next summer harvest. It lives on a different rhythm than your summer crops.</p>
+          <p><strong>Grow bags:</strong> they dry faster than beds, especially during heat. Check daily in July/August and water before fertilizing if soil is dry.</p>
+          <p><strong>Fruit set:</strong> this means the flower has dropped and a tiny tomato or pepper is visibly forming. That is when weekly fruiting fertilizer begins.</p>
+          <p><strong>Tomato recovery mode:</strong> if cold-damaged leaves look ugly but new growth is green, keep the plant, remove dead leaves only, and resume feeding once active growth returns.</p>
+          <p><strong>Heat rule:</strong> during 28°C+ days, check containers more often. At 31°C+, consider afternoon shade for basil, peppers, and stressed transplants.</p>
         </div>
       </div>
     </section>
@@ -602,16 +696,19 @@ const visibleMonths = [2,3,4,5,6,7,8,9,10];
 const today = new Date();
 
 const plants = {
-  tomatoes: { name:"Tomatoes — San Marzano + Cherry", icon:"🍅", best:"10–15 gal grow bag or sunny raised bed", sow:"Start indoors March / early April", move:"Transplant outdoors early June after frost risk", feed:"10-10-10 at planting, then 5-10-10 once flowering/fruiting", harvest:"Cherry: late July onward. San Marzano: August–September", water:"Deep, consistent watering. Avoid swings to reduce blossom-end rot.", notes:"Use a cage/trellis. In bags, water more often and feed lightly but consistently." },
-  cucumbers: { name:"Cucumbers", icon:"🥒", best:"Raised bed or 7–10 gal grow bag with trellis", sow:"Direct sow late May to June", move:"Usually direct sow; seedlings can move out early June", feed:"10-10-10 at planting, then light 5-10-10 when vines bloom", harvest:"July–September", water:"Heavy drinkers. Keep evenly moist.", notes:"Trellis keeps fruit cleaner and saves space." },
-  peas: { name:"Peas", icon:"🫛", best:"Raised bed with trellis", sow:"Direct sow April to May; possible late summer sowing", move:"Direct sow preferred", feed:"Little to none. Avoid high nitrogen.", harvest:"June–July; fall crop if re-sown", water:"Keep moist during flowering/pod set.", notes:"Cool-season crop. Plant earlier than beans." },
-  waxbeans: { name:"Yellow Wax Beans", icon:"🍟", best:"Raised bed; grow bag works if wide/deep enough", sow:"Direct sow after soil warms: late May through June", move:"Direct sow preferred", feed:"Very light balanced fertilizer only if soil is poor", harvest:"July–September", water:"Moderate, consistent water during pod set.", notes:"Too much fertilizer makes leaves instead of beans." },
-  beets: { name:"Golden Beets", icon:"🟡", best:"Raised bed or deep container/grow bag", sow:"Direct sow May to July; succession sow every 2–3 weeks", move:"Direct sow preferred", feed:"Light 10-10-10 after thinning; avoid heavy nitrogen", harvest:"Baby beets in ~45 days; full size ~55–70 days", water:"Even moisture for tender roots.", notes:"Thin seedlings so roots can size up properly." },
-  peppers: { name:"Green Peppers", icon:"🫑", best:"5–7 gal grow bag or raised bed hot spot", sow:"Start indoors March. For 2026: buy starter plant.", move:"Transplant outdoors early June once nights are warm", feed:"10-10-10 at planting, then 5-10-10 when flowering", harvest:"August–September", water:"Consistent moisture; avoid waterlogging.", notes:"Warmth matters. Bags can help soil heat up faster." },
-  garlic: { name:"Garlic", icon:"🧄", best:"Raised bed", sow:"Plant cloves in October", move:"No transplanting", feed:"Nitrogen-rich feed in early spring, stop feeding by early summer", harvest:"Late July to August when lower leaves brown", water:"Moist in spring, drier near harvest.", notes:"Mulch after fall planting." },
-  basil: { name:"Basil", icon:"🌿", best:"Pot/grow bag near kitchen or warm raised bed", sow:"Start indoors April; direct sow only after warm weather", move:"Move outdoors early June", feed:"Light balanced feed every 3–4 weeks", harvest:"Pinch often from June onward", water:"Likes consistent moisture but not soggy roots.", notes:"Pinching prevents early flowering." },
-  thaibasil: { name:"Thai Basil", icon:"🌿", best:"Pot/grow bag; warm protected spot", sow:"Start indoors April", move:"Move outdoors early June after warm nights", feed:"Light 10-10-10 or fish fertilizer every 3–4 weeks", harvest:"Pinch regularly from June onward", water:"Consistent moisture, warmer spot than regular basil.", notes:"Great container herb. Keep harvesting tips." },
-  thyme: { name:"Thyme", icon:"🌱", best:"Pot, grow bag edge, or raised bed edge", sow:"Start indoors March/April; slow from seed", move:"Move outdoors after frost", feed:"Minimal fertilizer; too much weakens flavor", harvest:"Light harvest once established", water:"Drier than basil. Don’t overwater.", notes:"Slow and steady from seed. Great in a pot with sharp drainage." }
+  tomatoes: { name:"San Marzano Tomatoes", icon:"🍅", stage:"Established Plant → Flowering → Fruiting", safeTemp:"10°C+ nights", heatCare:"Shade only if stressed during 31°C+ heat.", best:"10–15 gal grow bag or sunny raised bed", sow:"Start indoors March / early April", move:"Established plants can stay out once nights are consistently 10°C+.", feed:"Every 2 weeks after transplant; weekly once fruit appears.", harvest:"August–September", water:"Deep, consistent watering. Grow bags may need daily checks in heat.", notes:"Use a cage/trellis. Add soil around the stem as the plant recovers/grows." },
+  cherrytomatoes: { name:"Cherry Tomatoes", icon:"🍒", stage:"Established Plant → Flowering → Fruiting", safeTemp:"10°C+ nights", heatCare:"Watch for dry pots and blossom drop during heat.", best:"7–10+ gal pot or grow bag with support", sow:"Start indoors March / early April", move:"Established plants can stay out once nights are consistently 10°C+.", feed:"Every 2 weeks after transplant; weekly once fruit appears.", harvest:"Late July onward", water:"Even moisture. Containers dry quickly once loaded with fruit.", notes:"Usually earlier than San Marzano. Keep supported and harvest often." },
+  cucumbers: { name:"Cucumbers", icon:"🥒", stage:"Seedling → Vining → Flowering → Fruiting", safeTemp:"10°C+ nights", heatCare:"Needs extra water during heat; shade rarely needed if watered.", best:"Raised bed or 7–10 gal grow bag with trellis", sow:"Direct sow late May to June", move:"Usually direct sow; seedlings can move out early June after warm nights.", feed:"10-10-10 at planting, then light 5-10-10 when vines bloom.", harvest:"July–September", water:"Heavy drinkers. Keep evenly moist.", notes:"Trellis keeps fruit cleaner and saves space." },
+  peas: { name:"Peas", icon:"🫛", stage:"Seed → Vine → Podding", safeTemp:"Cool-season crop", heatCare:"Peas fade in heat; harvest before hot spells.", best:"Raised bed with trellis", sow:"Direct sow April to May; possible late summer sowing", move:"Direct sow preferred", feed:"Little to none. Avoid high nitrogen.", harvest:"June–July; fall crop if re-sown", water:"Keep moist during flowering/pod set.", notes:"Cool-season crop. Plant earlier than beans." },
+  waxbeans: { name:"Yellow Wax Beans", icon:"🍟", stage:"Seed → Flowering → Podding", safeTemp:"10°C+ nights", heatCare:"Water during flowering/pod set in heat.", best:"Raised bed; grow bag works if wide/deep enough", sow:"Direct sow after soil warms: late May through June", move:"Direct sow preferred", feed:"Very light balanced fertilizer only if soil is poor.", harvest:"July–September", water:"Moderate, consistent water during pod set.", notes:"Too much fertilizer makes leaves instead of beans." },
+  beets: { name:"Golden Beets", icon:"🟡", stage:"Seed → Thinned → Root Sizing", safeTemp:"Cool to mild", heatCare:"Keep evenly moist in heat to avoid woody roots.", best:"Raised bed or deep container/grow bag", sow:"Direct sow May to July; succession sow every 2–3 weeks", move:"Direct sow preferred", feed:"Light 10-10-10 after thinning; avoid heavy nitrogen.", harvest:"Baby beets in ~45 days; full size ~55–70 days", water:"Even moisture for tender roots.", notes:"Thin seedlings so roots can size up properly." },
+  peppers: { name:"Sweet Red Peppers", icon:"🫑", stage:"Established Plant → Flowering → Fruiting", safeTemp:"10–12°C+ nights", heatCare:"Can handle warmth but check pots daily in high heat.", best:"5–7 gal grow bag or raised bed hot spot", sow:"Start indoors March. For 2026: established starter plant.", move:"Established plants can stay out once nights are consistently 10–12°C+.", feed:"Every 2 weeks after transplant; weekly once fruit appears.", harvest:"August–September", water:"Consistent moisture; avoid waterlogging.", notes:"Peppers hate cold feet. Delay permanent outdoor move until nights are warm." },
+  garlic: { name:"Garlic", icon:"🧄", stage:"Fall planted → Spring growth → Bulbing", safeTemp:"Hardy", heatCare:"Stop watering closer to harvest.", best:"Raised bed", sow:"Plant cloves in October", move:"No transplanting", feed:"Nitrogen-rich feed in early spring, stop feeding by early summer", harvest:"Late July to August when lower leaves brown", water:"Moist in spring, drier near harvest.", notes:"Mulch after fall planting." },
+  basil: { name:"Basil", icon:"🌿", stage:"Established Plant → Pinching/Harvest", safeTemp:"10°C+ nights", heatCare:"Shade in harsh afternoon heat; water consistently.", best:"Pot/grow bag near kitchen or warm raised bed", sow:"Start indoors April; direct sow only after warm weather", move:"Move outdoors after nights are consistently 10°C+.", feed:"Light balanced feed every 3–4 weeks.", harvest:"Pinch often from June onward", water:"Likes consistent moisture but not soggy roots.", notes:"Pinching prevents early flowering." },
+  thaibasil: { name:"Thai Basil", icon:"🌿", stage:"Established Plant → Pinching/Harvest", safeTemp:"10°C+ nights", heatCare:"Shade during 31°C+ afternoons if wilting.", best:"Pot/grow bag; warm protected spot", sow:"Start indoors April", move:"Move outdoors after nights are consistently 10°C+.", feed:"Light feed every 3–4 weeks.", harvest:"Pinch regularly from June onward", water:"Consistent moisture, warmer spot than regular basil.", notes:"Great container herb. Keep harvesting tips." },
+  chives: { name:"Chives", icon:"🌱", stage:"Established Herb → Harvest", safeTemp:"Hardy / anytime", heatCare:"Water containers during dry heat.", best:"Small pot, herb planter, or bed edge", sow:"Start from division or seed", move:"Can go outside anytime once established.", feed:"Monthly light feed during active growth.", harvest:"Snip as needed from spring through fall", water:"Moderate. Do not let small pots fully dry out.", notes:"Hardy, low-maintenance, and great in herb planters." },
+  mint: { name:"Mint", icon:"🌱", stage:"Established Herb → Harvest", safeTemp:"Hardy / anytime", heatCare:"Water often in containers during heat.", best:"Container only unless you want mint everywhere", sow:"Start from plant/division", move:"Can go outside anytime once established.", feed:"Monthly at most.", harvest:"Snip often to keep bushy", water:"Likes steady moisture.", notes:"Keep mint contained. It will absolutely try to annex the yard." },
+  savory: { name:"Summer Savory", icon:"🌿", stage:"Established Herb → Harvest", safeTemp:"5°C+ nights", heatCare:"Tolerates heat better than basil but still check pots.", best:"Small pot, herb planter, or sunny bed edge", sow:"Start indoors or direct sow after frost", move:"Can go out once nights are above about 5°C; warmer is better.", feed:"Very light feed every 4–6 weeks.", harvest:"Snip tips once established", water:"Moderate; avoid soggy soil.", notes:"Good warm-season herb. Lighter feeding keeps stronger flavour." }
 };
 
 function dateKey(year, month, day){
@@ -622,8 +719,9 @@ function buildEventsForYear(year){
   const e = [];
   const add = (month, day, action, plant, text) => e.push({date:dateKey(year,month,day), action, plant, text});
 
-  add(2,15,"🌱","tomatoes","Start tomato seeds indoors.");
-  add(2,20,"🌱","peppers","Start pepper seeds indoors. For 2026, buy starter plant instead.");
+  add(2,15,"🌱","tomatoes","Start San Marzano tomato seeds indoors.");
+  add(2,15,"🌱","cherrytomatoes","Start cherry tomato seeds indoors.");
+  add(2,20,"🌱","peppers","Start sweet red pepper seeds indoors. For 2026, use established starter plant.");
   add(2,25,"🌱","thyme","Start thyme indoors. It is slow from seed.");
   add(3,10,"🌱","basil","Start basil indoors.");
   add(3,10,"🌱","thaibasil","Start Thai basil indoors.");
@@ -637,28 +735,38 @@ function buildEventsForYear(year){
   add(5,18,"🌱","waxbeans","Second yellow wax bean sowing.");
   add(6,5,"🌱","beets","Optional final beet sowing for fall harvest.");
 
-  add(5,5,"🪴","tomatoes","Transplant tomatoes outdoors after frost risk.");
-  add(5,5,"🪴","peppers","Transplant pepper starter outdoors after nights warm.");
+  add(5,5,"🪴","tomatoes","Move San Marzano tomatoes outdoors once nights are consistently 10°C+.");
+  add(5,5,"🪴","cherrytomatoes","Move cherry tomatoes outdoors once nights are consistently 10°C+.");
+  add(5,5,"🪴","peppers","Move sweet red peppers outdoors once nights are consistently 10–12°C+.");
   add(5,7,"🪴","basil","Move basil outdoors.");
-  add(5,7,"🪴","thaibasil","Move Thai basil outdoors.");
+  add(5,7,"🪴","thaibasil","Move Thai basil outdoors after nights are consistently 10°C+.");
   add(5,8,"🪴","thyme","Move thyme outdoors.");
+  add(5,8,"🪴","chives","Move established chives outdoors anytime.");
+  add(5,8,"🪴","mint","Move established mint outdoors anytime; container strongly recommended.");
+  add(5,8,"🪴","savory","Move summer savory outdoors once nights are above about 5°C.");
 
-  add(5,5,"💧","tomatoes","Feed tomatoes at planting with 10-10-10.");
-  add(5,5,"💧","peppers","Feed peppers at planting with 10-10-10.");
+  add(5,5,"💧","tomatoes","Feed San Marzano tomatoes every 2 weeks after transplant; weekly once fruit appears.");
+  add(5,5,"💧","cherrytomatoes","Feed cherry tomatoes every 2 weeks after transplant; weekly once fruit appears.");
+  add(5,5,"💧","peppers","Feed sweet red peppers every 2 weeks after transplant; weekly once fruit appears.");
   add(5,10,"💧","basil","Light feed basil.");
-  add(5,10,"💧","thaibasil","Light feed Thai basil.");
+  add(5,10,"💧","thaibasil","Light feed Thai basil every 3–4 weeks.");
+  add(5,12,"💧","chives","Light monthly feed for chives.");
+  add(5,12,"💧","mint","Monthly feed for mint, if growth slows.");
+  add(5,12,"💧","savory","Very light feed for summer savory every 4–6 weeks.");
   add(5,15,"💧","cucumbers","Balanced feed for cucumbers.");
   add(5,18,"💧","beets","Light balanced feed after thinning beets.");
   add(5,20,"💧","waxbeans","Very light balanced feed only if soil is poor.");
   add(5,25,"💧","tomatoes","Switch tomatoes toward 5-10-10 as flowering starts.");
   add(5,25,"💧","peppers","Use 5-10-10 once peppers start flowering.");
   add(6,10,"💧","cucumbers","Light 5-10-10 feed as vines bloom.");
-  add(6,12,"💧","tomatoes","Fruiting feed: 5-10-10.");
-  add(6,12,"💧","peppers","Fruiting feed: 5-10-10.");
+  add(6,12,"💧","tomatoes","If fruit has appeared, switch San Marzano tomatoes to weekly fruiting feed.");
+  add(6,12,"💧","cherrytomatoes","If fruit has appeared, switch cherry tomatoes to weekly fruiting feed.");
+  add(6,12,"💧","peppers","If fruit has appeared, switch sweet red peppers to weekly fruiting feed.");
   add(6,15,"💧","basil","Light herb feed.");
   add(6,15,"💧","thaibasil","Light herb feed.");
-  add(7,1,"💧","tomatoes","Light fruiting feed if plants are producing heavily.");
-  add(7,1,"💧","peppers","Light fruiting feed if plants are producing.");
+  add(7,1,"💧","tomatoes","Weekly fruiting feed if San Marzano tomatoes are producing.");
+  add(7,1,"💧","cherrytomatoes","Weekly fruiting feed if cherry tomatoes are producing.");
+  add(7,1,"💧","peppers","Weekly fruiting feed if sweet red peppers are producing.");
   add(7,5,"💧","cucumbers","Light feed if vines are still productive.");
   add(7,10,"💧","basil","Light herb feed.");
   add(7,10,"💧","thaibasil","Light herb feed.");
@@ -672,7 +780,10 @@ function buildEventsForYear(year){
   add(6,25,"🧺","cucumbers","Begin cucumber harvest checks.");
   add(6,30,"🧺","basil","Regular basil harvest/pinching.");
   add(6,30,"🧺","thaibasil","Regular Thai basil harvest/pinching.");
-  add(7,10,"🧺","tomatoes","Cherry tomato harvest window begins.");
+  add(6,30,"🧺","chives","Snip chives as needed.");
+  add(6,30,"🧺","mint","Harvest mint regularly to keep it bushy.");
+  add(6,30,"🧺","savory","Begin light summer savory harvest once established.");
+  add(7,10,"🧺","cherrytomatoes","Cherry tomato harvest window begins.");
   add(7,20,"🧺","garlic","Garlic harvest window.");
   add(7,25,"🧺","peppers","Begin checking peppers.");
   add(7,30,"🧺","tomatoes","San Marzano harvest window begins.");
@@ -803,6 +914,11 @@ function renderPlantDetail(){
   const p = plants[selectedPlant];
   $("plantDetail").innerHTML = `
     <div class="task"><div class="big">${p.icon}</div><div><b>${p.name}</b><small>${p.notes}</small></div></div>
+    <div class="stage-row">
+      <div class="stage-chip"><small>Stage Track</small><b>${p.stage || "Seed → Established → Harvest"}</b></div>
+      <div class="stage-chip"><small>Safe Night Temp</small><b>${p.safeTemp || "See notes"}</b></div>
+      <div class="stage-chip"><small>Heat Care</small><b>${p.heatCare || "Water as needed"}</b></div>
+    </div>
     <div class="stats">
       <div class="stat"><small>Best Spot</small><b>${p.best}</b></div>
       <div class="stat"><small>Water</small><b>${p.water}</b></div>
@@ -894,9 +1010,149 @@ document.addEventListener("click", function(e){
   handleAction(e.target);
 });
 
+
+const RIVERVIEW_WEATHER_URL = "https://api.open-meteo.com/v1/forecast?latitude=46.06&longitude=-64.82&current=temperature_2m,apparent_temperature,precipitation,wind_speed_10m&hourly=temperature_2m,precipitation_probability,precipitation,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min,precipitation_sum&timezone=America%2FMoncton&forecast_days=7";
+
+function fmtTemp(v){
+  return Number.isFinite(v) ? `${Math.round(v)}°C` : "—";
+}
+
+function weekdayLabel(isoDate){
+  const d = new Date(isoDate + "T12:00:00");
+  return d.toLocaleDateString("en-CA", { weekday:"short", month:"short", day:"numeric" });
+}
+
+function gardenRiskFromForecast(todayHigh, tonightLow){
+  if(!Number.isFinite(tonightLow) && !Number.isFinite(todayHigh)){
+    return {label:"Unknown", cls:"warn", text:"Weather data is unavailable. Use the manual temp rules."};
+  }
+
+  if(Number.isFinite(tonightLow) && tonightLow < 7){
+    return {
+      label:"🔴 Cold Risk",
+      cls:"danger",
+      text:"Bring tomatoes, cherry tomatoes, peppers, Thai basil, and basil into the shed/garage overnight."
+    };
+  }
+
+  if(Number.isFinite(tonightLow) && tonightLow < 10){
+    return {
+      label:"🟡 Cool Night",
+      cls:"warn",
+      text:"Tomatoes may slow down. Peppers and basil may stress. Use the shed if plants are already struggling."
+    };
+  }
+
+  if(Number.isFinite(todayHigh) && todayHigh >= 35){
+    return {
+      label:"🔴 Extreme Heat",
+      cls:"danger heat",
+      text:"Water deeply early, check grow bags again later, and give afternoon shade to peppers, basil, and stressed plants."
+    };
+  }
+
+  if(Number.isFinite(todayHigh) && todayHigh >= 31){
+    return {
+      label:"🟠 High Heat",
+      cls:"heat",
+      text:"Check grow bags daily or twice daily. Consider afternoon shade for basil, peppers, and young/stressed transplants."
+    };
+  }
+
+  if(Number.isFinite(todayHigh) && todayHigh >= 28){
+    return {
+      label:"🟡 Heat Advisory",
+      cls:"warn heat",
+      text:"Water early. Check containers and grow bags more often than raised beds."
+    };
+  }
+
+  return {
+    label:"🟢 Safe",
+    cls:"safe",
+    text:"No major cold or heat warning. Keep normal watering and hardening-off routines."
+  };
+}
+
+function renderWeatherFallback(message){
+  const now = $("weatherNow");
+  const risk = $("weatherRisk");
+  const alerts = $("gardenAlerts");
+  if(now) now.textContent = "Unavailable";
+  if(risk) risk.textContent = "Manual Mode";
+  if(alerts){
+    alerts.innerHTML = `
+      <div class="alert-card warn">
+        <b>Weather offline</b>
+        <small>${message || "Could not load live Riverview weather. Manual rule: below 7°C = bring sensitive plants in; 28°C+ = check water more often."}</small>
+      </div>
+    `;
+  }
+}
+
+async function loadWeatherAlerts(){
+  try{
+    const res = await fetch(RIVERVIEW_WEATHER_URL, { cache:"no-store" });
+    if(!res.ok) throw new Error("Weather request failed");
+    const data = await res.json();
+
+    const current = data.current || {};
+    const daily = data.daily || {};
+    const high0 = daily.temperature_2m_max?.[0];
+    const low0 = daily.temperature_2m_min?.[0];
+    const high1 = daily.temperature_2m_max?.[1];
+    const low1 = daily.temperature_2m_min?.[1];
+    const precip0 = daily.precipitation_sum?.[0];
+
+    const tonightLow = Number.isFinite(low1) ? low1 : low0;
+    const alert = gardenRiskFromForecast(high1 ?? high0, tonightLow);
+
+    $("weatherNow").textContent = `${fmtTemp(current.temperature_2m)} feels ${fmtTemp(current.apparent_temperature)}`;
+    $("weatherLow").textContent = fmtTemp(tonightLow);
+    $("weatherHigh").textContent = fmtTemp(high1 ?? high0);
+    $("weatherRisk").textContent = alert.label;
+
+    const forecastList = $("forecastList");
+    if(forecastList && daily.time){
+      forecastList.innerHTML = daily.time.slice(0,4).map((day, i) => `
+        <div class="forecast-day">
+          <span>${weekdayLabel(day)}</span>
+          <span>High ${fmtTemp(daily.temperature_2m_max?.[i])} / Low ${fmtTemp(daily.temperature_2m_min?.[i])}</span>
+        </div>
+      `).join("");
+    }
+
+    const alerts = $("gardenAlerts");
+    if(alerts){
+      const waterNote = Number.isFinite(precip0) && precip0 >= 5
+        ? "Rain is expected, so check soil before watering. Grow bags may still dry faster than beds."
+        : "Low rain expected today. Check grow bags and herb containers by touch.";
+
+      alerts.innerHTML = `
+        <div class="alert-card ${alert.cls}">
+          <b>${alert.label}</b>
+          <small>${alert.text}</small>
+        </div>
+        <div class="alert-card">
+          <b>💧 Water Check</b>
+          <small>${waterNote}</small>
+        </div>
+        <div class="alert-card">
+          <b>🌡️ Manual Rules</b>
+          <small>Below 7°C: bring sensitive plants in. 7–10°C: caution. 28°C+: water more. 31°C+: consider afternoon shade.</small>
+        </div>
+      `;
+    }
+  } catch(err){
+    renderWeatherFallback(err.message);
+  }
+}
+
 renderAll();
+loadWeatherAlerts();
 </script>
 
 
+<!-- Weather data: Open-Meteo Forecast API, no API key required. -->
 </body>
 </html>
