@@ -622,6 +622,27 @@ h1{
 }
 </style>
 
+
+<style id="kwen-v2-4-fruiting-fertilizer">
+.stage-control{display:grid;gap:10px}
+.stage-toggle{
+  display:flex;align-items:flex-start;gap:10px;
+  border:1px solid rgba(157,255,98,.22);border-radius:14px;
+  padding:10px;background:rgba(157,255,98,.04);
+  color:var(--green2);cursor:pointer;
+}
+.stage-toggle input{width:20px;height:20px;margin-top:2px;accent-color:#9DFF62}
+.stage-toggle b{display:block;color:var(--green2)}
+.stage-toggle small{display:block;color:var(--dim);margin-top:4px;line-height:1.35}
+.fertilizer-guide{display:grid;gap:8px}
+.fertilizer-row{
+  border:1px solid rgba(157,255,98,.22);border-radius:14px;
+  padding:10px;background:rgba(157,255,98,.04);
+}
+.fertilizer-row b{color:var(--green2)}
+.fertilizer-row small{display:block;color:var(--dim);margin-top:4px;line-height:1.35}
+</style>
+
 </head>
 <body>
 <button class="btn mobile-open" id="menuOpen">☰ MENU</button>
@@ -659,7 +680,7 @@ h1{
   <main class="main">
     <section class="top">
       <div class="title-block">
-        <div class="kicker">Vault-Garden Utility v2.3</div>
+        <div class="kicker">Vault-Garden Utility v2.4</div>
         <h2>Seasonal Ops</h2>
         <p>Live Riverview weather alerts + plant-stage guidance for your actual garden setup. Example: <strong>💧🍅</strong> means fertilize tomatoes.</p>
       </div>
@@ -715,6 +736,30 @@ h1{
         </div>
       </div>
 
+
+      <div class="panel">
+        <h3>Plant Stage</h3>
+        <div class="stage-control" id="plantStageControl">
+          <label class="stage-toggle">
+            <input type="checkbox" data-fruiting="tomatoes">
+            <span><b>🍅 San Marzano fruiting</b><small>Add weekly fruiting-feed reminders to the calendar.</small></span>
+          </label>
+          <label class="stage-toggle">
+            <input type="checkbox" data-fruiting="cherrytomatoes">
+            <span><b>🍒 Cherry tomatoes fruiting</b><small>Add weekly fruiting-feed reminders to the calendar.</small></span>
+          </label>
+          <label class="stage-toggle">
+            <input type="checkbox" data-fruiting="peppers">
+            <span><b>🫑 Sweet red peppers fruiting</b><small>Add weekly fruiting-feed reminders to the calendar.</small></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>Fertilizer Guide</h3>
+        <div class="fertilizer-guide" id="fertilizerGuide"></div>
+      </div>
+
       <div class="panel">
         <h3>This Month</h3>
         <div class="task-list" id="monthTasks"></div>
@@ -747,21 +792,98 @@ const visibleMonths = [2,3,4,5,6,7,8,9,10];
 const today = new Date();
 
 const plants = {
-  tomatoes: { name:"San Marzano Tomatoes", icon:"🍅", stage:"Established Plant → Flowering → Fruiting", safeTemp:"10°C+ nights", heatCare:"Shade only if stressed during 31°C+ heat.", best:"10–15 gal grow bag or sunny raised bed", sow:"Start indoors March / early April", move:"Established plants can stay out once nights are consistently 10°C+.", feed:"Every 2 weeks after transplant; weekly once fruit appears.", harvest:"August–September", water:"Deep, consistent watering. Grow bags may need daily checks in heat.", notes:"Use a cage/trellis. Add soil around the stem as the plant recovers/grows." },
-  cherrytomatoes: { name:"Cherry Tomatoes", icon:"🍒", stage:"Established Plant → Flowering → Fruiting", safeTemp:"10°C+ nights", heatCare:"Watch for dry pots and blossom drop during heat.", best:"7–10+ gal pot or grow bag with support", sow:"Start indoors March / early April", move:"Established plants can stay out once nights are consistently 10°C+.", feed:"Every 2 weeks after transplant; weekly once fruit appears.", harvest:"Late July onward", water:"Even moisture. Containers dry quickly once loaded with fruit.", notes:"Usually earlier than San Marzano. Keep supported and harvest often." },
-  cucumbers: { name:"Cucumbers", icon:"🥒", stage:"Seedling → Vining → Flowering → Fruiting", safeTemp:"10°C+ nights", heatCare:"Needs extra water during heat; shade rarely needed if watered.", best:"Raised bed or 7–10 gal grow bag with trellis", sow:"Direct sow late May to June", move:"Usually direct sow; seedlings can move out early June after warm nights.", feed:"10-10-10 at planting, then light 5-10-10 when vines bloom.", harvest:"July–September", water:"Heavy drinkers. Keep evenly moist.", notes:"Trellis keeps fruit cleaner and saves space." },
-  peas: { name:"Peas", icon:"🫛", stage:"Seed → Vine → Podding", safeTemp:"Cool-season crop", heatCare:"Peas fade in heat; harvest before hot spells.", best:"Raised bed with trellis", sow:"Direct sow April to May; possible late summer sowing", move:"Direct sow preferred", feed:"Little to none. Avoid high nitrogen.", harvest:"June–July; fall crop if re-sown", water:"Keep moist during flowering/pod set.", notes:"Cool-season crop. Plant earlier than beans." },
-  waxbeans: { name:"Yellow Wax Beans", icon:"🍟", stage:"Seed → Flowering → Podding", safeTemp:"10°C+ nights", heatCare:"Water during flowering/pod set in heat.", best:"Raised bed; grow bag works if wide/deep enough", sow:"Direct sow after soil warms: late May through June", move:"Direct sow preferred", feed:"Very light balanced fertilizer only if soil is poor.", harvest:"July–September", water:"Moderate, consistent water during pod set.", notes:"Too much fertilizer makes leaves instead of beans." },
-  beets: { name:"Golden Beets", icon:"🟡", stage:"Seed → Thinned → Root Sizing", safeTemp:"Cool to mild", heatCare:"Keep evenly moist in heat to avoid woody roots.", best:"Raised bed or deep container/grow bag", sow:"Direct sow May to July; succession sow every 2–3 weeks", move:"Direct sow preferred", feed:"Light 10-10-10 after thinning; avoid heavy nitrogen.", harvest:"Baby beets in ~45 days; full size ~55–70 days", water:"Even moisture for tender roots.", notes:"Thin seedlings so roots can size up properly." },
-  peppers: { name:"Sweet Red Peppers", icon:"🫑", stage:"Established Plant → Flowering → Fruiting", safeTemp:"10–12°C+ nights", heatCare:"Can handle warmth but check pots daily in high heat.", best:"5–7 gal grow bag or raised bed hot spot", sow:"Start indoors March. For 2026: established starter plant.", move:"Established plants can stay out once nights are consistently 10–12°C+.", feed:"Every 2 weeks after transplant; weekly once fruit appears.", harvest:"August–September", water:"Consistent moisture; avoid waterlogging.", notes:"Peppers hate cold feet. Delay permanent outdoor move until nights are warm." },
-  garlic: { name:"Garlic", icon:"🧄", stage:"Fall planted → Spring growth → Bulbing", safeTemp:"Hardy", heatCare:"Stop watering closer to harvest.", best:"Raised bed", sow:"Plant cloves in October", move:"No transplanting", feed:"Nitrogen-rich feed in early spring, stop feeding by early summer", harvest:"Late July to August when lower leaves brown", water:"Moist in spring, drier near harvest.", notes:"Mulch after fall planting." },
-  basil: { name:"Basil", icon:"🌿", stage:"Established Plant → Pinching/Harvest", safeTemp:"10°C+ nights", heatCare:"Shade in harsh afternoon heat; water consistently.", best:"Pot/grow bag near kitchen or warm raised bed", sow:"Start indoors April; direct sow only after warm weather", move:"Move outdoors after nights are consistently 10°C+.", feed:"Light balanced feed every 3–4 weeks.", harvest:"Pinch often from June onward", water:"Likes consistent moisture but not soggy roots.", notes:"Pinching prevents early flowering." },
-  thaibasil: { name:"Thai Basil", icon:"🌿", stage:"Established Plant → Pinching/Harvest", safeTemp:"10°C+ nights", heatCare:"Shade during 31°C+ afternoons if wilting.", best:"Pot/grow bag; warm protected spot", sow:"Start indoors April", move:"Move outdoors after nights are consistently 10°C+.", feed:"Light feed every 3–4 weeks.", harvest:"Pinch regularly from June onward", water:"Consistent moisture, warmer spot than regular basil.", notes:"Great container herb. Keep harvesting tips." },
-  chives: { name:"Chives", icon:"🌱", stage:"Established Herb → Harvest", safeTemp:"Hardy / anytime", heatCare:"Water containers during dry heat.", best:"Small pot, herb planter, or bed edge", sow:"Start from division or seed", move:"Can go outside anytime once established.", feed:"Monthly light feed during active growth.", harvest:"Snip as needed from spring through fall", water:"Moderate. Do not let small pots fully dry out.", notes:"Hardy, low-maintenance, and great in herb planters." },
-  mint: { name:"Mint", icon:"🌱", stage:"Established Herb → Harvest", safeTemp:"Hardy / anytime", heatCare:"Water often in containers during heat.", best:"Container only unless you want mint everywhere", sow:"Start from plant/division", move:"Can go outside anytime once established.", feed:"Monthly at most.", harvest:"Snip often to keep bushy", water:"Likes steady moisture.", notes:"Keep mint contained. It will absolutely try to annex the yard." },
-  savory: { name:"Summer Savory", icon:"🌿", stage:"Established Herb → Harvest", safeTemp:"5°C+ nights", heatCare:"Tolerates heat better than basil but still check pots.", best:"Small pot, herb planter, or sunny bed edge", sow:"Start indoors or direct sow after frost", move:"Can go out once nights are above about 5°C; warmer is better.", feed:"Very light feed every 4–6 weeks.", harvest:"Snip tips once established", water:"Moderate; avoid soggy soil.", notes:"Good warm-season herb. Lighter feeding keeps stronger flavour." },
-  thyme: { name:"Thyme", icon:"🌱", stage:"Established Herb → Harvest", safeTemp:"After frost", heatCare:"Prefers drier soil; avoid overwatering in heat.", best:"Pot, grow bag edge, or raised bed edge", sow:"Start indoors March/April; slow from seed", move:"Move outdoors after frost.", feed:"Minimal fertilizer; too much weakens flavour.", harvest:"Light harvest once established", water:"Drier than basil. Don’t overwater.", notes:"Slow and steady from seed. Great in a pot with sharp drainage." }
+  tomatoes: { name:"San Marzano Tomatoes", icon:"🍅", stage:"Established Plant → Flowering → Fruiting", safeTemp:"10°C+ nights", heatCare:"Shade only if stressed during 31°C+ heat.", best:"10–15 gal grow bag or sunny raised bed", sow:"Start indoors March / early April", move:"Established plants can stay out once nights are consistently 10°C+.", feed:"Every 2 weeks after transplant; weekly once fruit appears.", harvest:"August–September", water:"Deep, consistent watering. Grow bags may need daily checks in heat.", notes:"Use a cage/trellis. Add soil around the stem as the plant recovers/grows.", fertilizerBest:"Start balanced like 10-10-10 after transplant. Switch to 5-10-10 or tomato fertilizer once flowering/fruiting. Weekly once fruit appears." },
+  cherrytomatoes: { name:"Cherry Tomatoes", icon:"🍒", stage:"Established Plant → Flowering → Fruiting", safeTemp:"10°C+ nights", heatCare:"Watch for dry pots and blossom drop during heat.", best:"7–10+ gal pot or grow bag with support", sow:"Start indoors March / early April", move:"Established plants can stay out once nights are consistently 10°C+.", feed:"Every 2 weeks after transplant; weekly once fruit appears.", harvest:"Late July onward", water:"Even moisture. Containers dry quickly once loaded with fruit.", notes:"Usually earlier than San Marzano. Keep supported and harvest often.", fertilizerBest:"Same as San Marzano: balanced early, then 5-10-10/tomato fertilizer once fruiting. Containers may need consistent light feeding." },
+  cucumbers: { name:"Cucumbers", icon:"🥒", stage:"Seedling → Vining → Flowering → Fruiting", safeTemp:"10°C+ nights", heatCare:"Needs extra water during heat; shade rarely needed if watered.", best:"Raised bed or 7–10 gal grow bag with trellis", sow:"Direct sow late May to June", move:"Usually direct sow; seedlings can move out early June after warm nights.", feed:"10-10-10 at planting, then light 5-10-10 when vines bloom.", harvest:"July–September", water:"Heavy drinkers. Keep evenly moist.", notes:"Trellis keeps fruit cleaner and saves space.", fertilizerBest:"Balanced vegetable fertilizer at planting, then light 5-10-10 once vines bloom. Keep watering steady." },
+  peas: { name:"Peas", icon:"🫛", stage:"Seed → Vine → Podding", safeTemp:"Cool-season crop", heatCare:"Peas fade in heat; harvest before hot spells.", best:"Raised bed with trellis", sow:"Direct sow April to May; possible late summer sowing", move:"Direct sow preferred", feed:"Little to none. Avoid high nitrogen.", harvest:"June–July; fall crop if re-sown", water:"Keep moist during flowering/pod set.", notes:"Cool-season crop. Plant earlier than beans.", fertilizerBest:"Usually none. Compost is enough; peas fix their own nitrogen." },
+  waxbeans: { name:"Yellow Wax Beans", icon:"🍟", stage:"Seed → Flowering → Podding", safeTemp:"10°C+ nights", heatCare:"Water during flowering/pod set in heat.", best:"Raised bed; grow bag works if wide/deep enough", sow:"Direct sow after soil warms: late May through June", move:"Direct sow preferred", feed:"Very light balanced fertilizer only if soil is poor.", harvest:"July–September", water:"Moderate, consistent water during pod set.", notes:"Too much fertilizer makes leaves instead of beans.", fertilizerBest:"Little to none. Very light balanced fertilizer only if soil is poor; too much nitrogen reduces beans." },
+  beets: { name:"Golden Beets", icon:"🟡", stage:"Seed → Thinned → Root Sizing", safeTemp:"Cool to mild", heatCare:"Keep evenly moist in heat to avoid woody roots.", best:"Raised bed or deep container/grow bag", sow:"Direct sow May to July; succession sow every 2–3 weeks", move:"Direct sow preferred", feed:"Light 10-10-10 after thinning; avoid heavy nitrogen.", harvest:"Baby beets in ~45 days; full size ~55–70 days", water:"Even moisture for tender roots.", notes:"Thin seedlings so roots can size up properly.", fertilizerBest:"Use low-nitrogen root fertilizer like 5-10-10. Avoid high nitrogen or you get big tops and smaller roots." },
+  peppers: { name:"Sweet Red Peppers", icon:"🫑", stage:"Established Plant → Flowering → Fruiting", safeTemp:"10–12°C+ nights", heatCare:"Can handle warmth but check pots daily in high heat.", best:"5–7 gal grow bag or raised bed hot spot", sow:"Start indoors March. For 2026: established starter plant.", move:"Established plants can stay out once nights are consistently 10–12°C+.", feed:"Every 2 weeks after transplant; weekly once fruit appears.", harvest:"August–September", water:"Consistent moisture; avoid waterlogging.", notes:"Peppers hate cold feet. Delay permanent outdoor move until nights are warm.", fertilizerBest:"Use 5-10-10 or tomato fertilizer once flowering/fruiting. Avoid high nitrogen or you may get leaves instead of peppers." },
+  garlic: { name:"Garlic", icon:"🧄", stage:"Fall planted → Spring growth → Bulbing", safeTemp:"Hardy", heatCare:"Stop watering closer to harvest.", best:"Raised bed", sow:"Plant cloves in October", move:"No transplanting", feed:"Nitrogen-rich feed in early spring, stop feeding by early summer", harvest:"Late July to August when lower leaves brown", water:"Moist in spring, drier near harvest.", notes:"Mulch after fall planting.", fertilizerBest:"Nitrogen-rich feed in early spring while leaves grow. Stop feeding by early summer as bulbs size up." },
+  basil: { name:"Basil", icon:"🌿", stage:"Established Plant → Pinching/Harvest", safeTemp:"10°C+ nights", heatCare:"Shade in harsh afternoon heat; water consistently.", best:"Pot/grow bag near kitchen or warm raised bed", sow:"Start indoors April; direct sow only after warm weather", move:"Move outdoors after nights are consistently 10°C+.", feed:"Light balanced feed every 3–4 weeks.", harvest:"Pinch often from June onward", water:"Likes consistent moisture but not soggy roots.", notes:"Pinching prevents early flowering.", fertilizerBest:"Light balanced fertilizer or fish fertilizer every 3–4 weeks. Too much can weaken flavor." },
+  thaibasil: { name:"Thai Basil", icon:"🌿", stage:"Established Plant → Pinching/Harvest", safeTemp:"10°C+ nights", heatCare:"Shade during 31°C+ afternoons if wilting.", best:"Pot/grow bag; warm protected spot", sow:"Start indoors April", move:"Move outdoors after nights are consistently 10°C+.", feed:"Light feed every 3–4 weeks.", harvest:"Pinch regularly from June onward", water:"Consistent moisture, warmer spot than regular basil.", notes:"Great container herb. Keep harvesting tips.", fertilizerBest:"Light balanced fertilizer or fish fertilizer every 3–4 weeks. Keep it light for better flavor." },
+  chives: { name:"Chives", icon:"🌱", stage:"Established Herb → Harvest", safeTemp:"Hardy / anytime", heatCare:"Water containers during dry heat.", best:"Small pot, herb planter, or bed edge", sow:"Start from division or seed", move:"Can go outside anytime once established.", feed:"Monthly light feed during active growth.", harvest:"Snip as needed from spring through fall", water:"Moderate. Do not let small pots fully dry out.", notes:"Hardy, low-maintenance, and great in herb planters.", fertilizerBest:"Monthly light balanced fertilizer or compost tea during active growth." },
+  mint: { name:"Mint", icon:"🌱", stage:"Established Herb → Harvest", safeTemp:"Hardy / anytime", heatCare:"Water often in containers during heat.", best:"Container only unless you want mint everywhere", sow:"Start from plant/division", move:"Can go outside anytime once established.", feed:"Monthly at most.", harvest:"Snip often to keep bushy", water:"Likes steady moisture.", notes:"Keep mint contained. It will absolutely try to annex the yard.", fertilizerBest:"Monthly at most, only if growth slows. Mint usually does not need much help." },
+  savory: { name:"Summer Savory", icon:"🌿", stage:"Established Herb → Harvest", safeTemp:"5°C+ nights", heatCare:"Tolerates heat better than basil but still check pots.", best:"Small pot, herb planter, or sunny bed edge", sow:"Start indoors or direct sow after frost", move:"Can go out once nights are above about 5°C; warmer is better.", feed:"Very light feed every 4–6 weeks.", harvest:"Snip tips once established", water:"Moderate; avoid soggy soil.", notes:"Good warm-season herb. Lighter feeding keeps stronger flavour.", fertilizerBest:"Very light balanced fertilizer every 4–6 weeks. Too much weakens flavor." },
+  thyme: { name:"Thyme", icon:"🌱", stage:"Established Herb → Harvest", safeTemp:"After frost", heatCare:"Prefers drier soil; avoid overwatering in heat.", best:"Pot, grow bag edge, or raised bed edge", sow:"Start indoors March/April; slow from seed", move:"Move outdoors after frost.", feed:"Minimal fertilizer; too much weakens flavour.", harvest:"Light harvest once established", water:"Drier than basil. Don’t overwater.", notes:"Slow and steady from seed. Great in a pot with sharp drainage.", fertilizerBest:"Minimal fertilizer. Too much makes weak, less flavorful growth." }
 };
+
+
+const fruitingPlants = {
+  tomatoes: { icon:"🍅", name:"San Marzano Tomatoes", note:"Weekly fruiting feed: 5-10-10 or tomato fertilizer." },
+  cherrytomatoes: { icon:"🍒", name:"Cherry Tomatoes", note:"Weekly fruiting feed: 5-10-10 or tomato fertilizer." },
+  peppers: { icon:"🫑", name:"Sweet Red Peppers", note:"Weekly fruiting feed: 5-10-10 or tomato fertilizer." }
+};
+
+function getFruitingState(){
+  try{
+    return JSON.parse(localStorage.getItem("kwenGardenFruitingState") || "{}");
+  } catch(err){
+    return {};
+  }
+}
+
+function setFruitingState(key, value){
+  const state = getFruitingState();
+  state[key] = !!value;
+  try{
+    localStorage.setItem("kwenGardenFruitingState", JSON.stringify(state));
+  } catch(err){}
+}
+
+function addWeeklyFruitingEvents(events, year){
+  const state = getFruitingState();
+  Object.keys(fruitingPlants).forEach(key => {
+    if(!state[key]) return;
+    const info = fruitingPlants[key];
+    for(let month=5; month<=8; month++){
+      const daysInMonth = new Date(year, month+1, 0).getDate();
+      for(let day=1; day<=daysInMonth; day++){
+        const d = new Date(year, month, day);
+        if(d.getDay() === 0){
+          events.push({
+            date:dateKey(year, month, day),
+            action:"💧",
+            plant:key,
+            text:`${info.name} fruiting: ${info.note}`
+          });
+        }
+      }
+    }
+  });
+}
+
+function renderPlantStageControls(){
+  const box = document.getElementById("plantStageControl");
+  if(!box) return;
+  const state = getFruitingState();
+  box.querySelectorAll("input[data-fruiting]").forEach(input => {
+    input.checked = !!state[input.dataset.fruiting];
+  });
+}
+
+function renderFertilizerGuide(){
+  const guide = document.getElementById("fertilizerGuide");
+  if(!guide) return;
+  const keys = ["tomatoes","cherrytomatoes","peppers","cucumbers","beets","waxbeans","peas","thaibasil","basil","chives","mint","savory","garlic","thyme"];
+  guide.innerHTML = keys.map(key => {
+    const p = plants[key];
+    if(!p) return "";
+    return `<div class="fertilizer-row"><b>${p.icon} ${p.name}</b><small>${p.fertilizerBest || p.feed}</small></div>`;
+  }).join("");
+}
+
+function wirePlantStageControls(){
+  const box = document.getElementById("plantStageControl");
+  if(!box || box.dataset.wired === "true") return;
+  box.dataset.wired = "true";
+  box.addEventListener("change", function(e){
+    const input = e.target.closest("input[data-fruiting]");
+    if(!input) return;
+    setFruitingState(input.dataset.fruiting, input.checked);
+    renderAll();
+  });
+}
 
 function dateKey(year, month, day){
   return `${year}-${String(month+1).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
@@ -845,6 +967,7 @@ function buildEventsForYear(year){
   add(8,20,"🧺","tomatoes","Peak tomato harvest.");
   add(8,20,"🧺","peppers","Peak pepper harvest.");
 
+  addWeeklyFruitingEvents(e, year);
   return e;
 }
 
@@ -975,7 +1098,8 @@ function renderPlantDetail(){
     <div class="stats">
       <div class="stat"><small>Best Spot</small><b>${p.best}</b></div>
       <div class="stat"><small>Water</small><b>${p.water}</b></div>
-      <div class="stat"><small>Fertilizer</small><b>${p.feed}</b></div>
+      <div class="stat"><small>Fertilizer Schedule</small><b>${p.feed}</b></div>
+      <div class="stat"><small>Best Fertilizer</small><b>${p.fertilizerBest || p.feed}</b></div>
       <div class="stat"><small>Harvest</small><b>${p.harvest}</b></div>
     </div>
     <div class="timeline">
@@ -992,6 +1116,8 @@ function renderAll(){
   renderCalendar();
   renderTasks();
   renderPlantDetail();
+  renderPlantStageControls();
+  renderFertilizerGuide();
 }
 
 function handleAction(target){
@@ -1226,6 +1352,7 @@ function startWeatherWhenReady(){
 
 try{
   renderAll();
+  wirePlantStageControls();
 } catch(err){
   const cal = document.getElementById("calendar");
   if(cal){
