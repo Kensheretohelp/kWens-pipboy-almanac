@@ -572,55 +572,53 @@ h1{
 </style>
 
 
-<style id="kwen-v2-weather-calendar-hotfix">
+
+<style id="kwen-v2-3-calendar-full-month-fix">
+/* v2.3: stop the calendar panel/grid from clipping after the first week */
+.panel,
+.cal,
+.icons,
+.legend{
+  overflow:visible !important;
+}
+.grid,
+.main,
+.app{
+  overflow:visible !important;
+}
 .cal{
+  display:grid !important;
   grid-template-columns:repeat(7,minmax(0,1fr)) !important;
+  align-items:stretch !important;
   width:100% !important;
   max-width:100% !important;
-  overflow:hidden !important;
 }
 .day{
   min-width:0 !important;
-  overflow:hidden !important;
+  overflow:visible !important;
 }
 .icons{
   max-width:100% !important;
-  overflow:hidden !important;
 }
 .event-pill{
   max-width:100% !important;
-  min-width:0 !important;
   white-space:nowrap !important;
 }
-.panel{
-  min-width:0 !important;
-  overflow:hidden !important;
-}
-.legend{
-  max-width:100% !important;
-  overflow:hidden !important;
-}
 @media(max-width:620px){
-  .main{padding-left:10px !important; padding-right:10px !important;}
-  .panel{padding:12px !important; border-radius:18px !important;}
-  .calendar-head{gap:8px !important;}
-  .month-title{font-size:1.15rem !important; letter-spacing:.10em !important;}
+  .panel{padding:12px !important;}
+  .cal{gap:4px !important;}
   .day{
-    min-height:72px !important;
+    min-height:62px !important;
     padding:4px !important;
   }
-  .day-num{font-size:.95rem !important;}
   .event-pill{
-    font-size:.68rem !important;
+    font-size:.60rem !important;
     padding:1px 2px !important;
-    letter-spacing:0 !important;
   }
-  .icons{gap:2px !important;}
-  .weather-main{grid-template-columns:1fr !important;}
-}
-@media(max-width:430px){
-  .day{min-height:66px !important;}
-  .event-pill{font-size:.62rem !important;}
+  .month-title{
+    font-size:1.1rem !important;
+    letter-spacing:.08em !important;
+  }
 }
 </style>
 
@@ -661,7 +659,7 @@ h1{
   <main class="main">
     <section class="top">
       <div class="title-block">
-        <div class="kicker">Vault-Garden Utility v2.0</div>
+        <div class="kicker">Vault-Garden Utility v2.3</div>
         <h2>Seasonal Ops</h2>
         <p>Live Riverview weather alerts + plant-stage guidance for your actual garden setup. Example: <strong>💧🍅</strong> means fertilize tomatoes.</p>
       </div>
@@ -761,7 +759,8 @@ const plants = {
   thaibasil: { name:"Thai Basil", icon:"🌿", stage:"Established Plant → Pinching/Harvest", safeTemp:"10°C+ nights", heatCare:"Shade during 31°C+ afternoons if wilting.", best:"Pot/grow bag; warm protected spot", sow:"Start indoors April", move:"Move outdoors after nights are consistently 10°C+.", feed:"Light feed every 3–4 weeks.", harvest:"Pinch regularly from June onward", water:"Consistent moisture, warmer spot than regular basil.", notes:"Great container herb. Keep harvesting tips." },
   chives: { name:"Chives", icon:"🌱", stage:"Established Herb → Harvest", safeTemp:"Hardy / anytime", heatCare:"Water containers during dry heat.", best:"Small pot, herb planter, or bed edge", sow:"Start from division or seed", move:"Can go outside anytime once established.", feed:"Monthly light feed during active growth.", harvest:"Snip as needed from spring through fall", water:"Moderate. Do not let small pots fully dry out.", notes:"Hardy, low-maintenance, and great in herb planters." },
   mint: { name:"Mint", icon:"🌱", stage:"Established Herb → Harvest", safeTemp:"Hardy / anytime", heatCare:"Water often in containers during heat.", best:"Container only unless you want mint everywhere", sow:"Start from plant/division", move:"Can go outside anytime once established.", feed:"Monthly at most.", harvest:"Snip often to keep bushy", water:"Likes steady moisture.", notes:"Keep mint contained. It will absolutely try to annex the yard." },
-  savory: { name:"Summer Savory", icon:"🌿", stage:"Established Herb → Harvest", safeTemp:"5°C+ nights", heatCare:"Tolerates heat better than basil but still check pots.", best:"Small pot, herb planter, or sunny bed edge", sow:"Start indoors or direct sow after frost", move:"Can go out once nights are above about 5°C; warmer is better.", feed:"Very light feed every 4–6 weeks.", harvest:"Snip tips once established", water:"Moderate; avoid soggy soil.", notes:"Good warm-season herb. Lighter feeding keeps stronger flavour." }
+  savory: { name:"Summer Savory", icon:"🌿", stage:"Established Herb → Harvest", safeTemp:"5°C+ nights", heatCare:"Tolerates heat better than basil but still check pots.", best:"Small pot, herb planter, or sunny bed edge", sow:"Start indoors or direct sow after frost", move:"Can go out once nights are above about 5°C; warmer is better.", feed:"Very light feed every 4–6 weeks.", harvest:"Snip tips once established", water:"Moderate; avoid soggy soil.", notes:"Good warm-season herb. Lighter feeding keeps stronger flavour." },
+  thyme: { name:"Thyme", icon:"🌱", stage:"Established Herb → Harvest", safeTemp:"After frost", heatCare:"Prefers drier soil; avoid overwatering in heat.", best:"Pot, grow bag edge, or raised bed edge", sow:"Start indoors March/April; slow from seed", move:"Move outdoors after frost.", feed:"Minimal fertilizer; too much weakens flavour.", harvest:"Light harvest once established", water:"Drier than basil. Don’t overwater.", notes:"Slow and steady from seed. Great in a pot with sharp drainage." }
 };
 
 function dateKey(year, month, day){
@@ -911,7 +910,7 @@ function renderCalendar(){
   $("monthTitle").textContent = `${monthNames[currentMonth]} ${currentYear}`;
   $("statusMonth").textContent = `${monthNames[currentMonth]} ${currentYear}`;
   const statusFilter = $("statusFilter");
-  if(statusFilter) statusFilter.textContent = calendarFilter === "all" ? "All" : plants[calendarFilter].name;
+  if(statusFilter) statusFilter.textContent = calendarFilter === "all" ? "All" : (plants[calendarFilter] ? plants[calendarFilter].name : "Unknown");
 
   for(let i=0; i<totalCells; i++){
     let dayNum, muted=false, cellMonth=currentMonth, cellYear=currentYear;
@@ -930,9 +929,10 @@ function renderCalendar(){
 
     const key = dateKey(cellYear, cellMonth, dayNum);
     const isToday = today.getFullYear()===cellYear && today.getMonth()===cellMonth && today.getDate()===dayNum;
-    const icons = (eventMap[key] || []).map(ev =>
-      `<span class="event-pill" title="${ev.text}">${ev.action}${plants[ev.plant].icon}</span>`
-    ).join("");
+    const icons = (eventMap[key] || []).map(ev => {
+      const p = plants[ev.plant] || { icon:"❓", name:"Unknown Plant" };
+      return `<span class="event-pill" title="${ev.text}">${ev.action}${p.icon}</span>`;
+    }).join("");
 
     calendar.insertAdjacentHTML("beforeend", `
       <div class="day ${muted ? "muted" : ""} ${isToday ? "today" : ""}">
@@ -954,7 +954,7 @@ function renderTasks(){
 
   monthTasks.innerHTML = evs.map(ev => {
     const dt = new Date(ev.date + "T12:00:00");
-    const p = plants[ev.plant];
+    const p = plants[ev.plant] || { icon:"❓", name:"Unknown Plant" };
     return `<div class="task">
       <div class="big">${ev.action}${p.icon}</div>
       <div><b>${monthNames[dt.getMonth()]} ${dt.getDate()} — ${p.name}</b>
@@ -1064,167 +1064,175 @@ document.addEventListener("click", function(e){
 });
 
 
-const RIVERVIEW_WEATHER_URL = "https://api.open-meteo.com/v1/forecast?latitude=46.06&longitude=-64.82&current=temperature_2m,apparent_temperature,precipitation&daily=temperature_2m_max,temperature_2m_min,precipitation_sum&timezone=America%2FMoncton&forecast_days=7";
+const RIVERVIEW_WEATHER_URL = "https://api.open-meteo.com/v1/forecast?latitude=46.06&longitude=-64.82&current_weather=true&daily=temperature_2m_max,temperature_2m_min,precipitation_sum&timezone=America%2FMoncton&forecast_days=7";
 
-function safeText(id, value){
-  const el = document.getElementById(id);
-  if(el) el.textContent = value;
+function setWeatherText(id, value){
+  var el = document.getElementById(id);
+  if(el){ el.textContent = value; }
 }
 
-function fmtTemp(v){
-  const n = Number(v);
-  return Number.isFinite(n) ? `${Math.round(n)}°C` : "—";
+function tempC(value){
+  var n = Number(value);
+  if(isNaN(n)){ return "—"; }
+  return Math.round(n) + "°C";
 }
 
-function weekdayLabel(isoDate){
-  const d = new Date(isoDate + "T12:00:00");
-  return d.toLocaleDateString("en-CA", { weekday:"short", month:"short", day:"numeric" });
-}
+function getGardenRisk(high, low){
+  high = Number(high);
+  low = Number(low);
 
-function gardenRiskFromForecast(todayHigh, tonightLow){
-  const high = Number(todayHigh);
-  const low = Number(tonightLow);
-
-  if(Number.isFinite(low) && low < 7){
+  if(!isNaN(low) && low < 7){
     return {
       label:"🔴 Cold Risk",
-      cls:"danger",
+      css:"danger",
       text:"Bring tomatoes, cherry tomatoes, peppers, Thai basil, and basil into the shed/garage overnight."
     };
   }
 
-  if(Number.isFinite(low) && low < 10){
+  if(!isNaN(low) && low < 10){
     return {
       label:"🟡 Cool Night",
-      cls:"warn",
+      css:"warn",
       text:"Tomatoes may slow down. Peppers and basil may stress. Use the shed if plants are already struggling."
     };
   }
 
-  if(Number.isFinite(high) && high >= 35){
+  if(!isNaN(high) && high >= 35){
     return {
       label:"🔴 Extreme Heat",
-      cls:"danger heat",
+      css:"danger heat",
       text:"Water deeply early, check grow bags again later, and give afternoon shade to peppers, basil, and stressed plants."
     };
   }
 
-  if(Number.isFinite(high) && high >= 31){
+  if(!isNaN(high) && high >= 31){
     return {
       label:"🟠 High Heat",
-      cls:"heat",
+      css:"heat",
       text:"Check grow bags daily or twice daily. Consider afternoon shade for basil, peppers, and young/stressed transplants."
     };
   }
 
-  if(Number.isFinite(high) && high >= 28){
+  if(!isNaN(high) && high >= 28){
     return {
       label:"🟡 Heat Advisory",
-      cls:"warn heat",
+      css:"warn heat",
       text:"Water early. Check containers and grow bags more often than raised beds."
     };
   }
 
   return {
     label:"🟢 Safe",
-    cls:"safe",
+    css:"safe",
     text:"No major cold or heat warning. Keep normal watering and hardening-off routines."
   };
 }
 
-function renderWeatherFallback(message){
-  safeText("weatherNow", "Manual Mode");
-  safeText("weatherLow", "—");
-  safeText("weatherHigh", "—");
-  safeText("weatherRisk", "Manual Rules");
+function showWeatherError(message){
+  setWeatherText("weatherNow", "Manual Mode");
+  setWeatherText("weatherLow", "—");
+  setWeatherText("weatherHigh", "—");
+  setWeatherText("weatherRisk", "Manual Rules");
 
-  const alerts = document.getElementById("gardenAlerts");
+  var alerts = document.getElementById("gardenAlerts");
   if(alerts){
-    alerts.innerHTML = `
-      <div class="alert-card warn">
-        <b>Weather not loaded</b>
-        <small>${message || "Live weather could not load. Manual rule: below 7°C = bring sensitive plants in; 7–10°C = caution; 28°C+ = water more; 31°C+ = consider afternoon shade."}</small>
-      </div>
-    `;
+    alerts.innerHTML =
+      '<div class="alert-card warn">' +
+      '<b>Weather not loaded</b>' +
+      '<small>' + (message || "Live weather could not load. Manual rule: below 7°C = bring sensitive plants in; 7–10°C = caution; 28°C+ = water more; 31°C+ = consider afternoon shade.") + '</small>' +
+      '</div>';
   }
 }
 
-async function loadWeatherAlerts(){
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 7000);
+function loadWeatherAlerts(){
+  var timedOut = false;
+  var timeout = setTimeout(function(){
+    timedOut = true;
+    showWeatherError("Weather request timed out. If this is the first load after updating GitHub Pages, refresh once.");
+  }, 8000);
 
-  try{
-    if(!window.fetch){
-      renderWeatherFallback("This browser does not support live weather fetches.");
-      return;
-    }
+  fetch(RIVERVIEW_WEATHER_URL)
+    .then(function(response){
+      if(!response.ok){ throw new Error("Weather service returned " + response.status); }
+      return response.json();
+    })
+    .then(function(data){
+      if(timedOut){ return; }
+      clearTimeout(timeout);
 
-    const res = await fetch(RIVERVIEW_WEATHER_URL, {
-      cache:"no-store",
-      signal:controller.signal
-    });
+      var currentTemp = data && data.current_weather ? data.current_weather.temperature : null;
+      var daily = data ? data.daily : null;
 
-    clearTimeout(timer);
+      var todayHigh = daily && daily.temperature_2m_max ? daily.temperature_2m_max[0] : null;
+      var tonightLow = daily && daily.temperature_2m_min ? (daily.temperature_2m_min[1] || daily.temperature_2m_min[0]) : null;
+      var tomorrowHigh = daily && daily.temperature_2m_max ? (daily.temperature_2m_max[1] || daily.temperature_2m_max[0]) : null;
+      var precipToday = daily && daily.precipitation_sum ? Number(daily.precipitation_sum[0]) : 0;
 
-    if(!res.ok){
-      throw new Error(`Weather service returned ${res.status}.`);
-    }
+      var risk = getGardenRisk(tomorrowHigh, tonightLow);
 
-    const data = await res.json();
-    const current = data.current || {};
-    const daily = data.daily || {};
+      setWeatherText("weatherNow", tempC(currentTemp));
+      setWeatherText("weatherLow", tempC(tonightLow));
+      setWeatherText("weatherHigh", tempC(tomorrowHigh));
+      setWeatherText("weatherRisk", risk.label);
 
-    const todayHigh = daily.temperature_2m_max && daily.temperature_2m_max.length ? daily.temperature_2m_max[0] : null;
-    const tonightLow = daily.temperature_2m_min && daily.temperature_2m_min.length > 1 ? daily.temperature_2m_min[1] : (daily.temperature_2m_min ? daily.temperature_2m_min[0] : null);
-    const tomorrowHigh = daily.temperature_2m_max && daily.temperature_2m_max.length > 1 ? daily.temperature_2m_max[1] : todayHigh;
-    const precip0 = daily.precipitation_sum && daily.precipitation_sum.length ? Number(daily.precipitation_sum[0]) : null;
+      var forecastList = document.getElementById("forecastList");
+      if(forecastList && daily && daily.time){
+        var rows = "";
+        for(var i=0; i<daily.time.length && i<4; i++){
+          var d = new Date(daily.time[i] + "T12:00:00");
+          var label = d.toLocaleDateString("en-CA", { weekday:"short", month:"short", day:"numeric" });
+          rows += '<div class="forecast-day"><span>' + label + '</span><span>' +
+                  tempC(daily.temperature_2m_max[i]) + ' / ' + tempC(daily.temperature_2m_min[i]) +
+                  '</span></div>';
+        }
+        forecastList.innerHTML = rows;
+      }
 
-    const alert = gardenRiskFromForecast(tomorrowHigh, tonightLow);
-
-    safeText("weatherNow", `${fmtTemp(current.temperature_2m)} feels ${fmtTemp(current.apparent_temperature)}`);
-    safeText("weatherLow", fmtTemp(tonightLow));
-    safeText("weatherHigh", fmtTemp(tomorrowHigh));
-    safeText("weatherRisk", alert.label);
-
-    const forecastList = document.getElementById("forecastList");
-    if(forecastList && daily.time){
-      forecastList.innerHTML = daily.time.slice(0,4).map((day, i) => `
-        <div class="forecast-day">
-          <span>${weekdayLabel(day)}</span>
-          <span>${fmtTemp(daily.temperature_2m_max?.[i])} / ${fmtTemp(daily.temperature_2m_min?.[i])}</span>
-        </div>
-      `).join("");
-    }
-
-    const alerts = document.getElementById("gardenAlerts");
-    if(alerts){
-      const waterNote = Number.isFinite(precip0) && precip0 >= 5
+      var waterNote = precipToday >= 5
         ? "Rain is expected, so check soil before watering. Grow bags may still dry faster than beds."
         : "Low rain expected today. Check grow bags and herb containers by touch.";
 
-      alerts.innerHTML = `
-        <div class="alert-card ${alert.cls}">
-          <b>${alert.label}</b>
-          <small>${alert.text}</small>
-        </div>
-        <div class="alert-card">
-          <b>💧 Water Check</b>
-          <small>${waterNote}</small>
-        </div>
-        <div class="alert-card">
-          <b>🌡️ Manual Rules</b>
-          <small>Below 7°C: bring sensitive plants in. 7–10°C: caution. 28°C+: water more. 31°C+: consider afternoon shade.</small>
-        </div>
-      `;
-    }
-  } catch(err){
-    clearTimeout(timer);
-    renderWeatherFallback(err && err.name === "AbortError" ? "Weather request timed out. Try again after uploading to GitHub Pages." : err.message);
-  }
+      var alerts = document.getElementById("gardenAlerts");
+      if(alerts){
+        alerts.innerHTML =
+          '<div class="alert-card ' + risk.css + '">' +
+          '<b>' + risk.label + '</b>' +
+          '<small>' + risk.text + '</small>' +
+          '</div>' +
+          '<div class="alert-card">' +
+          '<b>💧 Water Check</b>' +
+          '<small>' + waterNote + '</small>' +
+          '</div>' +
+          '<div class="alert-card">' +
+          '<b>🌡️ Manual Rules</b>' +
+          '<small>Below 7°C: bring sensitive plants in. 7–10°C: caution. 28°C+: water more. 31°C+: consider afternoon shade.</small>' +
+          '</div>';
+      }
+    })
+    .catch(function(error){
+      if(timedOut){ return; }
+      clearTimeout(timeout);
+      showWeatherError(error && error.message ? error.message : "Weather request failed.");
+    });
 }
 
-renderAll();
-setTimeout(loadWeatherAlerts, 250);
+function startWeatherWhenReady(){
+  if(!window.fetch){
+    showWeatherError("This browser does not support live weather fetches.");
+    return;
+  }
+  setTimeout(loadWeatherAlerts, 500);
+}
+
+try{
+  renderAll();
+} catch(err){
+  const cal = document.getElementById("calendar");
+  if(cal){
+    cal.innerHTML = '<div class="task"><div class="big">⚠️</div><div><b>Calendar render error</b><small>' + (err && err.message ? err.message : "Unknown calendar error") + '</small></div></div>';
+  }
+}
+window.addEventListener('load', startWeatherWhenReady);
 </script>
 
 
