@@ -643,6 +643,167 @@ h1{
 .fertilizer-row small{display:block;color:var(--dim);margin-top:4px;line-height:1.35}
 </style>
 
+
+
+<style id="kwen-v2-5-harvest-rad-mascot">
+/* v2.6: Harvest log + Rad-style garden risk meter + external mascot image */
+.risk-meter-wrap{
+  margin-top:12px;
+  border:1px solid rgba(157,255,98,.28);
+  border-radius:18px;
+  background:rgba(0,0,0,.24);
+  padding:12px;
+}
+.risk-meter-title{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  color:var(--amber);
+  text-transform:uppercase;
+  letter-spacing:.10em;
+  font-size:.72rem;
+  margin-bottom:8px;
+}
+.risk-meter{
+  position:relative;
+  height:86px;
+  border-bottom:2px solid rgba(157,255,98,.36);
+  overflow:hidden;
+}
+.risk-arc{
+  position:absolute;
+  left:50%;
+  bottom:-62px;
+  width:150px;
+  height:150px;
+  transform:translateX(-50%);
+  border:9px solid rgba(157,255,98,.22);
+  border-top-color:rgba(157,255,98,.75);
+  border-right-color:rgba(225,183,73,.72);
+  border-left-color:rgba(157,255,98,.55);
+  border-radius:50%;
+}
+.risk-needle{
+  position:absolute;
+  left:50%;
+  bottom:4px;
+  width:4px;
+  height:70px;
+  background:var(--amber);
+  border-radius:999px;
+  transform-origin:50% 100%;
+  transform:translateX(-50%) rotate(-58deg);
+  box-shadow:0 0 14px rgba(225,183,73,.45);
+  transition:transform .35s ease;
+}
+.risk-center{
+  position:absolute;
+  left:50%;
+  bottom:0;
+  width:18px;
+  height:18px;
+  transform:translateX(-50%);
+  border-radius:50%;
+  background:var(--green);
+  box-shadow:0 0 16px rgba(157,255,98,.55);
+}
+.risk-scale{
+  display:flex;
+  justify-content:space-between;
+  color:var(--dim);
+  font-size:.68rem;
+  margin-top:6px;
+}
+.risk-meter.safe .risk-needle{transform:translateX(-50%) rotate(-58deg)}
+.risk-meter.warn .risk-needle{transform:translateX(-50%) rotate(-12deg)}
+.risk-meter.heat .risk-needle{transform:translateX(-50%) rotate(28deg)}
+.risk-meter.danger .risk-needle{transform:translateX(-50%) rotate(58deg); background:var(--red); box-shadow:0 0 14px rgba(255,111,79,.55)}
+.farmer-mascot{
+  display:grid;
+  grid-template-columns:112px 1fr;
+  gap:14px;
+  align-items:center;
+  border:1px solid rgba(157,255,98,.24);
+  border-radius:18px;
+  background:rgba(157,255,98,.045);
+  padding:12px;
+  margin-top:12px;
+}
+.mascot-art{
+  width:104px;
+  height:104px;
+  border:2px solid rgba(157,255,98,.65);
+  border-radius:18px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  background:radial-gradient(circle at 50% 35%, rgba(157,255,98,.16), rgba(0,0,0,.25));
+  box-shadow:inset 0 0 18px rgba(157,255,98,.08), 0 0 16px rgba(157,255,98,.14);
+}
+.mascot-art img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:center 18%;
+  filter:contrast(1.05) saturate(.9);
+}
+.mascot-fallback{display:none;font-size:2rem}
+.mascot-art img.missing + .mascot-fallback{display:block}
+.mascot-copy b{color:var(--green2)}
+.mascot-copy small{display:block;color:var(--dim);margin-top:4px;line-height:1.35}
+.harvest-log{display:grid;gap:10px}
+.harvest-actions{display:grid;gap:8px}
+.harvest-row{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:10px;
+  align-items:center;
+  border:1px solid rgba(157,255,98,.22);
+  border-radius:14px;
+  padding:10px;
+  background:rgba(157,255,98,.04);
+}
+.harvest-row b{color:var(--green2)}
+.harvest-row small{display:block;color:var(--dim);margin-top:4px;line-height:1.35}
+.harvest-check{
+  border:1px solid rgba(157,255,98,.45);
+  background:rgba(157,255,98,.08);
+  color:var(--green);
+  border-radius:999px;
+  padding:8px 10px;
+  font-weight:900;
+  cursor:pointer;
+}
+.harvest-check.done{
+  background:var(--green);
+  color:#061007;
+}
+.harvest-history{
+  border-top:1px dashed rgba(157,255,98,.22);
+  padding-top:10px;
+  color:var(--green2);
+  font-size:.86rem;
+}
+.harvest-history ul{margin:8px 0 0 18px;padding:0}
+.harvest-mini-btn{
+  margin-top:8px;
+  border:1px solid rgba(157,255,98,.35);
+  background:rgba(157,255,98,.06);
+  color:var(--green);
+  border-radius:999px;
+  padding:5px 8px;
+  font-weight:900;
+  cursor:pointer;
+}
+.harvest-mini-btn.done{background:var(--green);color:#061007}
+@media(max-width:620px){
+  .farmer-mascot{grid-template-columns:76px 1fr}
+  .mascot-art{width:70px;height:70px}
+  .harvest-row{grid-template-columns:1fr}
+}
+</style>
+
 </head>
 <body>
 <button class="btn mobile-open" id="menuOpen">☰ MENU</button>
@@ -680,9 +841,16 @@ h1{
   <main class="main">
     <section class="top">
       <div class="title-block">
-        <div class="kicker">Vault-Garden Utility v2.4</div>
+        <div class="kicker">Vault-Garden Utility v2.6</div>
         <h2>Seasonal Ops</h2>
         <p>Live Riverview weather alerts + plant-stage guidance for your actual garden setup. Example: <strong>💧🍅</strong> means fertilize tomatoes.</p>
+        <div class="farmer-mascot">
+          <div class="mascot-art">
+            <img src="images/kwen-vault-farmer.png" alt="kWen Vault Farmer mascot" onerror="this.classList.add('missing');this.style.display='none';">
+            <span class="mascot-fallback">👨‍🌾👍</span>
+          </div>
+          <div class="mascot-copy"><b>Vault Farmer says: keep it watered, not weird.</b><small>Daily orders, harvest checks, and weather warnings update from the calendar and Riverview forecast.</small></div>
+        </div>
       </div>
       <div class="status">
         <div class="status-row"><span>Region</span><b>Riverview, NB</b></div>
@@ -698,6 +866,15 @@ h1{
           <div class="weather-chip"><small>Tonight Low</small><b id="weatherLow">—</b></div>
           <div class="weather-chip"><small>Tomorrow High</small><b id="weatherHigh">—</b></div>
           <div class="weather-chip"><small>Garden Risk</small><b id="weatherRisk">Checking…</b></div>
+        </div>
+        <div class="risk-meter-wrap">
+          <div class="risk-meter-title"><span>VAULT-TEC RAD-GARDEN METER</span><span id="riskMeterLabel">STANDBY</span></div>
+          <div class="risk-meter safe" id="riskMeter">
+            <div class="risk-arc"></div>
+            <div class="risk-needle"></div>
+            <div class="risk-center"></div>
+          </div>
+          <div class="risk-scale"><span>SAFE</span><span>CAUTION</span><span>HOT</span><span>DANGER</span></div>
         </div>
         <div class="forecast-list" id="forecastList"></div>
       </div>
@@ -723,6 +900,7 @@ h1{
           <span>🧄 Garlic</span>
           <span>🌿 Thai Basil</span>
           <span>🌱 Chives</span>
+          <span>🥬 Spinach</span>
           <span>🌱 Mint</span>
           <span>🌿 Summer Savory</span>
         </div>
@@ -766,6 +944,11 @@ h1{
       </div>
 
       <div class="panel">
+        <h3>Harvest Log</h3>
+        <div class="harvest-log" id="harvestLog"></div>
+      </div>
+
+      <div class="panel">
         <h3>Selected Plant</h3>
         <div class="plant-detail" id="plantDetail"></div>
       </div>
@@ -777,6 +960,7 @@ h1{
           <p><strong>Fruit set:</strong> this means the flower has dropped and a tiny tomato or pepper is visibly forming. That is when weekly fruiting fertilizer begins.</p>
           <p><strong>Tomato recovery mode:</strong> if cold-damaged leaves look ugly but new growth is green, keep the plant, remove dead leaves only, and resume feeding once active growth returns.</p>
           <p><strong>Heat rule:</strong> during 28°C+ days, check containers more often. At 31°C+, consider afternoon shade for basil, peppers, and stressed transplants.</p>
+          <p><strong>Spinach rule:</strong> your 4 inch x 10 inch planters are good for baby spinach. Sow April–June and again mid-August–September, harvest outer leaves continuously, and give afternoon shade during hot stretches.</p>
         </div>
       </div>
     </section>
@@ -805,6 +989,7 @@ const plants = {
   chives: { name:"Chives", icon:"🌱", stage:"Established Herb → Harvest", safeTemp:"Hardy / anytime", heatCare:"Water containers during dry heat.", best:"Small pot, herb planter, or bed edge", sow:"Start from division or seed", move:"Can go outside anytime once established.", feed:"Monthly light feed during active growth.", harvest:"Snip as needed from spring through fall", water:"Moderate. Do not let small pots fully dry out.", notes:"Hardy, low-maintenance, and great in herb planters.", fertilizerBest:"Monthly light balanced fertilizer or compost tea during active growth." },
   mint: { name:"Mint", icon:"🌱", stage:"Established Herb → Harvest", safeTemp:"Hardy / anytime", heatCare:"Water often in containers during heat.", best:"Container only unless you want mint everywhere", sow:"Start from plant/division", move:"Can go outside anytime once established.", feed:"Monthly at most.", harvest:"Snip often to keep bushy", water:"Likes steady moisture.", notes:"Keep mint contained. It will absolutely try to annex the yard.", fertilizerBest:"Monthly at most, only if growth slows. Mint usually does not need much help." },
   savory: { name:"Summer Savory", icon:"🌿", stage:"Established Herb → Harvest", safeTemp:"5°C+ nights", heatCare:"Tolerates heat better than basil but still check pots.", best:"Small pot, herb planter, or sunny bed edge", sow:"Start indoors or direct sow after frost", move:"Can go out once nights are above about 5°C; warmer is better.", feed:"Very light feed every 4–6 weeks.", harvest:"Snip tips once established", water:"Moderate; avoid soggy soil.", notes:"Good warm-season herb. Lighter feeding keeps stronger flavour.", fertilizerBest:"Very light balanced fertilizer every 4–6 weeks. Too much weakens flavor." },
+  spinach: { name:"Spinach", icon:"🥬", stage:"Seedling → Baby Leaf Harvest → Cut-and-Come-Again", safeTemp:"Cool-season crop; happiest below strong summer heat", heatCare:"Give afternoon shade during hot spells, especially in shallow 4 inch containers.", best:"Your 4 in deep x 10 in planters work for baby spinach; deeper 6+ in containers are better for longer harvests.", sow:"Spring sowing: April–June. Fall sowing: mid-August–September.", move:"Usually direct sow. If transplanting, disturb roots as little as possible.", feed:"Light balanced fertilizer every 3–4 weeks; skip heavy feeding in heat.", harvest:"Baby leaves in 30–40 days. Harvest outer leaves continuously for cut-and-come-again spinach.", water:"Keep evenly moist. Shallow containers dry quickly, so check by touch during warm days.", notes:"Baby spinach is perfect for your 4 inch x 10 inch pots. Harvest outer leaves first and leave the center growing. In July heat, treat spinach like a diva in a sauna: shade, water, and no drama.", fertilizerBest:"Compost or very light balanced fertilizer. Avoid heavy nitrogen blasts; steady moisture matters more than heavy feeding." },
   thyme: { name:"Thyme", icon:"🌱", stage:"Established Herb → Harvest", safeTemp:"After frost", heatCare:"Prefers drier soil; avoid overwatering in heat.", best:"Pot, grow bag edge, or raised bed edge", sow:"Start indoors March/April; slow from seed", move:"Move outdoors after frost.", feed:"Minimal fertilizer; too much weakens flavour.", harvest:"Light harvest once established", water:"Drier than basil. Don’t overwater.", notes:"Slow and steady from seed. Great in a pot with sharp drainage.", fertilizerBest:"Minimal fertilizer. Too much makes weak, less flavorful growth." }
 };
 
@@ -865,7 +1050,7 @@ function renderPlantStageControls(){
 function renderFertilizerGuide(){
   const guide = document.getElementById("fertilizerGuide");
   if(!guide) return;
-  const keys = ["tomatoes","cherrytomatoes","peppers","cucumbers","beets","waxbeans","peas","thaibasil","basil","chives","mint","savory","garlic","thyme"];
+  const keys = ["tomatoes","cherrytomatoes","peppers","cucumbers","beets","waxbeans","peas","spinach","thaibasil","basil","chives","mint","savory","garlic","thyme"];
   guide.innerHTML = keys.map(key => {
     const p = plants[key];
     if(!p) return "";
@@ -901,6 +1086,11 @@ function buildEventsForYear(year){
   add(3,10,"🌱","thaibasil","Start Thai basil indoors.");
   add(3,20,"🌱","peas","Direct sow peas when soil can be worked.");
   add(4,10,"🌱","beets","Direct sow first golden beet row.");
+  add(3,15,"🌱","spinach","Spring sow spinach for baby leaves.");
+  add(4,15,"🌱","spinach","Second spring spinach sowing.");
+  add(5,10,"🌱","spinach","Final early-summer spinach sowing if weather is still mild.");
+  add(7,15,"🌱","spinach","Fall spinach sowing window begins. Start again once the worst heat breaks.");
+  add(8,1,"🌱","spinach","Direct sow fall spinach for September baby leaves.");
   add(4,25,"🌱","beets","Succession sow golden beets.");
   add(4,28,"🌱","cucumbers","Direct sow cucumbers if soil is warm, or wait into June.");
   add(4,30,"🌱","waxbeans","Direct sow yellow wax beans once soil is warm.");
@@ -925,6 +1115,9 @@ function buildEventsForYear(year){
   add(5,10,"💧","basil","Light feed basil.");
   add(5,10,"💧","thaibasil","Light feed Thai basil every 3–4 weeks.");
   add(5,12,"💧","chives","Light monthly feed for chives.");
+  add(4,20,"💧","spinach","Light balanced feed for spinach; keep moisture steady.");
+  add(6,5,"💧","spinach","Heat watch: give spinach afternoon shade and check shallow pots daily.");
+  add(7,20,"💧","spinach","Fall spinach prep: water seed area evenly until germinated.");
   add(5,12,"💧","mint","Monthly feed for mint, if growth slows.");
   add(5,12,"💧","savory","Very light feed for summer savory every 4–6 weeks.");
   add(5,15,"💧","cucumbers","Balanced feed for cucumbers.");
@@ -950,6 +1143,9 @@ function buildEventsForYear(year){
 
   add(5,25,"🧺","peas","Begin checking peas for harvest.");
   add(6,15,"🧺","beets","Baby beet harvest window starts.");
+  add(4,30,"🧺","spinach","Begin harvesting baby spinach leaves: outer leaves first, leave the center growing.");
+  add(5,25,"🧺","spinach","Cut-and-come-again spinach harvest. Pick outer leaves regularly.");
+  add(8,15,"🧺","spinach","Fall baby spinach harvest window begins.");
   add(6,20,"🧺","waxbeans","Begin checking yellow wax beans.");
   add(6,25,"🧺","cucumbers","Begin cucumber harvest checks.");
   add(6,30,"🧺","basil","Regular basil harvest/pinching.");
@@ -1066,6 +1262,100 @@ function renderCalendar(){
   }
 }
 
+function getHarvestLog(){
+  try{
+    return JSON.parse(localStorage.getItem("kwenGardenHarvestLog") || "[]");
+  } catch(err){
+    return [];
+  }
+}
+
+function saveHarvestLog(items){
+  try{
+    localStorage.setItem("kwenGardenHarvestLog", JSON.stringify(items.slice(-80)));
+  } catch(err){}
+}
+
+function harvestId(ev){
+  return [ev.date, ev.plant, ev.text].join("|");
+}
+
+function isHarvestDone(ev){
+  const id = harvestId(ev);
+  return getHarvestLog().some(item => item.id === id);
+}
+
+function toggleHarvest(ev){
+  const id = harvestId(ev);
+  let log = getHarvestLog();
+  const existing = log.findIndex(item => item.id === id);
+  if(existing >= 0){
+    log.splice(existing, 1);
+  } else {
+    const p = plants[ev.plant] || { icon:"❓", name:"Unknown Plant" };
+    log.push({
+      id,
+      date:ev.date,
+      plant:ev.plant,
+      label:p.icon + " " + p.name,
+      note:ev.text,
+      checkedAt:new Date().toISOString()
+    });
+  }
+  saveHarvestLog(log);
+  renderAll();
+}
+
+function renderHarvestLog(){
+  const box = document.getElementById("harvestLog");
+  if(!box) return;
+  const harvestEvents = eventsForCurrentMonth().filter(ev => ev.action === "🧺").sort((a,b) => a.date.localeCompare(b.date));
+  const log = getHarvestLog().slice().sort((a,b) => (b.checkedAt || "").localeCompare(a.checkedAt || "")).slice(0,6);
+
+  let html = '<div class="harvest-actions">';
+  if(!harvestEvents.length){
+    html += '<div class="harvest-row"><div><b>No harvest checks this month</b><small>Switch months or choose All Garden Events to see harvest windows.</small></div></div>';
+  } else {
+    html += harvestEvents.map(ev => {
+      const p = plants[ev.plant] || { icon:"❓", name:"Unknown Plant" };
+      const dt = new Date(ev.date + "T12:00:00");
+      const done = isHarvestDone(ev);
+      return '<div class="harvest-row">' +
+        '<div><b>' + monthNames[dt.getMonth()] + ' ' + dt.getDate() + ' — ' + p.icon + ' ' + p.name + '</b><small>' + ev.text + '</small></div>' +
+        '<button type="button" class="harvest-check ' + (done ? 'done' : '') + '" data-harvest-id="' + encodeURIComponent(harvestId(ev)) + '">' + (done ? '✓ Logged' : 'Log Pick') + '</button>' +
+        '</div>';
+    }).join('');
+  }
+  html += '</div>';
+
+  html += '<div class="harvest-history"><b>Recent Pickups</b>';
+  if(!log.length){
+    html += '<small style="display:block;color:var(--dim);margin-top:4px;">Nothing logged yet. The wasteland pantry awaits.</small>';
+  } else {
+    html += '<ul>' + log.map(item => {
+      const d = new Date(item.checkedAt || item.date + "T12:00:00");
+      const label = isNaN(d.getTime()) ? item.date : d.toLocaleDateString("en-CA", { month:"short", day:"numeric" });
+      return '<li><strong>' + label + '</strong> — ' + item.label + '</li>';
+    }).join('') + '</ul>';
+  }
+  html += '</div>';
+  box.innerHTML = html;
+}
+
+function findHarvestByEncodedId(encodedId){
+  const id = decodeURIComponent(encodedId || "");
+  return buildEventsForYear(currentYear).find(ev => ev.action === "🧺" && harvestId(ev) === id);
+}
+
+function setRiskMeter(risk){
+  const meter = document.getElementById("riskMeter");
+  const label = document.getElementById("riskMeterLabel");
+  if(!meter) return;
+  const css = (risk && risk.css ? risk.css : "safe").split(" ")[0];
+  meter.className = "risk-meter " + css + (risk && risk.css && risk.css.indexOf("heat") >= 0 ? " heat" : "");
+  if(label) label.textContent = risk && risk.label ? risk.label.replace(/[🟢🟡🟠🔴]/g, "").trim().toUpperCase() : "SAFE";
+}
+
 function renderTasks(){
   const evs = eventsForCurrentMonth().sort((a,b) => a.date.localeCompare(b.date));
   const monthTasks = $("monthTasks");
@@ -1078,10 +1368,11 @@ function renderTasks(){
   monthTasks.innerHTML = evs.map(ev => {
     const dt = new Date(ev.date + "T12:00:00");
     const p = plants[ev.plant] || { icon:"❓", name:"Unknown Plant" };
+    const harvestBtn = ev.action === "🧺" ? `<button type="button" class="harvest-mini-btn ${isHarvestDone(ev) ? "done" : ""}" data-harvest-id="${encodeURIComponent(harvestId(ev))}">${isHarvestDone(ev) ? "✓ Harvest logged" : "Log harvest"}</button>` : "";
     return `<div class="task">
       <div class="big">${ev.action}${p.icon}</div>
       <div><b>${monthNames[dt.getMonth()]} ${dt.getDate()} — ${p.name}</b>
-      <small>${ev.text}</small></div>
+      <small>${ev.text}</small>${harvestBtn}</div>
     </div>`;
   }).join("");
 }
@@ -1118,9 +1409,17 @@ function renderAll(){
   renderPlantDetail();
   renderPlantStageControls();
   renderFertilizerGuide();
+  renderHarvestLog();
 }
 
 function handleAction(target){
+  const harvestBtn = target.closest("[data-harvest-id]");
+  if(harvestBtn){
+    const ev = findHarvestByEncodedId(harvestBtn.dataset.harvestId);
+    if(ev) toggleHarvest(ev);
+    return;
+  }
+
   const yearBtn = target.closest("[data-year]");
   if(yearBtn){
     currentYear = Number(yearBtn.dataset.year);
@@ -1183,7 +1482,7 @@ function handleAction(target){
 
 document.addEventListener("click", function(e){
   if(e.target.closest("a")) return;
-  const actionable = e.target.closest("button, [data-year], [data-month], [data-plant], #allPlantsBtn, #prevMonth, #nextMonth, #menuOpen");
+  const actionable = e.target.closest("button, [data-year], [data-month], [data-plant], [data-harvest-id], #allPlantsBtn, #prevMonth, #nextMonth, #menuOpen");
   if(!actionable) return;
   e.preventDefault();
   handleAction(e.target);
@@ -1259,6 +1558,7 @@ function showWeatherError(message){
   setWeatherText("weatherLow", "—");
   setWeatherText("weatherHigh", "—");
   setWeatherText("weatherRisk", "Manual Rules");
+  setRiskMeter({ label:"Manual Rules", css:"warn" });
 
   var alerts = document.getElementById("gardenAlerts");
   if(alerts){
@@ -1300,6 +1600,7 @@ function loadWeatherAlerts(){
       setWeatherText("weatherLow", tempC(tonightLow));
       setWeatherText("weatherHigh", tempC(tomorrowHigh));
       setWeatherText("weatherRisk", risk.label);
+      setRiskMeter(risk);
 
       var forecastList = document.getElementById("forecastList");
       if(forecastList && daily && daily.time){
