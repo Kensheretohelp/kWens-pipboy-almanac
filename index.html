@@ -945,6 +945,29 @@ h1{
 @media(max-width:620px){.crop-card-grid,.supply-grid,.quick-grab-grid,.data-grid{grid-template-columns:1fr}.crop-card{min-height:auto}}
 </style>
 
+
+<style id="v5-layout-rebuild">
+.top[data-tab]{display:none;}
+.pip-content[data-active-tab="overview"] ~ .top,
+.pip-content[data-active-tab="overview"] .top{display:block;}
+
+.pip-content[data-active-tab="calendar"] .panel:not([data-tab="calendar"]){display:none!important;}
+.pip-content[data-active-tab="plants"] .panel:not([data-tab="plants"]){display:none!important;}
+.pip-content[data-active-tab="logs"] .panel:not([data-tab="logs"]){display:none!important;}
+.pip-content[data-active-tab="data"] .panel:not([data-tab="data"]){display:none!important;}
+
+.panel h3{
+letter-spacing:.18em!important;
+}
+
+.pip-tabs{
+bottom:0!important;
+border-radius:24px 24px 0 0!important;
+}
+
+body::before{opacity:.35!important;}
+</style>
+
 </head>
 <body>
 <button class="btn mobile-open" id="menuOpen">☰ MENU</button>
@@ -980,7 +1003,7 @@ h1{
   </aside>
 
   <main class="main">
-    <section class="top">
+    <section class="top" data-tab="overview">
       <div class="title-block">
         <div class="kicker">Vault-Tec Industries</div>
         <h2>PIP-GROW 3000<br>VAULT 73 EDITION</h2>
@@ -1032,7 +1055,7 @@ h1{
 
     <section class="grid pip-content" data-active-tab="overview">
       <div class="panel" data-tab="overview">
-        <h3>Active Quests</h3>
+        <h3>STAT // ACTIVE QUESTS</h3>
         <div class="task-list" id="todaysOrders"></div>
       </div>
 
@@ -1062,7 +1085,7 @@ h1{
 
 
       <div class="panel" data-tab="overview">
-        <h3>Garden Alerts</h3>
+        <h3>STAT // GARDEN ALERTS</h3>
         <div class="alert-stack" id="gardenAlerts">
           <div class="alert-card"><b>Checking Riverview forecast…</b><small>Cold, heat, watering, and shade alerts will appear here.</small></div>
         </div>
@@ -1070,7 +1093,7 @@ h1{
 
 
       <div class="panel" data-tab="plants">
-        <h3>Plant Stage</h3>
+        <h3>CROP // FRUITING CONTROL</h3>
         <div class="stage-control" id="plantStageControl">
           <label class="stage-toggle">
             <input type="checkbox" data-fruiting="tomatoes">
@@ -1089,36 +1112,36 @@ h1{
 
 
       <div class="panel" data-tab="plants">
-        <h3>Crop Cards</h3>
+        <h3>CROP // FIELD ROSTER</h3>
         <div class="crop-card-grid" id="cropCards"></div>
       </div>
 
       <div class="panel" data-tab="data">
-        <h3>What Fertilizer Do I Grab?</h3>
+        <h3>DATA // QUICK REFERENCE</h3>
         <div class="quick-grab-grid" id="quickGrab"></div>
       </div>
 
       <div class="panel" data-tab="data">
-        <h3>Fertilizer Guide</h3>
+        <h3>DATA // FERTILIZER DATABASE</h3>
         <div class="fertilizer-guide" id="fertilizerGuide"></div>
       </div>
 
       <div class="panel" data-tab="calendar">
-        <h3>This Month</h3>
+        <h3>CAL // MONTHLY TASKS</h3>
         <div class="task-list" id="monthTasks"></div>
       </div>
 
       <div class="panel" data-tab="logs">
-        <h3>Harvest Log</h3>
+        <h3>LOG // HARVEST RECORDS</h3>
         <div class="harvest-log" id="harvestLog"></div>
       </div>
 
       <div class="panel" data-tab="plants">
-        <h3>Selected Plant</h3>
+        <h3>CROP // SELECTED CROP</h3>
         <div class="plant-detail" id="plantDetail"></div>
       </div>
       <div class="panel" data-tab="data">
-        <h3>Vault 73 Supply Cache</h3>
+        <h3>DATA // SUPPLY CACHE</h3>
         <div class="supply-grid" id="supplyCache"></div>
       </div>
 
@@ -1128,7 +1151,7 @@ h1{
       </div>
 
       <div class="panel" data-tab="data">
-        <h3>Overseer Field Notes</h3>
+        <h3>DATA // FIELD NOTES</h3>
         <div class="notes">
           <p><strong>Grow bags:</strong> they dry faster than beds, especially during heat. Check daily in July/August and water before fertilizing if soil is dry.</p>
           <p><strong>Fruit set:</strong> this means the flower has dropped and a tiny tomato or pepper is visibly forming. That is when weekly fruiting fertilizer begins.</p>
