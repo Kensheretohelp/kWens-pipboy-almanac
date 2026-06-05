@@ -646,7 +646,7 @@ h1{
 
 
 <style id="kwen-v2-5-harvest-rad-mascot">
-/* v2.6: Harvest log + Rad-style garden risk meter + external mascot image */
+/* v2.7: Harvest log + Garden Threat meter + external mascot image + tabbed layout */
 .risk-meter-wrap{
   margin-top:12px;
   border:1px solid rgba(157,255,98,.28);
@@ -802,6 +802,58 @@ h1{
   .mascot-art{width:70px;height:70px}
   .harvest-row{grid-template-columns:1fr}
 }
+
+/* v2.7 layout upgrade: Pip-Boy section tabs + 5-zone garden threat meter */
+.pip-tabs{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin:0 0 16px;
+  position:sticky;
+  top:0;
+  z-index:25;
+  padding:8px 0;
+  background:linear-gradient(180deg,rgba(4,16,6,.96),rgba(4,16,6,.72));
+  backdrop-filter:blur(4px);
+}
+.pip-tab{
+  border:1px solid var(--border);
+  background:rgba(9,34,15,.72);
+  color:var(--green);
+  border-radius:999px;
+  padding:9px 13px;
+  font-weight:900;
+  letter-spacing:.12em;
+  cursor:pointer;
+}
+.pip-tab.active{background:var(--green);color:#061007;box-shadow:0 0 18px rgba(157,255,98,.45)}
+.pip-content .panel[data-tab]{display:none}
+.pip-content[data-active-tab="overview"] .panel[data-tab~="overview"],
+.pip-content[data-active-tab="calendar"] .panel[data-tab~="calendar"],
+.pip-content[data-active-tab="plants"] .panel[data-tab~="plants"],
+.pip-content[data-active-tab="logs"] .panel[data-tab~="logs"],
+.pip-content[data-active-tab="notes"] .panel[data-tab~="notes"]{display:block}
+.order-check{
+  border:1px solid rgba(157,255,98,.45);
+  background:rgba(157,255,98,.08);
+  color:var(--green);
+  border-radius:999px;
+  padding:8px 10px;
+  font-weight:900;
+  cursor:pointer;
+}
+.order-check.done{background:var(--green);color:#061007}
+.risk-meter.freeze .risk-needle{transform:translateX(-50%) rotate(-62deg);background:#9DFF62}
+.risk-meter.cold .risk-needle{transform:translateX(-50%) rotate(-30deg);background:#C9FF9D}
+.risk-meter.ideal .risk-needle{transform:translateX(-50%) rotate(0deg);background:var(--green)}
+.risk-meter.hot .risk-needle{transform:translateX(-50%) rotate(32deg);background:var(--amber)}
+.risk-meter.danger .risk-needle{transform:translateX(-50%) rotate(62deg); background:var(--red); box-shadow:0 0 14px rgba(255,111,79,.55)}
+.threat-scale{font-size:.58rem;gap:4px}
+@media(max-width:620px){
+  .pip-tabs{top:52px;overflow:auto;flex-wrap:nowrap;padding-bottom:10px}
+  .pip-tab{white-space:nowrap;font-size:.75rem;padding:8px 10px}
+}
+
 </style>
 
 </head>
@@ -841,7 +893,7 @@ h1{
   <main class="main">
     <section class="top">
       <div class="title-block">
-        <div class="kicker">Vault-Garden Utility v2.6</div>
+        <div class="kicker">Vault-Garden Utility v2.7</div>
         <h2>Seasonal Ops</h2>
         <p>Live Riverview weather alerts + plant-stage guidance for your actual garden setup. Example: <strong>💧🍅</strong> means fertilize tomatoes.</p>
         <div class="farmer-mascot">
@@ -849,7 +901,7 @@ h1{
             <img src="images/kwen-vault-farmer.png" alt="kWen Vault Farmer mascot" onerror="this.classList.add('missing');this.style.display='none';">
             <span class="mascot-fallback">👨‍🌾👍</span>
           </div>
-          <div class="mascot-copy"><b>Vault Farmer says: keep it watered, not weird.</b><small>Daily orders, harvest checks, and weather warnings update from the calendar and Riverview forecast.</small></div>
+          <div class="mascot-copy"><b>Overseer of Vault 73 says:</b><small id="overseerSays">Daily orders, harvest checks, and weather warnings update from the calendar and Riverview forecast.</small></div>
         </div>
       </div>
       <div class="status">
@@ -865,24 +917,37 @@ h1{
           <div class="weather-chip"><small>Now</small><b id="weatherNow">Loading…</b></div>
           <div class="weather-chip"><small>Tonight Low</small><b id="weatherLow">—</b></div>
           <div class="weather-chip"><small>Tomorrow High</small><b id="weatherHigh">—</b></div>
-          <div class="weather-chip"><small>Garden Risk</small><b id="weatherRisk">Checking…</b></div>
+          <div class="weather-chip"><small>Threat Level</small><b id="weatherRisk">Checking…</b></div>
         </div>
         <div class="risk-meter-wrap">
-          <div class="risk-meter-title"><span>VAULT-TEC RAD-GARDEN METER</span><span id="riskMeterLabel">STANDBY</span></div>
+          <div class="risk-meter-title"><span>GARDEN THREAT METER</span><span id="riskMeterLabel">STANDBY</span></div>
           <div class="risk-meter safe" id="riskMeter">
             <div class="risk-arc"></div>
             <div class="risk-needle"></div>
             <div class="risk-center"></div>
           </div>
-          <div class="risk-scale"><span>SAFE</span><span>CAUTION</span><span>HOT</span><span>DANGER</span></div>
+          <div class="risk-scale threat-scale"><span>❄️ FROST</span><span>🧊 COLD</span><span>✅ IDEAL</span><span>☀️ HOT</span><span>🔥 DANGER</span></div>
         </div>
         <div class="forecast-list" id="forecastList"></div>
       </div>
 
     </section>
 
-    <section class="grid">
-      <div class="panel">
+    <nav class="pip-tabs" aria-label="Pip-Boy sections">
+      <button type="button" class="pip-tab active" data-tab-btn="overview">STATUS</button>
+      <button type="button" class="pip-tab" data-tab-btn="calendar">CALENDAR</button>
+      <button type="button" class="pip-tab" data-tab-btn="plants">PLANTS</button>
+      <button type="button" class="pip-tab" data-tab-btn="logs">LOGS</button>
+      <button type="button" class="pip-tab" data-tab-btn="notes">NOTES</button>
+    </nav>
+
+    <section class="grid pip-content" data-active-tab="overview">
+      <div class="panel" data-tab="overview">
+        <h3>Today's Orders</h3>
+        <div class="task-list" id="todaysOrders"></div>
+      </div>
+
+      <div class="panel" data-tab="calendar">
         <div class="calendar-head">
           <button class="month-btn" id="prevMonth">◀</button>
           <div class="month-title" id="monthTitle">Month</div>
@@ -907,7 +972,7 @@ h1{
       </div>
 
 
-      <div class="panel">
+      <div class="panel" data-tab="overview">
         <h3>Garden Alerts</h3>
         <div class="alert-stack" id="gardenAlerts">
           <div class="alert-card"><b>Checking Riverview forecast…</b><small>Cold, heat, watering, and shade alerts will appear here.</small></div>
@@ -915,7 +980,7 @@ h1{
       </div>
 
 
-      <div class="panel">
+      <div class="panel" data-tab="plants">
         <h3>Plant Stage</h3>
         <div class="stage-control" id="plantStageControl">
           <label class="stage-toggle">
@@ -933,27 +998,27 @@ h1{
         </div>
       </div>
 
-      <div class="panel">
+      <div class="panel" data-tab="plants">
         <h3>Fertilizer Guide</h3>
         <div class="fertilizer-guide" id="fertilizerGuide"></div>
       </div>
 
-      <div class="panel">
+      <div class="panel" data-tab="overview calendar">
         <h3>This Month</h3>
         <div class="task-list" id="monthTasks"></div>
       </div>
 
-      <div class="panel">
+      <div class="panel" data-tab="overview logs">
         <h3>Harvest Log</h3>
         <div class="harvest-log" id="harvestLog"></div>
       </div>
 
-      <div class="panel">
+      <div class="panel" data-tab="overview plants">
         <h3>Selected Plant</h3>
         <div class="plant-detail" id="plantDetail"></div>
       </div>
 
-      <div class="panel">
+      <div class="panel" data-tab="notes">
         <h3>Growing Notes</h3>
         <div class="notes">
           <p><strong>Grow bags:</strong> they dry faster than beds, especially during heat. Check daily in July/August and water before fertilizing if soil is dry.</p>
@@ -1350,10 +1415,52 @@ function findHarvestByEncodedId(encodedId){
 function setRiskMeter(risk){
   const meter = document.getElementById("riskMeter");
   const label = document.getElementById("riskMeterLabel");
+  const overseer = document.getElementById("overseerSays");
   if(!meter) return;
-  const css = (risk && risk.css ? risk.css : "safe").split(" ")[0];
-  meter.className = "risk-meter " + css + (risk && risk.css && risk.css.indexOf("heat") >= 0 ? " heat" : "");
-  if(label) label.textContent = risk && risk.label ? risk.label.replace(/[🟢🟡🟠🔴]/g, "").trim().toUpperCase() : "SAFE";
+  const cssText = risk && risk.css ? risk.css : "ideal safe";
+  let state = "ideal";
+  if(cssText.indexOf("freeze") >= 0) state = "freeze";
+  else if(cssText.indexOf("cold") >= 0) state = "cold";
+  else if(cssText.indexOf("danger") >= 0) state = "danger";
+  else if(cssText.indexOf("hot") >= 0 || cssText.indexOf("heat") >= 0) state = "hot";
+  meter.className = "risk-meter " + state;
+  if(label) label.textContent = risk && risk.label ? risk.label.replace(/[❄️🧊✅☀️🔥]/g, "").trim().toUpperCase() : "IDEAL";
+  if(overseer && risk && risk.overseer) overseer.textContent = risk.overseer;
+}
+
+function getOrderLog(){
+  try{ return JSON.parse(localStorage.getItem("kwenGardenOrderLog") || "{}"); } catch(err){ return {}; }
+}
+function setOrderDone(id, done){
+  const log = getOrderLog();
+  log[id] = !!done;
+  try{ localStorage.setItem("kwenGardenOrderLog", JSON.stringify(log)); } catch(err){}
+}
+function isOrderDone(id){ return !!getOrderLog()[id]; }
+function orderId(text){ return currentYear + "-" + String(currentMonth+1).padStart(2,"0") + "-" + text; }
+function renderTodaysOrders(){
+  const box = document.getElementById("todaysOrders");
+  if(!box) return;
+  const now = new Date();
+  const key = dateKey(currentYear, currentMonth, now.getDate());
+  let evs = filteredEvents().filter(ev => ev.date === key).slice(0,5);
+  let fallback = false;
+  if(!evs.length){
+    evs = eventsForCurrentMonth().sort((a,b)=>a.date.localeCompare(b.date)).slice(0,3);
+    fallback = true;
+  }
+  if(!evs.length){
+    box.innerHTML = `<div class="task"><div class="big">✓</div><div><b>No active orders</b><small>The vault garden is quiet for this filter.</small></div></div>`;
+    return;
+  }
+  box.innerHTML = evs.map(ev => {
+    const p = plants[ev.plant] || {icon:"❓", name:"Unknown Plant"};
+    const dt = new Date(ev.date + "T12:00:00");
+    const label = (fallback ? "Next: " + monthNames[dt.getMonth()] + " " + dt.getDate() + " — " : "") + p.name;
+    const id = orderId(ev.date + ev.text);
+    const done = isOrderDone(id);
+    return `<div class="harvest-row"><div><b>${ev.action}${p.icon} ${label}</b><small>${ev.text}</small></div><button type="button" class="order-check ${done ? "done" : ""}" data-order-id="${encodeURIComponent(id)}">${done ? "✓ Done" : "Mark done"}</button></div>`;
+  }).join("");
 }
 
 function renderTasks(){
@@ -1410,9 +1517,26 @@ function renderAll(){
   renderPlantStageControls();
   renderFertilizerGuide();
   renderHarvestLog();
+  renderTodaysOrders();
 }
 
 function handleAction(target){
+  const tabBtn = target.closest("[data-tab-btn]");
+  if(tabBtn){
+    const content = document.querySelector(".pip-content");
+    if(content) content.dataset.activeTab = tabBtn.dataset.tabBtn;
+    document.querySelectorAll(".pip-tab").forEach(btn => btn.classList.toggle("active", btn === tabBtn));
+    return;
+  }
+
+  const orderBtn = target.closest("[data-order-id]");
+  if(orderBtn){
+    const id = decodeURIComponent(orderBtn.dataset.orderId || "");
+    setOrderDone(id, !isOrderDone(id));
+    renderTodaysOrders();
+    return;
+  }
+
   const harvestBtn = target.closest("[data-harvest-id]");
   if(harvestBtn){
     const ev = findHarvestByEncodedId(harvestBtn.dataset.harvestId);
@@ -1506,50 +1630,65 @@ function getGardenRisk(high, low){
   high = Number(high);
   low = Number(low);
 
+  if(!isNaN(low) && low < 3){
+    return {
+      label:"❄️ Frost Threat",
+      css:"freeze danger",
+      text:"Frost-zone nonsense. Bring tomatoes, cherry tomatoes, peppers, Thai basil, basil, and spinach containers into shelter overnight.",
+      overseer:"Frost warning from Vault 73: sensitive plants sleep inside tonight. No heroics."
+    };
+  }
+
   if(!isNaN(low) && low < 7){
     return {
-      label:"🔴 Cold Risk",
-      css:"danger",
-      text:"Bring tomatoes, cherry tomatoes, peppers, Thai basil, and basil into the shed/garage overnight."
+      label:"🧊 Cold Stress",
+      css:"cold warn",
+      text:"Cold stress risk. Bring tomatoes, cherry tomatoes, peppers, Thai basil, and basil into the shed/garage overnight.",
+      overseer:"Cold stress detected. Tomatoes, peppers, and basil get shelter. Spinach can act smug about it."
     };
   }
 
   if(!isNaN(low) && low < 10){
     return {
-      label:"🟡 Cool Night",
-      css:"warn",
-      text:"Tomatoes may slow down. Peppers and basil may stress. Use the shed if plants are already struggling."
+      label:"🧊 Cool Night",
+      css:"cold warn",
+      text:"Tomatoes may slow down. Peppers and basil may stress. Use the shed if plants are already struggling.",
+      overseer:"Cool night. Not a disaster, but the tender squad may complain."
     };
   }
 
   if(!isNaN(high) && high >= 35){
     return {
-      label:"🔴 Extreme Heat",
+      label:"🔥 Extreme Heat",
       css:"danger heat",
-      text:"Water deeply early, check grow bags again later, and give afternoon shade to peppers, basil, and stressed plants."
+      text:"Water deeply early, check grow bags again later, and give afternoon shade to peppers, basil, spinach, and stressed plants.",
+      overseer:"Extreme heat. Water early, check grow bags twice, and deploy shade like a responsible wasteland farmer."
     };
   }
 
   if(!isNaN(high) && high >= 31){
     return {
-      label:"🟠 High Heat",
-      css:"heat",
-      text:"Check grow bags daily or twice daily. Consider afternoon shade for basil, peppers, and young/stressed transplants."
+      label:"☀️ Heat Stress",
+      css:"hot heat",
+      text:"Check grow bags daily or twice daily. Consider afternoon shade for basil, peppers, spinach, and young/stressed transplants.",
+      overseer:"Heat stress. Containers dry out fast. Basil and spinach are now drama royalty."
     };
   }
 
   if(!isNaN(high) && high >= 28){
     return {
-      label:"🟡 Heat Advisory",
-      css:"warn heat",
-      text:"Water early. Check containers and grow bags more often than raised beds."
+      label:"☀️ Warm Watch",
+      css:"hot heat",
+      text:"Water early. Check containers and grow bags more often than raised beds.",
+      overseer:"Warm watch. Water by touch, not vibes. Grow bags are sneaky."
     };
   }
 
   return {
-    label:"🟢 Safe",
-    css:"safe",
-    text:"No major cold or heat warning. Keep normal watering and hardening-off routines."
+    label:"✅ Ideal",
+    css:"ideal safe",
+    text:"No major cold or heat warning. Keep normal watering and hardening-off routines.",
+    overseer:"Conditions look stable. Plant good. Water smart. Harvest often."
   };
 }
 
@@ -1558,6 +1697,7 @@ function showWeatherError(message){
   setWeatherText("weatherLow", "—");
   setWeatherText("weatherHigh", "—");
   setWeatherText("weatherRisk", "Manual Rules");
+  setRiskMeter({label:"Manual", css:"ideal", overseer:"Manual mode. Use the Vault 73 rules: below 7°C shelter tender plants; 28°C+ check water more often."});
   setRiskMeter({ label:"Manual Rules", css:"warn" });
 
   var alerts = document.getElementById("gardenAlerts");
