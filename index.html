@@ -1488,93 +1488,18 @@ a[href*="spotify"],button.radio,.radio,.radio-btn{display:none!important;}
 </style>
 
 
-<style id="v6-5-icons-and-polish">
-/* v6.5 — terminal icon pass */
-.vault-icon{
-  display:inline-grid;
-  place-items:center;
-  width:30px;
-  height:30px;
-  min-width:30px;
-  border:1px solid rgba(141,255,88,.72);
-  background:rgba(141,255,88,.08);
-  color:var(--green2);
-  font-size:.64rem;
-  font-weight:900;
-  letter-spacing:.02em;
-  line-height:1;
-  box-shadow:inset 0 0 12px rgba(141,255,88,.12),0 0 8px rgba(141,255,88,.10);
-  text-shadow:var(--glow);
-  vertical-align:middle;
-  margin-right:6px;
-}
-.vault-icon.big{
-  width:44px;
-  height:44px;
-  min-width:44px;
-  font-size:.74rem;
-  margin-right:10px;
-}
-.legend .vault-icon{
-  width:24px;
-  height:24px;
-  min-width:24px;
-  font-size:.55rem;
-  margin-right:4px;
-}
-.task .big{
-  font-size:0!important;
-}
-.task .big .vault-icon{
-  margin:0;
-}
-.crop-card b,
-.fertilizer-row b,
-.quick-grab-card small,
-.legend span,
-.stage-toggle b{
-  display:flex;
-  align-items:center;
-  gap:4px;
-}
-.crop-card b{
-  font-size:1rem;
-  letter-spacing:.06em;
-}
-.crop-card{
-  min-height:118px!important;
-}
-.crop-card::after{
-  content:"VAULT 73 FIELD FILE";
-  display:block;
-  margin-top:10px;
-  padding-top:8px;
-  border-top:1px dashed rgba(141,255,88,.35);
-  color:rgba(216,255,194,.62);
-  font-size:.62rem;
-  letter-spacing:.16em;
-}
-.panel h3::before{
-  content:"▣ ";
-  color:var(--green2);
-}
-.weather-chip b,
-.status b{
-  font-size:1.02rem;
-}
-@media(max-width:620px){
-  .vault-icon{
-    width:26px;
-    height:26px;
-    min-width:26px;
-    font-size:.56rem;
-  }
-  .vault-icon.big{
-    width:36px;
-    height:36px;
-    min-width:36px;
-  }
-}
+
+<style id="vault73-real-icons">
+.v73-icon{display:inline-block;vertical-align:middle;object-fit:contain;filter:drop-shadow(0 0 6px rgba(141,255,88,.45));}
+.v73-icon-mini{width:28px;height:28px;margin-right:4px;}
+.v73-icon-full{width:82px;height:82px;display:block;margin:0 0 8px;}
+.event-pill{min-width:28px;min-height:28px;justify-content:center;}
+.event-pill .v73-icon-mini{margin-right:0;}
+.legend span,.stage-toggle b,.fertilizer-row b{display:inline-flex;align-items:center;gap:6px;}
+.crop-card b{display:block!important;}
+.crop-card .v73-icon-full{margin-bottom:10px;}
+.task .big{font-size:0!important;}
+.task .big .v73-icon-mini{width:34px;height:34px;margin:0;}
 </style>
 
 </head>
@@ -2790,94 +2715,81 @@ document.addEventListener("DOMContentLoaded", function(){
 </script>
 
 
-<script id="v6-5-icon-js">
+
+<script id="vault73-real-icon-js">
 document.addEventListener("DOMContentLoaded", function(){
-  const map = {
-    "🍅":"TOM",
-    "🍒":"CHY",
-    "🫑":"PEP",
-    "🥒":"CUC",
-    "🫛":"PEA",
-    "🍟":"WAX",
-    "🟡":"BET",
-    "🧄":"GAR",
-    "🌿":"HRB",
-    "🌱":"SPT",
-    "🥬":"SPN",
-    "💧":"H2O",
-    "🧺":"HRV",
-    "🪴":"MOV",
-    "❄️":"FRS",
-    "🧊":"CLD",
-    "✅":"OK",
-    "☀️":"HOT",
-    "🔥":"DNG",
-    "📡":"ALL",
-    "🍳":"CKB"
+  const icons = {
+    "🍅":["images/icons/mini/tomatoes-mini.png","images/icons/full/tomatoes.png","Tomatoes"],
+    "🍒":["images/icons/mini/cherry-tomatoes-mini.png","images/icons/full/cherry-tomatoes.png","Cherry Tomatoes"],
+    "🫑":["images/icons/mini/peppers-mini.png","images/icons/full/peppers.png","Peppers"],
+    "🥒":["images/icons/mini/cucumbers-mini.png","images/icons/full/cucumbers.png","Cucumbers"],
+    "🫛":["images/icons/mini/peas-mini.png","images/icons/full/peas.png","Peas"],
+    "🍟":["images/icons/mini/yellow-beans-mini.png","images/icons/full/yellow-beans.png","Yellow Beans"],
+    "🟡":["images/icons/mini/golden-beets-mini.png","images/icons/full/golden-beets.png","Golden Beets"],
+    "🧄":["images/icons/mini/garlic-mini.png","images/icons/full/garlic.png","Garlic"],
+    "🌿":["images/icons/mini/herbs-mini.png","images/icons/full/herbs.png","Herbs"],
+    "🌱":["images/icons/mini/herbs-mini.png","images/icons/full/herbs.png","Herbs"],
+    "🥬":["images/icons/mini/spinach-mini.png","images/icons/full/spinach.png","Spinach"],
+    "💧":["images/icons/mini/water-mini.png",null,"Water"],
+    "🧺":["images/icons/mini/harvest-mini.png",null,"Harvest"],
+    "🪴":["images/icons/mini/transplant-mini.png",null,"Move Out"],
+    "❄️":["images/icons/mini/frost-mini.png",null,"Frost"],
+    "🧊":["images/icons/mini/cold-mini.png",null,"Cold"],
+    "✅":["images/icons/mini/ideal-mini.png",null,"Ideal"],
+    "☀️":["images/icons/mini/hot-mini.png",null,"Hot"],
+    "🔥":["images/icons/mini/danger-mini.png",null,"Danger"]
   };
-
-  function replaceEmojiTextNode(node){
-    let text = node.nodeValue;
-    let changed = false;
-    Object.keys(map).forEach(e=>{
-      if(text.includes(e)) changed = true;
-    });
-    if(!changed) return;
-
-    const frag = document.createDocumentFragment();
-    let remaining = text;
-    while(remaining.length){
-      let hitEmoji = null;
-      let hitIndex = Infinity;
-      Object.keys(map).forEach(e=>{
-        const idx = remaining.indexOf(e);
-        if(idx !== -1 && idx < hitIndex){
-          hitIndex = idx;
-          hitEmoji = e;
-        }
-      });
-      if(hitEmoji === null){
-        frag.appendChild(document.createTextNode(remaining));
-        break;
-      }
-      if(hitIndex > 0){
-        frag.appendChild(document.createTextNode(remaining.slice(0, hitIndex)));
-      }
-      const span = document.createElement("span");
-      span.className = "vault-icon";
-      span.textContent = map[hitEmoji];
-      span.title = hitEmoji;
-      frag.appendChild(span);
-      remaining = remaining.slice(hitIndex + hitEmoji.length);
-    }
-    node.parentNode.replaceChild(frag, node);
+  function makeImg(key, full){
+    const info=icons[key]; if(!info) return document.createTextNode(key);
+    const img=document.createElement("img");
+    img.className="v73-icon "+(full && info[1] ? "v73-icon-full":"v73-icon-mini");
+    img.src=(full && info[1]) ? info[1] : info[0];
+    img.alt=info[2];
+    img.loading="lazy";
+    img.onerror=function(){this.style.display="none";};
+    return img;
   }
-
+  function replaceNode(node){
+    let t=node.nodeValue, hit=false;
+    Object.keys(icons).forEach(k=>{ if(t.includes(k)) hit=true; });
+    if(!hit) return;
+    const frag=document.createDocumentFragment();
+    while(t.length){
+      let found=null, pos=999999;
+      Object.keys(icons).forEach(k=>{ const i=t.indexOf(k); if(i>=0 && i<pos){pos=i;found=k;} });
+      if(!found){ frag.appendChild(document.createTextNode(t)); break; }
+      if(pos>0) frag.appendChild(document.createTextNode(t.slice(0,pos)));
+      frag.appendChild(makeImg(found,false));
+      t=t.slice(pos+found.length);
+    }
+    node.parentNode.replaceChild(frag,node);
+  }
   function walk(root){
-    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
-      acceptNode(node){
-        if(!node.nodeValue || !/[🍅🍒🫑🥒🫛🍟🟡🧄🌿🌱🥬💧🧺🪴❄🧊✅☀🔥📡🍳]/u.test(node.nodeValue)) return NodeFilter.FILTER_REJECT;
-        if(node.parentElement && ["SCRIPT","STYLE"].includes(node.parentElement.tagName)) return NodeFilter.FILTER_REJECT;
+    const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{
+      acceptNode(n){
+        if(!n.nodeValue || !/[🍅🍒🫑🥒🫛🍟🟡🧄🌿🌱🥬💧🧺🪴❄🧊✅☀🔥]/u.test(n.nodeValue)) return NodeFilter.FILTER_REJECT;
+        if(n.parentElement && ["SCRIPT","STYLE"].includes(n.parentElement.tagName)) return NodeFilter.FILTER_REJECT;
         return NodeFilter.FILTER_ACCEPT;
       }
     });
-    const nodes = [];
-    while(walker.nextNode()) nodes.push(walker.currentNode);
-    nodes.forEach(replaceEmojiTextNode);
+    const nodes=[]; while(walker.nextNode()) nodes.push(walker.currentNode);
+    nodes.forEach(replaceNode);
   }
-
-  walk(document.body);
-
-  // Re-run after renders update dynamic sections.
-  const obs = new MutationObserver(muts=>{
-    muts.forEach(m=>{
-      m.addedNodes.forEach(n=>{
-        if(n.nodeType === 1) walk(n);
-        if(n.nodeType === 3) replaceEmojiTextNode(n);
-      });
+  function enhanceCards(){
+    document.querySelectorAll(".crop-card").forEach(card=>{
+      if(card.dataset.v73Icon==="true") return;
+      const txt=card.textContent || "";
+      const key=Object.keys(icons).find(k=>txt.includes(k) && icons[k][1]);
+      if(key){ card.prepend(makeImg(key,true)); card.dataset.v73Icon="true"; }
     });
-  });
-  obs.observe(document.body,{childList:true,subtree:true});
+  }
+  walk(document.body); enhanceCards();
+  new MutationObserver(muts=>{
+    muts.forEach(m=>m.addedNodes.forEach(n=>{
+      if(n.nodeType===1){ walk(n); enhanceCards(); }
+      if(n.nodeType===3) replaceNode(n);
+    }));
+  }).observe(document.body,{childList:true,subtree:true});
 });
 </script>
 
