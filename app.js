@@ -1,1 +1,1 @@
-console.log('Build 0 ready');
+console.log('STAT v1');

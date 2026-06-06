@@ -1,10 +1,1 @@
-
-body{margin:0;background:#010201;color:#98ff66;font-family:Consolas,monospace;padding:10px}
-.shell{max-width:430px;margin:auto;border:6px solid #1b2419;outline:2px solid rgba(152,255,102,.6);min-height:95vh;background:#030603}
-header{padding:14px;border-bottom:2px solid rgba(152,255,102,.6)}
-h1{margin:0;text-shadow:0 0 10px #98ff66}
-nav{display:grid;grid-template-columns:repeat(5,1fr);border-bottom:2px solid rgba(152,255,102,.6)}
-button{background:#071207;color:#98ff66;border:none;padding:12px 4px}
-button.active{background:#98ff66;color:#031003}
-main{padding:14px}
-section{border:2px solid rgba(152,255,102,.6);padding:20px;min-height:300px;display:flex;flex-direction:column;justify-content:center;align-items:center}
+body{margin:0;background:#000;color:#98ff66;font-family:Consolas,monospace;padding:8px}.device{max-width:430px;margin:auto;border:4px solid #2b3328;background:#041004}.title{font-size:1.8rem}.sub{font-size:.8rem}.tabs{display:grid;grid-template-columns:repeat(5,1fr)}.tabs button{padding:8px;border:1px solid rgba(152,255,102,.5);background:#071207;color:#98ff66}.tabs .active{background:#98ff66;color:#021002}.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:8px}.panel{border:1px solid rgba(152,255,102,.5);padding:8px}.weather{grid-column:1/3}.wg{display:grid;grid-template-columns:repeat(4,1fr)}.avatar{width:50px;height:50px;border:1px solid rgba(152,255,102,.5);display:inline-flex;align-items:center;justify-content:center;margin-right:8px}.memo{display:flex}.gauge{height:60px;border-top:3px solid #98ff66;border-radius:80px 80px 0 0}
