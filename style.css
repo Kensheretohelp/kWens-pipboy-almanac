@@ -1,46 +1,76 @@
-body{
-    background:black;
-    margin:0;
-    color:#9eff7a;
+body {
+    background: #000;
+    margin: 0;
+    padding: 10px;
+    font-family: monospace;
 }
 
-.container{
-    max-width:900px;
-    margin:auto;
+.container {
+    max-width: 1000px;
+    margin: auto;
+
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
 }
 
-.header,
-.weather,
-.footer{
-    width:100%;
-    display:block;
+/* Prevent strange spacing */
+img {
+    display: block;
+    width: 100%;
+    height: auto;
 }
 
-.top-row,
-.bottom-row{
-    display:flex;
-    gap:15px;
+/* Header spans full width */
+.header {
+    grid-column: 1 / span 2;
 }
 
-.top-row img,
-.bottom-row img{
-    width:50%;
+/* Overview panel */
+.overview {
+    grid-column: 1;
 }
 
-img{
-    display:block;
+/* Threat panel */
+.threat {
+    grid-column: 2;
 }
 
-@media(max-width:800px){
+/* Weather spans full width */
+.weather {
+    grid-column: 1 / span 2;
+}
 
-    .top-row,
-    .bottom-row{
-        flex-direction:column;
+/* Calendar */
+.calendar {
+    grid-column: 1;
+}
+
+/* Warnings */
+.warnings {
+    grid-column: 2;
+}
+
+/* Footer spans full width */
+.footer {
+    grid-column: 1 / span 2;
+}
+
+/* Phone layout */
+@media (max-width: 800px) {
+
+    .container {
+        grid-template-columns: 1fr;
     }
 
-    .top-row img,
-    .bottom-row img{
-        width:100%;
+    .header,
+    .overview,
+    .threat,
+    .weather,
+    .calendar,
+    .warnings,
+    .footer {
+        grid-column: 1;
     }
 
 }
