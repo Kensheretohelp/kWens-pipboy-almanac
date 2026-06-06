@@ -1489,36 +1489,22 @@ a[href*="spotify"],button.radio,.radio,.radio-btn{display:none!important;}
 
 
 
-<style id="vault73-test-icons">
-/* v6.7 test-only mini icons: only tomato, pepper, peas for now */
-.v73-icon{
-  display:inline-block;
-  vertical-align:middle;
-  object-fit:contain;
-  filter:drop-shadow(0 0 6px rgba(141,255,88,.45));
-}
-.v73-icon-mini{
+<style id="v6-8-safe-icon-ready">
+/* Safe icon-ready build: no auto-replacement JS, no MutationObserver */
+.v73-mini-icon{
   width:26px;
   height:26px;
-  margin-right:4px;
+  object-fit:contain;
+  vertical-align:middle;
+  filter:drop-shadow(0 0 5px rgba(141,255,88,.45));
 }
-.event-pill .v73-icon-mini{
-  margin-right:0;
-}
-.v73-emoji-fallback{
-  display:inline-block;
-  font-size:1rem;
-  line-height:1;
-  margin-right:4px;
-}
-.event-pill .v73-emoji-fallback{
-  margin-right:0;
-}
-.legend span,
-.stage-toggle b{
-  display:inline-flex;
-  align-items:center;
-  gap:5px;
+.v73-full-icon{
+  width:82px;
+  height:82px;
+  object-fit:contain;
+  display:block;
+  margin-bottom:8px;
+  filter:drop-shadow(0 0 8px rgba(141,255,88,.45));
 }
 </style>
 
@@ -2734,88 +2720,6 @@ document.addEventListener("DOMContentLoaded", function(){
 });
 </script>
 
-
-
-<script id="vault73-test-icon-js">
-document.addEventListener("DOMContentLoaded", function(){
-  const icons = {
-    "🍅": ["images/icons/mini/tomatoes-mini.png", "Tomatoes"],
-    "🫑": ["images/icons/mini/peppers-mini.png", "Peppers"],
-    "🫛": ["images/icons/mini/peas-mini.png", "Peas"]
-  };
-
-  function iconNode(emoji){
-    const info = icons[emoji];
-    const wrap = document.createElement("span");
-    wrap.className = "v73-icon-wrap";
-
-    const img = document.createElement("img");
-    img.className = "v73-icon v73-icon-mini";
-    img.src = info[0];
-    img.alt = info[1];
-    img.loading = "lazy";
-    img.onerror = function(){
-      this.remove();
-      const fallback = document.createElement("span");
-      fallback.className = "v73-emoji-fallback";
-      fallback.textContent = emoji;
-      wrap.prepend(fallback);
-    };
-
-    wrap.appendChild(img);
-    return wrap;
-  }
-
-  function replaceNode(node){
-    let text = node.nodeValue;
-    let changed = false;
-    Object.keys(icons).forEach(e => { if(text.includes(e)) changed = true; });
-    if(!changed) return;
-
-    const frag = document.createDocumentFragment();
-    while(text.length){
-      let hit = null;
-      let pos = Infinity;
-      Object.keys(icons).forEach(e => {
-        const idx = text.indexOf(e);
-        if(idx !== -1 && idx < pos){ pos = idx; hit = e; }
-      });
-
-      if(hit === null){
-        frag.appendChild(document.createTextNode(text));
-        break;
-      }
-
-      if(pos > 0) frag.appendChild(document.createTextNode(text.slice(0, pos)));
-      frag.appendChild(iconNode(hit));
-      text = text.slice(pos + hit.length);
-    }
-    node.parentNode.replaceChild(frag, node);
-  }
-
-  function walk(root){
-    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
-      acceptNode(node){
-        if(!node.nodeValue || !/[🍅🫑🫛]/u.test(node.nodeValue)) return NodeFilter.FILTER_REJECT;
-        if(node.parentElement && ["SCRIPT","STYLE"].includes(node.parentElement.tagName)) return NodeFilter.FILTER_REJECT;
-        return NodeFilter.FILTER_ACCEPT;
-      }
-    });
-    const nodes = [];
-    while(walker.nextNode()) nodes.push(walker.currentNode);
-    nodes.forEach(replaceNode);
-  }
-
-  walk(document.body);
-
-  new MutationObserver(muts => {
-    muts.forEach(m => m.addedNodes.forEach(n => {
-      if(n.nodeType === 1) walk(n);
-      if(n.nodeType === 3) replaceNode(n);
-    }));
-  }).observe(document.body, {childList:true, subtree:true});
-});
-</script>
 
 </body>
 </html>
