@@ -826,7 +826,7 @@ h1{
   box-shadow:0 -4px 28px rgba(0,0,0,.55), inset 0 0 18px rgba(157,255,98,.09);
 }
 .pip-tabs::before{
-  content:"STATUS  ·  ITEMS  ·  DATA";
+  content:"" !important;
   position:absolute;
   top:5px;
   left:0;
@@ -1131,7 +1131,7 @@ body::after{
   padding:18px 12px 12px!important;
 }
 .pip-tabs::before{
-  content:"STAT   CAL   CROP   LOG   DATA" !important;
+  content:"" !important;
   color:rgba(215,255,184,.85)!important;
 }
 .pip-tabs::after{display:none!important;}
@@ -1229,6 +1229,354 @@ body::after{
 }
 </style>
 
+
+<style id="v5-3-cleanup">
+/* v5.3 cleanup: remove radio, fix duplicate header, clean bottom nav */
+.title-block .btn[href*="spotify"],
+.title-block a[href*="spotify"],
+a[href*="spotify"],
+button.radio,
+.radio,
+.radio-btn{
+  display:none!important;
+}
+.pip-tabs::before{
+  content:"" !important;
+  display:none !important;
+}
+.pip-tabs{
+  padding:12px!important;
+}
+.title-block h2{
+  font-size:clamp(2.4rem,8vw,5.4rem)!important;
+  line-height:.92!important;
+}
+.title-block .kicker + h2 + p{
+  margin-top:14px!important;
+}
+@media(max-width:620px){
+  .title-block h2{
+    font-size:3.05rem!important;
+  }
+}
+</style>
+
+
+<style id="v6-visual-overhaul">
+/* PIP-GROW v6.0 — visual-first Pip-Boy rebuild */
+:root{
+  --green:#8dff58;
+  --green2:#d8ffc2;
+  --amber:#b9ff70;
+  --border:rgba(141,255,88,.74);
+  --soft:rgba(141,255,88,.12);
+  --glow:0 0 10px rgba(141,255,88,.75),0 0 28px rgba(141,255,88,.35);
+}
+html{background:#010301;}
+body{
+  background:
+    radial-gradient(circle at 50% -10%, rgba(141,255,88,.18), transparent 30rem),
+    linear-gradient(180deg,#020502 0%,#061006 48%,#010201 100%) !important;
+  text-shadow:0 0 7px rgba(141,255,88,.42);
+}
+body::before{
+  opacity:.42!important;
+  background:
+    repeating-linear-gradient(0deg, rgba(141,255,88,.28) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(90deg, rgba(141,255,88,.06) 0 1px, transparent 1px 44px)!important;
+}
+body::after{
+  opacity:.55!important;
+  background:
+    radial-gradient(ellipse at center, transparent 0 45%, rgba(0,0,0,.86) 100%)!important;
+}
+.app{
+  max-width:1280px!important;
+  margin:14px auto!important;
+  min-height:calc(100vh - 28px)!important;
+  grid-template-columns:240px minmax(0,1fr)!important;
+  border:10px solid #1a2118!important;
+  outline:2px solid rgba(141,255,88,.60)!important;
+  border-radius:36px!important;
+  overflow:hidden!important;
+  background:#010501!important;
+  box-shadow:
+    inset 0 0 75px rgba(141,255,88,.12),
+    0 0 0 8px #050805,
+    0 0 42px rgba(141,255,88,.28)!important;
+}
+.sidebar{
+  background:linear-gradient(180deg,rgba(2,10,3,.98),rgba(0,3,1,.98))!important;
+  border-right:2px solid rgba(141,255,88,.72)!important;
+  box-shadow:inset -22px 0 42px rgba(141,255,88,.07)!important;
+}
+.brand,.panel,.title-block,.status,.weather-card{
+  border-radius:3px!important;
+  border:2px solid rgba(141,255,88,.65)!important;
+  background:linear-gradient(180deg,rgba(5,20,6,.76),rgba(0,6,1,.94))!important;
+  box-shadow:inset 0 0 32px rgba(141,255,88,.10),0 0 20px rgba(141,255,88,.08)!important;
+}
+.main{
+  position:relative;
+  padding:18px 18px 145px!important;
+  background:
+    radial-gradient(circle at 55% 12%,rgba(141,255,88,.12),transparent 28rem),
+    linear-gradient(180deg,rgba(0,10,2,.92),rgba(0,3,1,.97))!important;
+}
+.main::before{
+  content:"PIP-GROW 3000 // VAULT 73 AGRICULTURAL DIVISION";
+  display:block;
+  padding:0 0 10px;
+  margin-bottom:14px;
+  border-bottom:2px solid rgba(141,255,88,.72);
+  color:var(--green2);
+  font-size:.78rem;
+  font-weight:900;
+  letter-spacing:.20em;
+  text-shadow:var(--glow);
+}
+.top{
+  display:grid!important;
+  grid-template-columns:1.25fr .8fr!important;
+  grid-template-areas:
+    "hero weather"
+    "hero status"!important;
+  gap:14px!important;
+  align-items:stretch!important;
+}
+.title-block{grid-area:hero; min-height:455px!important; padding:22px!important;}
+.weather-card{grid-area:weather; min-width:0!important;}
+.status{grid-area:status; min-width:0!important;}
+.title-block .kicker{
+  font-size:.9rem!important;
+  color:var(--green2)!important;
+  letter-spacing:.22em!important;
+}
+.title-block h2{
+  font-size:clamp(3.4rem,8.6vw,7.4rem)!important;
+  line-height:.82!important;
+  margin:18px 0 10px!important;
+  letter-spacing:.02em!important;
+  text-shadow:var(--glow)!important;
+}
+.terminal-quote{
+  border-left:4px solid rgba(141,255,88,.75);
+  padding:10px 0 10px 14px;
+  color:var(--green2)!important;
+  font-size:1.05rem!important;
+  font-weight:900;
+  letter-spacing:.08em;
+}
+.farmer-mascot{
+  margin-top:18px!important;
+  display:grid!important;
+  grid-template-columns:230px 1fr!important;
+  gap:18px!important;
+  border-radius:3px!important;
+  border:2px solid rgba(141,255,88,.55)!important;
+  background:rgba(141,255,88,.055)!important;
+}
+.mascot-art{
+  width:220px!important;
+  height:220px!important;
+  border-radius:3px!important;
+  border:3px solid rgba(141,255,88,.85)!important;
+  filter:grayscale(.45) sepia(.35) hue-rotate(62deg) saturate(1.8) contrast(1.16);
+}
+.mascot-copy b{
+  display:block;
+  text-transform:uppercase;
+  letter-spacing:.15em;
+  color:var(--green2)!important;
+  font-size:1rem!important;
+  margin-bottom:10px;
+}
+.mascot-copy small{
+  color:var(--green)!important;
+  font-size:1.05rem!important;
+  line-height:1.45!important;
+}
+.weather-card h3,.panel h3{
+  color:var(--green2)!important;
+  border-bottom:1px solid rgba(141,255,88,.5);
+  padding-bottom:8px;
+  text-shadow:var(--glow);
+}
+.risk-meter-wrap{
+  border-radius:3px!important;
+  border:2px solid rgba(141,255,88,.70)!important;
+  background:rgba(0,0,0,.38)!important;
+}
+.risk-meter{height:150px!important;}
+.risk-arc{
+  width:260px!important;
+  height:260px!important;
+  bottom:-114px!important;
+  border-width:16px!important;
+}
+.risk-needle{
+  height:120px!important;
+  width:6px!important;
+}
+.risk-center{width:28px!important;height:28px!important;}
+.weather-main{
+  grid-template-columns:1fr 1fr!important;
+}
+.weather-chip,.alert-card,.stage-toggle,.crop-card,.task,.supply-card,.quick-grab-card,.data-card,.fertilizer-row,.stat,.tblock{
+  border-radius:3px!important;
+  background:rgba(0,0,0,.31)!important;
+  border:1px solid rgba(141,255,88,.48)!important;
+}
+.grid{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:14px!important;
+}
+.panel[data-tab="calendar"],.panel[data-tab="plants"]:has(#cropCards),.panel[data-tab="plants"]:has(#plantDetail){
+  grid-column:1 / -1!important;
+}
+.pip-tabs{
+  width:min(820px,calc(100vw - 28px))!important;
+  bottom:calc(10px + env(safe-area-inset-bottom))!important;
+  padding:12px!important;
+  border-radius:3px!important;
+  border:2px solid rgba(141,255,88,.78)!important;
+  background:#010601!important;
+  box-shadow:0 0 30px rgba(141,255,88,.20), inset 0 0 28px rgba(141,255,88,.13)!important;
+}
+.pip-tabs::before,.pip-tabs::after{display:none!important;content:""!important;}
+.pip-tab{
+  min-width:100px!important;
+  border-radius:2px!important;
+  background:transparent!important;
+  color:var(--green)!important;
+  border:1px solid rgba(141,255,88,.48)!important;
+  text-shadow:var(--glow)!important;
+  box-shadow:inset 0 0 16px rgba(141,255,88,.08)!important;
+}
+.pip-tab::before{display:none!important;}
+.pip-tab.active,.pip-tab:hover{
+  background:var(--green)!important;
+  color:#021002!important;
+  text-shadow:none!important;
+  box-shadow:0 0 24px rgba(141,255,88,.56)!important;
+}
+a[href*="spotify"],button.radio,.radio,.radio-btn{display:none!important;}
+.legend span,.event-pill,.task .big{
+  filter:grayscale(.7) sepia(.45) hue-rotate(65deg) saturate(1.45);
+}
+@media(max-width:980px){
+  .app{
+    display:block!important;
+    margin:0!important;
+    border-width:5px!important;
+    border-radius:0!important;
+    min-height:100vh!important;
+  }
+  .main{padding:62px 10px 130px!important;}
+  .top{
+    grid-template-columns:1fr!important;
+    grid-template-areas:"hero" "weather" "status"!important;
+  }
+  .title-block{min-height:auto!important;}
+  .title-block h2{font-size:3.15rem!important;}
+  .farmer-mascot{grid-template-columns:112px 1fr!important;}
+  .mascot-art{width:105px!important;height:105px!important;}
+  .grid{grid-template-columns:1fr!important;}
+  .pip-tabs{overflow-x:auto!important;justify-content:flex-start!important;}
+  .pip-tab{min-width:76px!important;font-size:.76rem!important;}
+}
+</style>
+
+
+<style id="v6-5-icons-and-polish">
+/* v6.5 — terminal icon pass */
+.vault-icon{
+  display:inline-grid;
+  place-items:center;
+  width:30px;
+  height:30px;
+  min-width:30px;
+  border:1px solid rgba(141,255,88,.72);
+  background:rgba(141,255,88,.08);
+  color:var(--green2);
+  font-size:.64rem;
+  font-weight:900;
+  letter-spacing:.02em;
+  line-height:1;
+  box-shadow:inset 0 0 12px rgba(141,255,88,.12),0 0 8px rgba(141,255,88,.10);
+  text-shadow:var(--glow);
+  vertical-align:middle;
+  margin-right:6px;
+}
+.vault-icon.big{
+  width:44px;
+  height:44px;
+  min-width:44px;
+  font-size:.74rem;
+  margin-right:10px;
+}
+.legend .vault-icon{
+  width:24px;
+  height:24px;
+  min-width:24px;
+  font-size:.55rem;
+  margin-right:4px;
+}
+.task .big{
+  font-size:0!important;
+}
+.task .big .vault-icon{
+  margin:0;
+}
+.crop-card b,
+.fertilizer-row b,
+.quick-grab-card small,
+.legend span,
+.stage-toggle b{
+  display:flex;
+  align-items:center;
+  gap:4px;
+}
+.crop-card b{
+  font-size:1rem;
+  letter-spacing:.06em;
+}
+.crop-card{
+  min-height:118px!important;
+}
+.crop-card::after{
+  content:"VAULT 73 FIELD FILE";
+  display:block;
+  margin-top:10px;
+  padding-top:8px;
+  border-top:1px dashed rgba(141,255,88,.35);
+  color:rgba(216,255,194,.62);
+  font-size:.62rem;
+  letter-spacing:.16em;
+}
+.panel h3::before{
+  content:"▣ ";
+  color:var(--green2);
+}
+.weather-chip b,
+.status b{
+  font-size:1.02rem;
+}
+@media(max-width:620px){
+  .vault-icon{
+    width:26px;
+    height:26px;
+    min-width:26px;
+    font-size:.56rem;
+  }
+  .vault-icon.big{
+    width:36px;
+    height:36px;
+    min-width:36px;
+  }
+}
+</style>
+
 </head>
 <body>
 <button class="btn mobile-open" id="menuOpen">☰ MENU</button>
@@ -1266,16 +1614,16 @@ body::after{
   <main class="main">
     <section class="top" data-tab="overview">
       <div class="title-block">
-        <div class="kicker">Vault-Tec Industries</div>
-        <h2>PIP-GROW 3000<br>VAULT 73 EDITION</h2>
-        <p>Vault 73 agricultural operations terminal. Weather, crops, harvests and field intelligence.</p>
+        <div class="kicker">VAULT-TEC AGRICULTURAL TERMINAL</div>
+        <h2>VAULT 73<br>FIELD OPS</h2>
+        <p class="terminal-quote">“War never changes. Fertilizer schedules do.”</p>
         <div class="farmer-mascot">
           <div class="mascot-art">
             <img src="images/kwen-vault-farmer.png" alt="kWen Vault Farmer mascot" onerror="this.classList.add('missing');this.style.display='none';">
             <span class="mascot-fallback">👨‍🌾👍</span>
           </div>
           <div class="mascot-copy"><b>Overseer of Vault 73 says:</b><small id="overseerSays">Daily orders, harvest checks, and weather warnings update from the calendar and Riverview forecast.</small></div>
-        <a class="btn" style="margin-top:10px;text-decoration:none;display:inline-flex;align-items:center;gap:8px;" href="https://open.spotify.com/playlist/4bAeo2ZL6d84q4x1g63MMt?si=-goQChDrRai9y_pNeFaNVw&pi=_MVEkznTSquk-" target="_blank" rel="noopener">📻 WASTELAND RADIO</a>
+        
       </div>
       <div class="status">
         <div class="status-row"><span>Region</span><b>Riverview, NB</b></div>
@@ -1285,7 +1633,7 @@ body::after{
         <div class="status-row"><span>Filter</span><b id="statusFilter">All</b></div>
       </div>
       <div class="weather-card" id="weatherPanel">
-        <h3>Live Riverview Weather</h3>
+        <h3>GARDEN CONDITIONS</h3>
         <div class="weather-main">
           <div class="weather-chip"><small>Now</small><b id="weatherNow">Loading…</b></div>
           <div class="weather-chip"><small>Tonight Low</small><b id="weatherLow">—</b></div>
@@ -2337,7 +2685,7 @@ body:not(.tab-overview) #weatherPanel{display:none}body:not(.tab-overview) .stat
     if(title){
       const tools=document.createElement('div');
       tools.className='vault-header-tools';
-      tools.innerHTML='<span class="vault-clock" id="vaultClock">-- --- ---- --:--</span><a class="vault-radio" href="https://open.spotify.com/playlist/4bAeo2ZL6d84q4x1g63MMt?si=-goQChDrRai9y_pNeFaNVw&pi=_MVEkznTSquk-" target="_blank" rel="noopener"><img class="icon" src="images/icons/radio.svg" alt="Radio"> RADIO</a>';
+      tools.innerHTML='<span class="vault-clock" id="vaultClock">-- --- ---- --:--</span>';
       title.appendChild(tools);
     }
     document.querySelectorAll('[data-tab-btn]').forEach(btn=>{const map={overview:'STAT',calendar:'CAL',plants:'CROP',logs:'LOG',data:'DATA'};btn.textContent=map[btn.dataset.tabBtn]||btn.textContent;btn.dataset.pipLabel=btn.textContent;});
@@ -2410,6 +2758,126 @@ document.addEventListener("DOMContentLoaded", function(){
   document.querySelectorAll("a").forEach(a=>{
     if((a.textContent||"").includes("WASTELAND RADIO")) a.remove();
   });
+});
+</script>
+
+
+<script id="v5-3-cleanup-js">
+document.addEventListener("DOMContentLoaded", function(){
+  document.querySelectorAll("a,button").forEach(el=>{
+    const txt=(el.textContent||"").trim().toUpperCase();
+    const href=(el.getAttribute("href")||"").toLowerCase();
+    if(txt === "RADIO" || txt.includes("WASTELAND RADIO") || href.includes("open.spotify.com")){
+      el.remove();
+    }
+  });
+  const h2=document.querySelector(".title-block h2");
+  if(h2){ h2.innerHTML="PIP-GROW 3000<br>VAULT 73 EDITION"; }
+});
+</script>
+
+
+<script id="v6-cleanup-js">
+document.addEventListener("DOMContentLoaded", function(){
+  document.querySelectorAll("a,button").forEach(el=>{
+    const txt=(el.textContent||"").trim().toUpperCase();
+    const href=(el.getAttribute("href")||"").toLowerCase();
+    if(txt.includes("RADIO") || href.includes("open.spotify.com")) el.remove();
+  });
+  const hero=document.querySelector(".title-block h2");
+  if(hero){ hero.innerHTML="VAULT 73<br>FIELD OPS"; }
+});
+</script>
+
+
+<script id="v6-5-icon-js">
+document.addEventListener("DOMContentLoaded", function(){
+  const map = {
+    "🍅":"TOM",
+    "🍒":"CHY",
+    "🫑":"PEP",
+    "🥒":"CUC",
+    "🫛":"PEA",
+    "🍟":"WAX",
+    "🟡":"BET",
+    "🧄":"GAR",
+    "🌿":"HRB",
+    "🌱":"SPT",
+    "🥬":"SPN",
+    "💧":"H2O",
+    "🧺":"HRV",
+    "🪴":"MOV",
+    "❄️":"FRS",
+    "🧊":"CLD",
+    "✅":"OK",
+    "☀️":"HOT",
+    "🔥":"DNG",
+    "📡":"ALL",
+    "🍳":"CKB"
+  };
+
+  function replaceEmojiTextNode(node){
+    let text = node.nodeValue;
+    let changed = false;
+    Object.keys(map).forEach(e=>{
+      if(text.includes(e)) changed = true;
+    });
+    if(!changed) return;
+
+    const frag = document.createDocumentFragment();
+    let remaining = text;
+    while(remaining.length){
+      let hitEmoji = null;
+      let hitIndex = Infinity;
+      Object.keys(map).forEach(e=>{
+        const idx = remaining.indexOf(e);
+        if(idx !== -1 && idx < hitIndex){
+          hitIndex = idx;
+          hitEmoji = e;
+        }
+      });
+      if(hitEmoji === null){
+        frag.appendChild(document.createTextNode(remaining));
+        break;
+      }
+      if(hitIndex > 0){
+        frag.appendChild(document.createTextNode(remaining.slice(0, hitIndex)));
+      }
+      const span = document.createElement("span");
+      span.className = "vault-icon";
+      span.textContent = map[hitEmoji];
+      span.title = hitEmoji;
+      frag.appendChild(span);
+      remaining = remaining.slice(hitIndex + hitEmoji.length);
+    }
+    node.parentNode.replaceChild(frag, node);
+  }
+
+  function walk(root){
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+      acceptNode(node){
+        if(!node.nodeValue || !/[🍅🍒🫑🥒🫛🍟🟡🧄🌿🌱🥬💧🧺🪴❄🧊✅☀🔥📡🍳]/u.test(node.nodeValue)) return NodeFilter.FILTER_REJECT;
+        if(node.parentElement && ["SCRIPT","STYLE"].includes(node.parentElement.tagName)) return NodeFilter.FILTER_REJECT;
+        return NodeFilter.FILTER_ACCEPT;
+      }
+    });
+    const nodes = [];
+    while(walker.nextNode()) nodes.push(walker.currentNode);
+    nodes.forEach(replaceEmojiTextNode);
+  }
+
+  walk(document.body);
+
+  // Re-run after renders update dynamic sections.
+  const obs = new MutationObserver(muts=>{
+    muts.forEach(m=>{
+      m.addedNodes.forEach(n=>{
+        if(n.nodeType === 1) walk(n);
+        if(n.nodeType === 3) replaceEmojiTextNode(n);
+      });
+    });
+  });
+  obs.observe(document.body,{childList:true,subtree:true});
 });
 </script>
 
