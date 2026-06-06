@@ -1489,17 +1489,37 @@ a[href*="spotify"],button.radio,.radio,.radio-btn{display:none!important;}
 
 
 
-<style id="vault73-real-icons">
-.v73-icon{display:inline-block;vertical-align:middle;object-fit:contain;filter:drop-shadow(0 0 6px rgba(141,255,88,.45));}
-.v73-icon-mini{width:28px;height:28px;margin-right:4px;}
-.v73-icon-full{width:82px;height:82px;display:block;margin:0 0 8px;}
-.event-pill{min-width:28px;min-height:28px;justify-content:center;}
-.event-pill .v73-icon-mini{margin-right:0;}
-.legend span,.stage-toggle b,.fertilizer-row b{display:inline-flex;align-items:center;gap:6px;}
-.crop-card b{display:block!important;}
-.crop-card .v73-icon-full{margin-bottom:10px;}
-.task .big{font-size:0!important;}
-.task .big .v73-icon-mini{width:34px;height:34px;margin:0;}
+<style id="vault73-test-icons">
+/* v6.7 test-only mini icons: only tomato, pepper, peas for now */
+.v73-icon{
+  display:inline-block;
+  vertical-align:middle;
+  object-fit:contain;
+  filter:drop-shadow(0 0 6px rgba(141,255,88,.45));
+}
+.v73-icon-mini{
+  width:26px;
+  height:26px;
+  margin-right:4px;
+}
+.event-pill .v73-icon-mini{
+  margin-right:0;
+}
+.v73-emoji-fallback{
+  display:inline-block;
+  font-size:1rem;
+  line-height:1;
+  margin-right:4px;
+}
+.event-pill .v73-emoji-fallback{
+  margin-right:0;
+}
+.legend span,
+.stage-toggle b{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+}
 </style>
 
 </head>
@@ -2716,80 +2736,84 @@ document.addEventListener("DOMContentLoaded", function(){
 
 
 
-<script id="vault73-real-icon-js">
+<script id="vault73-test-icon-js">
 document.addEventListener("DOMContentLoaded", function(){
   const icons = {
-    "🍅":["images/icons/mini/tomatoes-mini.png","images/icons/full/tomatoes.png","Tomatoes"],
-    "🍒":["images/icons/mini/cherry-tomatoes-mini.png","images/icons/full/cherry-tomatoes.png","Cherry Tomatoes"],
-    "🫑":["images/icons/mini/peppers-mini.png","images/icons/full/peppers.png","Peppers"],
-    "🥒":["images/icons/mini/cucumbers-mini.png","images/icons/full/cucumbers.png","Cucumbers"],
-    "🫛":["images/icons/mini/peas-mini.png","images/icons/full/peas.png","Peas"],
-    "🍟":["images/icons/mini/yellow-beans-mini.png","images/icons/full/yellow-beans.png","Yellow Beans"],
-    "🟡":["images/icons/mini/golden-beets-mini.png","images/icons/full/golden-beets.png","Golden Beets"],
-    "🧄":["images/icons/mini/garlic-mini.png","images/icons/full/garlic.png","Garlic"],
-    "🌿":["images/icons/mini/herbs-mini.png","images/icons/full/herbs.png","Herbs"],
-    "🌱":["images/icons/mini/herbs-mini.png","images/icons/full/herbs.png","Herbs"],
-    "🥬":["images/icons/mini/spinach-mini.png","images/icons/full/spinach.png","Spinach"],
-    "💧":["images/icons/mini/water-mini.png",null,"Water"],
-    "🧺":["images/icons/mini/harvest-mini.png",null,"Harvest"],
-    "🪴":["images/icons/mini/transplant-mini.png",null,"Move Out"],
-    "❄️":["images/icons/mini/frost-mini.png",null,"Frost"],
-    "🧊":["images/icons/mini/cold-mini.png",null,"Cold"],
-    "✅":["images/icons/mini/ideal-mini.png",null,"Ideal"],
-    "☀️":["images/icons/mini/hot-mini.png",null,"Hot"],
-    "🔥":["images/icons/mini/danger-mini.png",null,"Danger"]
+    "🍅": ["images/icons/mini/tomatoes-mini.png", "Tomatoes"],
+    "🫑": ["images/icons/mini/peppers-mini.png", "Peppers"],
+    "🫛": ["images/icons/mini/peas-mini.png", "Peas"]
   };
-  function makeImg(key, full){
-    const info=icons[key]; if(!info) return document.createTextNode(key);
-    const img=document.createElement("img");
-    img.className="v73-icon "+(full && info[1] ? "v73-icon-full":"v73-icon-mini");
-    img.src=(full && info[1]) ? info[1] : info[0];
-    img.alt=info[2];
-    img.loading="lazy";
-    img.onerror=function(){this.style.display="none";};
-    return img;
+
+  function iconNode(emoji){
+    const info = icons[emoji];
+    const wrap = document.createElement("span");
+    wrap.className = "v73-icon-wrap";
+
+    const img = document.createElement("img");
+    img.className = "v73-icon v73-icon-mini";
+    img.src = info[0];
+    img.alt = info[1];
+    img.loading = "lazy";
+    img.onerror = function(){
+      this.remove();
+      const fallback = document.createElement("span");
+      fallback.className = "v73-emoji-fallback";
+      fallback.textContent = emoji;
+      wrap.prepend(fallback);
+    };
+
+    wrap.appendChild(img);
+    return wrap;
   }
+
   function replaceNode(node){
-    let t=node.nodeValue, hit=false;
-    Object.keys(icons).forEach(k=>{ if(t.includes(k)) hit=true; });
-    if(!hit) return;
-    const frag=document.createDocumentFragment();
-    while(t.length){
-      let found=null, pos=999999;
-      Object.keys(icons).forEach(k=>{ const i=t.indexOf(k); if(i>=0 && i<pos){pos=i;found=k;} });
-      if(!found){ frag.appendChild(document.createTextNode(t)); break; }
-      if(pos>0) frag.appendChild(document.createTextNode(t.slice(0,pos)));
-      frag.appendChild(makeImg(found,false));
-      t=t.slice(pos+found.length);
+    let text = node.nodeValue;
+    let changed = false;
+    Object.keys(icons).forEach(e => { if(text.includes(e)) changed = true; });
+    if(!changed) return;
+
+    const frag = document.createDocumentFragment();
+    while(text.length){
+      let hit = null;
+      let pos = Infinity;
+      Object.keys(icons).forEach(e => {
+        const idx = text.indexOf(e);
+        if(idx !== -1 && idx < pos){ pos = idx; hit = e; }
+      });
+
+      if(hit === null){
+        frag.appendChild(document.createTextNode(text));
+        break;
+      }
+
+      if(pos > 0) frag.appendChild(document.createTextNode(text.slice(0, pos)));
+      frag.appendChild(iconNode(hit));
+      text = text.slice(pos + hit.length);
     }
-    node.parentNode.replaceChild(frag,node);
+    node.parentNode.replaceChild(frag, node);
   }
+
   function walk(root){
-    const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{
-      acceptNode(n){
-        if(!n.nodeValue || !/[🍅🍒🫑🥒🫛🍟🟡🧄🌿🌱🥬💧🧺🪴❄🧊✅☀🔥]/u.test(n.nodeValue)) return NodeFilter.FILTER_REJECT;
-        if(n.parentElement && ["SCRIPT","STYLE"].includes(n.parentElement.tagName)) return NodeFilter.FILTER_REJECT;
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+      acceptNode(node){
+        if(!node.nodeValue || !/[🍅🫑🫛]/u.test(node.nodeValue)) return NodeFilter.FILTER_REJECT;
+        if(node.parentElement && ["SCRIPT","STYLE"].includes(node.parentElement.tagName)) return NodeFilter.FILTER_REJECT;
         return NodeFilter.FILTER_ACCEPT;
       }
     });
-    const nodes=[]; while(walker.nextNode()) nodes.push(walker.currentNode);
+    const nodes = [];
+    while(walker.nextNode()) nodes.push(walker.currentNode);
     nodes.forEach(replaceNode);
   }
-  function enhanceCards(){
-    document.querySelectorAll(".crop-card").forEach(card=>{
-      if(card.dataset.v73Icon==="true") return;
-      const txt=card.textContent || "";
-      const key=Object.keys(icons).find(k=>txt.includes(k) && icons[k][1]);
-      if(key){ card.prepend(makeImg(key,true)); card.dataset.v73Icon="true"; }
-    });
-  }
-  walk(document.body); enhanceCards();
-  new MutationObserver(muts=>{
-    muts.forEach(m=>m.addedNodes.forEach(n=>{
-      if(n.nodeType===1){ walk(n); enhanceCards(); }
-      if(n.nodeType===3) replaceNode(n);
+
+  walk(document.body);
+
+  new MutationObserver(muts => {
+    muts.forEach(m => m.addedNodes.forEach(n => {
+      if(n.nodeType === 1) walk(n);
+      if(n.nodeType === 3) replaceNode(n);
     }));
-  }).observe(document.body,{childList:true,subtree:true});
+  }).observe(document.body, {childList:true, subtree:true});
 });
 </script>
 
