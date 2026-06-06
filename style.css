@@ -1,0 +1,10 @@
+
+body{margin:0;background:#010201;color:#98ff66;font-family:Consolas,monospace;padding:10px}
+.shell{max-width:430px;margin:auto;border:6px solid #1b2419;outline:2px solid rgba(152,255,102,.6);min-height:95vh;background:#030603}
+header{padding:14px;border-bottom:2px solid rgba(152,255,102,.6)}
+h1{margin:0;text-shadow:0 0 10px #98ff66}
+nav{display:grid;grid-template-columns:repeat(5,1fr);border-bottom:2px solid rgba(152,255,102,.6)}
+button{background:#071207;color:#98ff66;border:none;padding:12px 4px}
+button.active{background:#98ff66;color:#031003}
+main{padding:14px}
+section{border:2px solid rgba(152,255,102,.6);padding:20px;min-height:300px;display:flex;flex-direction:column;justify-content:center;align-items:center}
