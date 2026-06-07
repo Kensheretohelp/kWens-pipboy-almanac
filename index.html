@@ -1054,34 +1054,30 @@ input[type="radio"]{
 </style>
 
 
-<style id="kwen-v6-pipboy-items-crop-page">
-/* v6: Pip-Boy ITEMS-style Crop Database */
+<style id="kwen-v7-pipboy-items-crop-page">
+/* v7: Fallout ITEMS-style crop database with permanent left list and compact stat lines */
 .crop-database-panel{
   grid-column:1 / -1 !important;
 }
 
-.crop-database-panel h3{
-  margin-bottom:10px !important;
-}
-
 .crop-db-layout{
   display:grid !important;
-  grid-template-columns:minmax(210px,.38fr) minmax(0,1fr) !important;
+  grid-template-columns:230px minmax(0,1fr) !important;
   gap:0 !important;
-  border:1px solid rgba(157,255,98,.38);
+  border:1px solid rgba(157,255,98,.42);
   border-radius:18px;
-  background:rgba(0,0,0,.18);
+  background:rgba(0,0,0,.20);
   overflow:hidden;
-  min-height:610px;
+  min-height:620px;
 }
 
 .crop-db-list{
   border:0 !important;
-  border-right:1px solid rgba(157,255,98,.35) !important;
+  border-right:1px solid rgba(157,255,98,.38) !important;
   border-radius:0 !important;
-  background:rgba(0,0,0,.20) !important;
+  background:rgba(0,0,0,.24) !important;
   padding:10px !important;
-  max-height:610px !important;
+  max-height:620px !important;
   overflow-y:auto !important;
 }
 
@@ -1107,13 +1103,15 @@ input[type="radio"]{
   border-radius:0 !important;
   background:transparent !important;
   color:var(--green2) !important;
-  padding:9px 8px !important;
+  padding:9px 26px 9px 8px !important;
   margin:0 !important;
   font-family:inherit !important;
   font-weight:900 !important;
+  font-size:.88rem !important;
   text-align:left !important;
   cursor:pointer !important;
   position:relative;
+  min-height:44px;
 }
 
 .crop-db-item::before{
@@ -1141,7 +1139,7 @@ input[type="radio"]{
 }
 
 .crop-db-icon{
-  font-size:1.28rem !important;
+  font-size:1.25rem !important;
   line-height:1 !important;
   width:30px !important;
   height:30px !important;
@@ -1149,7 +1147,6 @@ input[type="radio"]{
   align-items:center !important;
   justify-content:center !important;
   text-align:center !important;
-  flex:0 0 30px !important;
   filter:saturate(.85);
 }
 
@@ -1157,14 +1154,15 @@ input[type="radio"]{
   border:0 !important;
   border-radius:0 !important;
   background:
-    linear-gradient(180deg, rgba(3,16,6,.78), rgba(0,0,0,.20)) !important;
+    linear-gradient(180deg, rgba(3,16,6,.82), rgba(0,0,0,.18)) !important;
   padding:18px 20px !important;
-  min-height:610px !important;
+  min-height:620px !important;
+  overflow:hidden;
 }
 
 .crop-detail-hero{
   display:grid !important;
-  grid-template-columns:112px 1fr !important;
+  grid-template-columns:106px 1fr !important;
   gap:18px !important;
   align-items:center !important;
   border-bottom:1px solid rgba(157,255,98,.30) !important;
@@ -1173,9 +1171,9 @@ input[type="radio"]{
 }
 
 .crop-detail-big-icon{
-  font-size:4.8rem !important;
-  width:104px !important;
-  height:104px !important;
+  font-size:4.6rem !important;
+  width:98px !important;
+  height:98px !important;
   display:flex !important;
   align-items:center !important;
   justify-content:center !important;
@@ -1189,8 +1187,8 @@ input[type="radio"]{
 .crop-detail-title{
   margin:0 !important;
   color:var(--green2) !important;
-  font-size:clamp(1.45rem,4.8vw,2.55rem) !important;
-  line-height:1.02 !important;
+  font-size:clamp(1.45rem,4.8vw,2.45rem) !important;
+  line-height:1.04 !important;
   text-transform:uppercase !important;
   letter-spacing:.055em !important;
   text-shadow:0 0 8px rgba(157,255,98,.22) !important;
@@ -1200,7 +1198,7 @@ input[type="radio"]{
   color:var(--dim) !important;
   margin-top:8px !important;
   line-height:1.35 !important;
-  font-size:.88rem !important;
+  font-size:.86rem !important;
 }
 
 .crop-info-grid{
@@ -1209,7 +1207,7 @@ input[type="radio"]{
 
 .crop-info-card{
   display:grid !important;
-  grid-template-columns:minmax(92px, 170px) minmax(18px,1fr) minmax(0,1.45fr) !important;
+  grid-template-columns:minmax(92px,150px) minmax(28px,1fr) minmax(150px,235px) !important;
   align-items:baseline !important;
   gap:8px !important;
   border:0 !important;
@@ -1222,7 +1220,7 @@ input[type="radio"]{
 .crop-info-card::before{
   content:"";
   grid-column:2;
-  border-bottom:1px dotted rgba(201,255,157,.38);
+  border-bottom:1px dotted rgba(201,255,157,.45);
   transform:translateY(-4px);
 }
 
@@ -1242,13 +1240,13 @@ input[type="radio"]{
   grid-column:3 !important;
   grid-row:1 !important;
   color:var(--green2) !important;
-  line-height:1.35 !important;
-  font-size:.93rem !important;
-  font-weight:700 !important;
+  line-height:1.25 !important;
+  font-size:.95rem !important;
+  font-weight:900 !important;
+  text-align:left;
 }
 
 .crop-info-card.full{
-  grid-column:auto !important;
   display:block !important;
   margin-top:14px !important;
   padding-top:14px !important;
@@ -1272,95 +1270,106 @@ input[type="radio"]{
 .crop-info-card.full b{
   display:block !important;
   color:var(--green2) !important;
-  line-height:1.45 !important;
-  font-size:.94rem !important;
+  line-height:1.42 !important;
+  font-size:.92rem !important;
   font-weight:700 !important;
+  text-align:left;
 }
 
-.crop-note-block{
-  margin-top:16px;
-  padding-top:14px;
-  border-top:1px solid rgba(157,255,98,.22);
-}
-
-.crop-note-title{
-  color:var(--amber);
-  letter-spacing:.16em;
-  font-size:.72rem;
-  text-transform:uppercase;
-  margin-bottom:8px;
-}
-
-.crop-note-text{
-  color:var(--green2);
-  line-height:1.45;
-  font-size:.94rem;
-}
-
+/* iPhone: keep the menu on the left, do not turn it into top cards */
 @media(max-width:720px){
   .crop-db-layout{
-    display:block !important;
-    min-height:auto !important;
+    grid-template-columns:38% 62% !important;
+    min-height:620px !important;
   }
 
   .crop-db-list{
-    display:flex !important;
-    overflow-x:auto !important;
-    overflow-y:hidden !important;
-    max-height:none !important;
-    border-right:0 !important;
-    border-bottom:1px solid rgba(157,255,98,.35) !important;
-    gap:6px !important;
-    padding:9px !important;
+    display:block !important;
+    overflow-y:auto !important;
+    overflow-x:hidden !important;
+    max-height:620px !important;
+    border-right:1px solid rgba(157,255,98,.38) !important;
+    border-bottom:0 !important;
+    padding:7px !important;
   }
 
   .crop-db-list::before{
-    display:none !important;
+    display:block !important;
+    font-size:.62rem;
+    margin-bottom:7px;
+    padding-bottom:6px;
   }
 
   .crop-db-item{
-    flex:0 0 178px !important;
-    border:1px solid rgba(157,255,98,.20) !important;
-    border-radius:10px !important;
-    background:rgba(0,0,0,.16) !important;
-    padding:8px 9px !important;
-  }
-
-  .crop-db-item::before{
-    content:none !important;
+    grid-template-columns:28px 1fr !important;
+    gap:6px !important;
+    min-height:40px;
+    padding:7px 16px 7px 5px !important;
+    font-size:.66rem !important;
+    line-height:1.08;
   }
 
   .crop-db-item.active::after{
-    content:"";
+    right:4px;
+    font-size:.65rem;
+  }
+
+  .crop-db-icon{
+    width:26px !important;
+    height:26px !important;
+    font-size:1.05rem !important;
   }
 
   .crop-db-detail{
-    min-height:auto !important;
-    padding:15px !important;
+    min-height:620px !important;
+    padding:12px 10px !important;
   }
 
   .crop-detail-hero{
-    grid-template-columns:76px 1fr !important;
-    gap:13px !important;
+    grid-template-columns:58px 1fr !important;
+    gap:10px !important;
+    padding-bottom:12px !important;
+    margin-bottom:12px !important;
   }
 
   .crop-detail-big-icon{
-    width:70px !important;
-    height:70px !important;
-    font-size:3.5rem !important;
+    width:54px !important;
+    height:54px !important;
+    font-size:2.8rem !important;
+  }
+
+  .crop-detail-title{
+    font-size:1.25rem !important;
+    letter-spacing:.04em !important;
+  }
+
+  .crop-detail-sub{
+    font-size:.66rem !important;
   }
 
   .crop-info-card{
-    grid-template-columns:minmax(86px, 122px) minmax(16px,1fr) minmax(0,1.2fr) !important;
-    gap:6px !important;
+    grid-template-columns:72px minmax(18px,1fr) minmax(92px,132px) !important;
+    gap:5px !important;
+    padding:6px 0 !important;
   }
 
   .crop-info-card small{
-    font-size:.62rem !important;
+    font-size:.54rem !important;
+    letter-spacing:.06em !important;
   }
 
   .crop-info-card b{
-    font-size:.86rem !important;
+    font-size:.69rem !important;
+    line-height:1.16 !important;
+  }
+
+  .crop-info-card.full small{
+    font-size:.56rem !important;
+  }
+
+  .crop-info-card.full b{
+    font-size:.68rem !important;
+    line-height:1.25 !important;
   }
 }
 </style>
@@ -2488,58 +2497,146 @@ body:not(.tab-overview) #weatherPanel{display:none}body:not(.tab-overview) .stat
 </script>
 
 
-<script id="kwen-v6-pipboy-items-crop-js">
-const cropDbOrderV6 = [
+<script id="kwen-v7-pipboy-items-crop-js">
+const cropDbOrderV7 = [
   "tomatoes","cherrytomatoes","peppers","cucumbers","peas","spinach",
   "beets","waxbeans","garlic","basil","thaibasil","chives","mint","savory","thyme"
 ];
 
-function dottedValue(label, value, extraClass){
-  return `<div class="crop-info-card ${extraClass || ""}"><small>${label}</small><b>${value || "—"}</b></div>`;
+const cropShortProfiles = {
+  tomatoes:{
+    name:"San Marzano Tomatoes", icon:"🍅", stage:"Flowering → Fruiting",
+    container:"10-15 gal bag", safe:"10°C+ nights", sow:"Mar-Apr indoors", move:"Early June",
+    water:"Deep + steady", feed:"10-15-10 biweekly", grab:"Schultz 10-15-10", optional:"Shake n Feed",
+    harvest:"Aug-Sep", heat:"Shade if stressed", notes:"Stake or cage. Add soil around stem. Weekly feed when fruiting."
+  },
+  cherrytomatoes:{
+    name:"Cherry Tomatoes", icon:"🍒", stage:"Flowering → Fruiting",
+    container:"7-10+ gal pot", safe:"10°C+ nights", sow:"Mar-Apr indoors", move:"Early June",
+    water:"Even moisture", feed:"10-15-10 biweekly", grab:"Schultz 10-15-10", optional:"Shake n Feed",
+    harvest:"Late Jul+", heat:"Check pots daily", notes:"Support well. Harvest often. Weekly feed when fruiting."
+  },
+  peppers:{
+    name:"Sweet Red Peppers", icon:"🫑", stage:"Flowering → Fruiting",
+    container:"5-7 gal bag", safe:"10-12°C+ nights", sow:"Mar indoors", move:"Early June",
+    water:"Steady, not soggy", feed:"10-15-10 biweekly", grab:"Schultz 10-15-10", optional:"Shake n Feed",
+    harvest:"Aug-Sep", heat:"Handles heat", notes:"Warm spot. Avoid cold nights. Weekly feed when fruiting."
+  },
+  cucumbers:{
+    name:"Cucumbers", icon:"🥒", stage:"Vining → Fruiting",
+    container:"7-10 gal + trellis", safe:"10°C+ nights", sow:"Late May-Jun", move:"Direct sow",
+    water:"Heavy + steady", feed:"10-15-10 biweekly", grab:"Schultz 10-15-10", optional:"Shake n Feed",
+    harvest:"Jul-Sep", heat:"Water often", notes:"Trellis to save space. Water before feeding."
+  },
+  peas:{
+    name:"Peas", icon:"🫛", stage:"Vine → Podding",
+    container:"Bed + trellis", safe:"Cool crop", sow:"Apr-May direct", move:"Direct sow",
+    water:"Moist at pods", feed:"None", grab:"No fertilizer", optional:"Compost only",
+    harvest:"Jun-Jul", heat:"Fades in heat", notes:"Avoid high nitrogen. Harvest before hot spells."
+  },
+  spinach:{
+    name:"Spinach", icon:"🥬", stage:"Baby leaf harvest",
+    container:"4 in ok / 6 in best", safe:"Cool crop", sow:"Apr-Jun / Aug", move:"Direct sow",
+    water:"Even moisture", feed:"Only if slow", grab:"Skip mostly", optional:"Half Schultz",
+    harvest:"30-40 days", heat:"Shade in heat", notes:"Pick outer leaves. Keep center growing. Shade shallow pots."
+  },
+  beets:{
+    name:"Golden Beets", icon:"🟡", stage:"Root sizing",
+    container:"Deep pot / bed", safe:"Cool-mild", sow:"May-Jul direct", move:"Direct sow",
+    water:"Even moisture", feed:"After thinning", grab:"Gaia 2-8-4", optional:"None",
+    harvest:"45-70 days", heat:"Keep moist", notes:"Thin seedlings. Avoid heavy nitrogen."
+  },
+  waxbeans:{
+    name:"Yellow Wax Beans", icon:"🫘", stage:"Flowering → Pods",
+    container:"Wide bed/bag", safe:"10°C+ nights", sow:"Late May-Jun", move:"Direct sow",
+    water:"Moderate steady", feed:"Usually none", grab:"No fertilizer", optional:"Half Schultz",
+    harvest:"Jul-Sep", heat:"Water at pods", notes:"Too much feed makes leaves, not beans."
+  },
+  garlic:{
+    name:"Garlic", icon:"🧄", stage:"Bulbing",
+    container:"Raised bed", safe:"Hardy", sow:"October cloves", move:"No transplant",
+    water:"Spring moist", feed:"Compost spring", grab:"Compost", optional:"None",
+    harvest:"Late Jul-Aug", heat:"Dry near harvest", notes:"Stop feeding by early summer. Harvest when lower leaves brown."
+  },
+  basil:{
+    name:"Basil", icon:"🌿", stage:"Pinch + harvest",
+    container:"Pot / warm bed", safe:"10°C+ nights", sow:"April indoors", move:"Early June",
+    water:"Consistent", feed:"Half strength", grab:"Schultz 10-15-10", optional:"None",
+    harvest:"June+", heat:"Shade if harsh", notes:"Pinch often. Do not overfeed if you want strong flavour."
+  },
+  thaibasil:{
+    name:"Thai Basil", icon:"🌿", stage:"Pinch + harvest",
+    container:"Warm pot", safe:"10°C+ nights", sow:"April indoors", move:"Early June",
+    water:"Consistent", feed:"Half strength", grab:"Schultz 10-15-10", optional:"None",
+    harvest:"June+", heat:"Shade if wilting", notes:"Keep warm. Pinch tips regularly."
+  },
+  chives:{
+    name:"Chives", icon:"🌱", stage:"Established herb",
+    container:"Small pot / edge", safe:"Hardy", sow:"Seed/division", move:"Anytime",
+    water:"Moderate", feed:"Monthly light", grab:"Half Schultz", optional:"None",
+    harvest:"Spring-fall", heat:"Water pots", notes:"Snip as needed. Easy herb."
+  },
+  mint:{
+    name:"Mint", icon:"🌱", stage:"Established herb",
+    container:"Container only", safe:"Hardy", sow:"Plant/division", move:"Anytime",
+    water:"Steady moisture", feed:"Rarely", grab:"Skip mostly", optional:"Half Schultz",
+    harvest:"Snip often", heat:"Water pots", notes:"Contain it unless you want mint to annex the yard."
+  },
+  savory:{
+    name:"Summer Savory", icon:"🌿", stage:"Established herb",
+    container:"Small pot / bed", safe:"5°C+ nights", sow:"After frost", move:"Late May-Jun",
+    water:"Moderate", feed:"Very light", grab:"Half Schultz", optional:"None",
+    harvest:"Once established", heat:"Tolerates heat", notes:"Light feeding keeps flavour stronger."
+  },
+  thyme:{
+    name:"Thyme", icon:"🌱", stage:"Established herb",
+    container:"Dry pot / edge", safe:"After frost", sow:"Mar-Apr indoors", move:"After frost",
+    water:"Lean + dry", feed:"None", grab:"No fertilizer", optional:"None",
+    harvest:"Light harvest", heat:"Avoid soggy soil", notes:"Sharp drainage. Neglect is basically the feature."
+  }
+};
+
+function cropLine(label, value, full){
+  return `<div class="crop-info-card ${full ? "full" : ""}"><small>${label}</small><b>${value || "—"}</b></div>`;
 }
 
 function renderCropDatabase(){
   const list = document.getElementById("cropDbList");
   const detail = document.getElementById("cropDbDetail");
-  if(!list || !detail || typeof plants === "undefined") return;
+  if(!list || !detail) return;
 
-  if(!selectedPlant || !plants[selectedPlant]) selectedPlant = "tomatoes";
+  if(!selectedPlant || !cropShortProfiles[selectedPlant]) selectedPlant = "tomatoes";
+  const profile = cropShortProfiles[selectedPlant];
 
-  list.innerHTML = cropDbOrderV6.filter(k => plants[k]).map(key => {
-    const p = plants[key];
+  list.innerHTML = cropDbOrderV7.filter(k => cropShortProfiles[k]).map(key => {
+    const p = cropShortProfiles[key];
     return `<button type="button" class="crop-db-item ${key===selectedPlant?'active':''}" data-crop-db="${key}">
-      <span class="crop-db-icon">${p.icon || "🌱"}</span>
+      <span class="crop-db-icon">${p.icon}</span>
       <span>${p.name}</span>
     </button>`;
   }).join("");
 
-  const p = plants[selectedPlant];
-  const plan = (typeof getPlantPlan === "function") ? getPlantPlan(selectedPlant) : {};
-  const grab = plan.grab && plan.grab.length ? plan.grab.map(k => fertilizerInventory[k]?.short || k).join(", ") : "No fertilizer";
-  const optional = plan.optional && plan.optional.length ? plan.optional.map(k => fertilizerInventory[k]?.short || k).join(", ") : "None";
-
   detail.innerHTML = `
     <div class="crop-detail-hero">
-      <div class="crop-detail-big-icon">${p.icon || "🌱"}</div>
+      <div class="crop-detail-big-icon">${profile.icon}</div>
       <div>
-        <h4 class="crop-detail-title">${p.name}</h4>
-        <div class="crop-detail-sub">${p.stage || "Crop profile"}</div>
+        <h4 class="crop-detail-title">${profile.name}</h4>
+        <div class="crop-detail-sub">${profile.stage}</div>
       </div>
     </div>
 
     <div class="crop-info-grid">
-      ${dottedValue("Container", p.best)}
-      ${dottedValue("Safe temp", p.safeTemp)}
-      ${dottedValue("Sow", p.sow)}
-      ${dottedValue("Move out", p.move)}
-      ${dottedValue("Water", p.water)}
-      ${dottedValue("Feed", p.feed)}
-      ${dottedValue("Grab", grab)}
-      ${dottedValue("Optional", optional)}
-      ${dottedValue("Harvest", p.harvest)}
-      ${dottedValue("Heat care", p.heatCare)}
-      ${dottedValue("Supply cache", p.fertilizerBest || plan.note, "full")}
-      ${dottedValue("Notes", p.notes, "full")}
+      ${cropLine("Container", profile.container)}
+      ${cropLine("Safe temp", profile.safe)}
+      ${cropLine("Sow", profile.sow)}
+      ${cropLine("Move out", profile.move)}
+      ${cropLine("Water", profile.water)}
+      ${cropLine("Feed", profile.feed)}
+      ${cropLine("Grab", profile.grab)}
+      ${cropLine("Optional", profile.optional)}
+      ${cropLine("Harvest", profile.harvest)}
+      ${cropLine("Heat care", profile.heat)}
+      ${cropLine("Notes", profile.notes, true)}
     </div>
   `;
 }
@@ -2551,8 +2648,8 @@ document.addEventListener("click", function(e){
   renderCropDatabase();
 });
 
-if(!window.__kwenCropDbV6Patched){
-  window.__kwenCropDbV6Patched = true;
+if(!window.__kwenCropDbV7Patched){
+  window.__kwenCropDbV7Patched = true;
   const previousRenderAll = window.renderAll;
   window.renderAll = function(){
     if(typeof previousRenderAll === "function") previousRenderAll();
