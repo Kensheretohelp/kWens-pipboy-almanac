@@ -813,7 +813,7 @@ h1{
   margin:0 auto;
   position:fixed;
   left:50%;
-  bottom:calc(10px + env(safe-area-inset-bottom));
+  top:calc(10px + env(safe-area-inset-top) + 10px);
   transform:translateX(-50%);
   z-index:250;
   padding:18px 18px 14px;
@@ -825,39 +825,15 @@ h1{
     repeating-linear-gradient(90deg, rgba(255,255,255,.05) 0 1px, transparent 1px 18px);
   box-shadow:0 -4px 28px rgba(0,0,0,.55), inset 0 0 18px rgba(157,255,98,.09);
 }
-.pip-tabs::before{
-  content:"STATUS  ·  ITEMS  ·  DATA";
-  position:absolute;
-  top:5px;
-  left:0;
-  right:0;
-  text-align:center;
-  color:var(--amber);
-  font-size:.68rem;
-  font-weight:900;
-  letter-spacing:.16em;
-  text-shadow:0 0 8px rgba(225,183,73,.35);
-}
-.pip-tabs::after{
-  content:"";
-  position:absolute;
-  left:22px;
-  right:22px;
-  top:-10px;
-  height:18px;
-  border-left:2px solid rgba(201,255,157,.58);
-  border-right:2px solid rgba(201,255,157,.58);
-  border-top:2px solid rgba(201,255,157,.58);
-  border-radius:14px 14px 0 0;
-  pointer-events:none;
-}
+ .pip-tabs::before{display:none;}
+.pip-tabs::after{display:none;}
 .pip-tab{
   position:relative;
   min-width:92px;
   border:2px solid rgba(35,24,6,.85);
   border-radius:999px;
   padding:14px 10px 9px;
-  background:radial-gradient(circle at 35% 28%, #ffbf3f, #d97b16 58%, #7a3b0a 100%);
+  background:linear-gradient(180deg,#5a4a1d,#2f240d);
   color:#1b1205;
   font-weight:1000;
   letter-spacing:.07em;
@@ -879,11 +855,11 @@ h1{
   text-shadow:0 0 9px rgba(157,255,98,.65);
 }
 .pip-tab:hover, .pip-tab.active{
-  background:radial-gradient(circle at 35% 28%, #ffd85d, #ff9f1c 60%, #a64f09 100%);
+  background:linear-gradient(180deg,#7a6a2a,#3b2d10);
   box-shadow:inset 0 2px 6px rgba(255,255,255,.48), inset 0 -5px 8px rgba(0,0,0,.32), 0 0 0 2px rgba(225,183,73,.75), 0 0 18px rgba(225,183,73,.50);
 }
 .pip-tab.active::before{color:var(--amber);text-shadow:0 0 10px rgba(225,183,73,.85)}
-.main{padding-bottom:145px}
+.main{padding-top:145px;padding-bottom:40px}
 .pip-content .panel[data-tab]{display:none}
 .pip-content[data-active-tab="overview"] .panel[data-tab~="overview"],
 .pip-content[data-active-tab="calendar"] .panel[data-tab~="calendar"],
@@ -920,7 +896,7 @@ h1{
   }
   .pip-tab{min-width:82px;white-space:nowrap;font-size:.72rem;padding:13px 8px 8px}
   .pip-tab::before{font-size:.56rem;top:-23px}
-  .main{padding-bottom:145px}
+  .main{padding-top:145px;padding-bottom:40px}
 }
 
 </style>
@@ -2033,12 +2009,12 @@ body::after{opacity:.28}
 .grid.pip-content{display:block;max-width:1100px;margin:0 auto}.pip-content .panel[data-tab]{margin:0 auto 12px;max-width:1080px}.pip-content[data-active-tab="overview"] .panel[data-tab]:not([data-tab~="overview"]),.pip-content[data-active-tab="calendar"] .panel[data-tab]:not([data-tab~="calendar"]),.pip-content[data-active-tab="plants"] .panel[data-tab]:not([data-tab~="plants"]),.pip-content[data-active-tab="logs"] .panel[data-tab]:not([data-tab~="logs"]),.pip-content[data-active-tab="data"] .panel[data-tab]:not([data-tab~="data"]){display:none!important}
 body:not(.tab-overview) #weatherPanel{display:none}body:not(.tab-overview) .status{display:none}.tab-overview .title-block{min-height:0}.tab-calendar .top,.tab-plants .top,.tab-logs .top,.tab-data .top{grid-template-columns:1fr}.tab-calendar .title-block,.tab-plants .title-block,.tab-logs .title-block,.tab-data .title-block{display:flex;align-items:center;justify-content:space-between;gap:10px}.tab-calendar .farmer-mascot,.tab-plants .farmer-mascot,.tab-logs .farmer-mascot,.tab-data .farmer-mascot{display:none}.tab-calendar .title-block p,.tab-plants .title-block p,.tab-logs .title-block p,.tab-data .title-block p{display:none}
 .panel h3{font-size:.9rem;border-bottom:1px solid rgba(157,255,98,.22);padding-bottom:8px}.panel h3::before{content:"> ";color:var(--green2)}
-.pip-tabs{width:min(820px,calc(100vw - 20px));gap:6px;padding:20px 12px 12px;border-radius:10px;background:linear-gradient(180deg,rgba(28,31,26,.98),rgba(5,9,6,.98));overflow:visible}.pip-tabs::before{content:"STAT      CAL      CROP      LOG      DATA";font-size:.58rem;letter-spacing:.18em;top:5px}.pip-tab{min-width:0;flex:1;border-radius:7px;padding:12px 6px 8px;font-size:.78rem;letter-spacing:.08em}.pip-tab::before{display:none}.pip-tab.active{transform:translateY(-2px)}
+.pip-tabs{width:min(820px,calc(100vw - 20px));gap:6px;padding:20px 12px 12px;border-radius:10px;background:linear-gradient(180deg,rgba(28,31,26,.98),rgba(5,9,6,.98));overflow:visible} .pip-tabs::before{display:none;/*content:"STAT      CAL      CROP      LOG      DATA";font-size:.58rem;letter-spacing:.18em;top:5px}.pip-tab{min-width:0;flex:1;border-radius:7px;padding:12px 6px 8px;font-size:.78rem;letter-spacing:.08em}.pip-tab::before{display:none}.pip-tab.active{transform:translateY(-2px)}
 .icon{width:1.15em;height:1.15em;vertical-align:-.18em;filter:drop-shadow(0 0 5px rgba(157,255,98,.5));margin-right:.18em}.big .icon{width:2.1rem;height:2.1rem;margin:0}.plant-btn .icon{width:1.2rem;height:1.2rem;flex:0 0 auto}.event-pill .icon{width:.85rem;height:.85rem;margin:0}.legend .icon{width:1rem;height:1rem}.crop-card .icon{width:1.35rem;height:1.35rem}.crop-card b{font-size:1rem}.harvest-row{border-radius:10px}.task{border-radius:10px}.stat,.tblock,.data-card,.supply-card,.quick-grab-card,.crop-card{border-radius:9px}
 .month-collapse{border:1px solid rgba(157,255,98,.28);border-radius:10px;background:rgba(157,255,98,.04);padding:8px}.month-collapse summary{cursor:pointer;color:var(--amber);font-weight:900;letter-spacing:.06em}.month-collapse .task-list{margin-top:10px}.active-quests-title{color:var(--amber);font-weight:900;letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px}.vault-empty{border:1px dashed rgba(157,255,98,.26);padding:12px;border-radius:10px;color:var(--dim)}
 .boot-screen{position:fixed;inset:0;z-index:999999;display:grid;place-items:center;background:#020804;color:var(--green);font-family:inherit;transition:opacity .6s ease;}.boot-screen.hide{opacity:0;pointer-events:none}.boot-box{width:min(520px,90vw);border:2px solid rgba(157,255,98,.55);border-radius:10px;padding:24px;background:rgba(1,12,5,.92);box-shadow:0 0 35px rgba(157,255,98,.22),inset 0 0 26px rgba(157,255,98,.08)}.boot-title{font-size:1.7rem;color:var(--green2);text-shadow:var(--glow);font-weight:1000;line-height:1.1}.boot-lines{margin-top:18px;display:grid;gap:8px;color:var(--dim);font-size:.86rem}.boot-lines b{color:var(--amber)}
-@media(max-width:980px){.app{grid-template-columns:1fr}.top{grid-template-columns:1fr}.main{padding:62px 10px 122px}.weather-main{grid-template-columns:repeat(2,1fr)}.pip-tabs{bottom:calc(8px + env(safe-area-inset-bottom));padding:18px 7px 9px}.pip-tabs::before{font-size:.48rem;letter-spacing:.12em}.pip-tab{font-size:.66rem;padding:11px 3px 7px}.title-block{padding:12px}.farmer-mascot{grid-template-columns:62px 1fr}.mascot-art{width:58px;height:58px}}
-@media(max-width:520px){.weather-main{grid-template-columns:1fr 1fr}.risk-scale{font-size:.48rem}.cal{gap:3px}.event-pill{font-size:.58rem}.pip-tabs::before{content:"STAT   CAL   CROP   LOG   DATA"}.vault-clock,.vault-radio{font-size:.66rem;padding:5px 7px}}
+@media(max-width:980px){.app{grid-template-columns:1fr}.top{grid-template-columns:1fr}.main{padding:62px 10px 122px}.weather-main{grid-template-columns:repeat(2,1fr)}.pip-tabs{bottom:calc(8px + env(safe-area-inset-bottom));padding:18px 7px 9px} .pip-tabs::before{display:none;/*font-size:.48rem;letter-spacing:.12em}.pip-tab{font-size:.66rem;padding:11px 3px 7px}.title-block{padding:12px}.farmer-mascot{grid-template-columns:62px 1fr}.mascot-art{width:58px;height:58px}}
+@media(max-width:520px){.weather-main{grid-template-columns:1fr 1fr}.risk-scale{font-size:.48rem}.cal{gap:3px}.event-pill{font-size:.58rem} .pip-tabs::before{display:none;/*content:"STAT   CAL   CROP   LOG   DATA"}.vault-clock,.vault-radio{font-size:.66rem;padding:5px 7px}}
 </style>
 
 <script id="kwen-v4-pip-grow-icons-layout">
