@@ -1,76 +1,54 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  background: #000 !important;
+  color: #b6ff55;
+}
+
 body {
-    background: #000;
-    margin: 0;
-    padding: 10px;
-    font-family: monospace;
+  min-height: 100vh;
 }
 
 .container {
-    max-width: 1000px;
-    margin: auto;
-
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
+  width: min(96vw, 760px);
+  margin: 0 auto;
+  padding: 10px 0 18px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  background: #000;
 }
 
-/* Prevent strange spacing */
 img {
-    display: block;
-    width: 100%;
-    height: auto;
+  display: block;
+  width: 100%;
+  height: auto;
 }
 
-/* Header spans full width */
-.header {
-    grid-column: 1 / span 2;
-}
-
-/* Overview panel */
-.overview {
-    grid-column: 1;
-}
-
-/* Threat panel */
-.threat {
-    grid-column: 2;
-}
-
-/* Weather spans full width */
-.weather {
-    grid-column: 1 / span 2;
-}
-
-/* Calendar */
-.calendar {
-    grid-column: 1;
-}
-
-/* Warnings */
-.warnings {
-    grid-column: 2;
-}
-
-/* Footer spans full width */
+.header,
+.weather,
 .footer {
-    grid-column: 1 / span 2;
+  grid-column: 1 / -1;
 }
 
-/* Phone layout */
-@media (max-width: 800px) {
+.overview {
+  grid-column: 1;
+}
 
-    .container {
-        grid-template-columns: 1fr;
-    }
+.threat {
+  grid-column: 2;
+}
 
-    .header,
-    .overview,
-    .threat,
-    .weather,
-    .calendar,
-    .warnings,
-    .footer {
-        grid-column: 1;
-    }
+.calendar {
+  grid-column: 1;
+}
 
+.warnings {
+  grid-column: 2;
+}
+
+/* TEMP: phone proof-of-concept */
+.asset-wrap {
+  overflow: hidden;
+  background: #000;
 }
