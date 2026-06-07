@@ -877,9 +877,183 @@ input[type="checkbox"]{
 }
 </style>
 
-<style>
-input[type=checkbox],input[type=radio],.stage-control,.crop-card-grid,.vault-radio,#radioBtn{display:none!important;}
-</style></head>
+
+<style id="kwen-v5-crop-database">
+.vault-radio,
+#radioBtn,
+.stage-control,
+.crop-card-grid,
+input[type="checkbox"],
+input[type="radio"]{
+  display:none !important;
+}
+
+:root{
+  --glow:0 0 10px rgba(157,255,98,.22);
+}
+
+.crop-database-panel{
+  grid-column:1 / -1;
+}
+
+.crop-db-layout{
+  display:grid;
+  grid-template-columns:minmax(190px,.42fr) minmax(0,1fr);
+  gap:16px;
+  align-items:start;
+}
+
+.crop-db-list{
+  border:1px solid rgba(157,255,98,.28);
+  border-radius:16px;
+  background:rgba(0,0,0,.18);
+  padding:10px;
+  max-height:560px;
+  overflow-y:auto;
+}
+
+.crop-db-item{
+  width:100%;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  border:1px solid transparent;
+  border-radius:10px;
+  background:transparent;
+  color:var(--green2);
+  padding:10px;
+  margin-bottom:6px;
+  font-family:inherit;
+  font-weight:900;
+  text-align:left;
+  cursor:pointer;
+}
+
+.crop-db-item:hover,
+.crop-db-item.active{
+  border-color:rgba(201,255,157,.75);
+  background:rgba(157,255,98,.12);
+  box-shadow:inset 0 0 12px rgba(157,255,98,.08);
+}
+
+.crop-db-icon{
+  font-size:1.45rem;
+  line-height:1;
+  width:32px;
+  text-align:center;
+  flex:0 0 32px;
+}
+
+.crop-db-detail{
+  border:1px solid rgba(157,255,98,.28);
+  border-radius:16px;
+  background:rgba(0,0,0,.16);
+  padding:16px;
+  min-height:560px;
+}
+
+.crop-detail-hero{
+  display:grid;
+  grid-template-columns:82px 1fr;
+  gap:16px;
+  align-items:center;
+  border-bottom:1px solid rgba(157,255,98,.22);
+  padding-bottom:14px;
+  margin-bottom:14px;
+}
+
+.crop-detail-big-icon{
+  font-size:3.8rem;
+  width:82px;
+  height:82px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border:1px solid rgba(157,255,98,.35);
+  border-radius:18px;
+  background:rgba(157,255,98,.06);
+}
+
+.crop-detail-title{
+  margin:0;
+  color:var(--green2);
+  font-size:clamp(1.35rem,4vw,2.25rem);
+  line-height:1.05;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+}
+
+.crop-detail-sub{
+  color:var(--dim);
+  margin-top:6px;
+  line-height:1.35;
+}
+
+.crop-info-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+}
+
+.crop-info-card{
+  border:1px solid rgba(157,255,98,.20);
+  border-radius:12px;
+  background:rgba(157,255,98,.04);
+  padding:10px;
+}
+
+.crop-info-card small{
+  display:block;
+  color:var(--amber);
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  font-size:.66rem;
+  margin-bottom:5px;
+}
+
+.crop-info-card b{
+  color:var(--green2);
+  line-height:1.35;
+}
+
+.crop-info-card.full{
+  grid-column:1 / -1;
+}
+
+@media(max-width:720px){
+  .crop-db-layout{
+    grid-template-columns:1fr;
+  }
+  .crop-db-list{
+    display:flex;
+    overflow-x:auto;
+    overflow-y:hidden;
+    max-height:none;
+    gap:8px;
+    padding:8px;
+  }
+  .crop-db-item{
+    flex:0 0 185px;
+    margin-bottom:0;
+  }
+  .crop-db-detail{
+    min-height:auto;
+  }
+  .crop-info-grid{
+    grid-template-columns:1fr;
+  }
+  .crop-detail-hero{
+    grid-template-columns:64px 1fr;
+  }
+  .crop-detail-big-icon{
+    width:64px;
+    height:64px;
+    font-size:3rem;
+  }
+}
+</style>
+
+</head>
 <body>
 <div class="app">
   <aside class="sidebar">
@@ -1000,14 +1174,6 @@ input[type=checkbox],input[type=radio],.stage-control,.crop-card-grid,.vault-rad
         </div>
       </div>
 
-
-      
-
-
-      
-
-      
-
       <div class="panel" data-tab="data">
         <h3>Fertilizer Guide</h3>
         <div class="fertilizer-guide" id="fertilizerGuide"></div>
@@ -1022,11 +1188,14 @@ input[type=checkbox],input[type=radio],.stage-control,.crop-card-grid,.vault-rad
         <h3>Harvest Log</h3>
         <div class="harvest-log" id="harvestLog"></div>
       </div>
-
-      <div class="panel" data-tab="plants">
+      <div class="panel crop-database-panel" data-tab="plants">
         <h3>Crop Database</h3>
-        <div class="plant-detail" id="plantDetail"></div>
+        <div class="crop-db-layout">
+          <div class="crop-db-list" id="cropDbList"></div>
+          <div class="crop-db-detail" id="cropDbDetail"></div>
+        </div>
       </div>
+
       <div class="panel" data-tab="data">
         <h3>Vault 73 Supply Cache</h3>
         <div class="supply-grid" id="supplyCache"></div>
@@ -1182,14 +1351,7 @@ function renderQuickGrab(){
   box.innerHTML = groups.map(g => '<div class="quick-grab-card"><b>' + g.product + '</b><small>' + g.keys.map(k => plants[k] ? plants[k].icon + ' ' + plants[k].name : k).join('<br>') + '</small><small style="margin-top:8px;color:var(--green2)">' + g.note + '</small></div>').join('');
 }
 
-function renderCropCards(){
-  const box = document.getElementById("cropCards");
-  if(!box) return;
-  box.innerHTML = cropCardGroups.map(group => {
-    const icons = group.keys.map(k => plants[k] ? plants[k].icon : '').join(' ');
-    return '<button type="button" class="crop-card ' + (group.keys.includes(selectedPlant) ? 'active' : '') + '" data-crop-group="' + group.keys[0] + '"><b>' + icons + ' ' + group.title + '</b><small>' + group.note + '</small></button>';
-  }).join('');
-}
+function renderCropCards(){ return; }
 
 function renderGardenRules(){
   const box = document.getElementById("gardenRules");
@@ -1203,14 +1365,7 @@ function renderGardenRules(){
   ].map(r => '<div class="data-card"><b>' + r[0] + '</b><small>' + r[1] + '</small></div>').join('');
 }
 
-function renderPlantStageControls(){
-  const box = document.getElementById("plantStageControl");
-  if(!box) return;
-  const state = getFruitingState();
-  box.querySelectorAll("input[data-fruiting]").forEach(input => {
-    input.checked = !!state[input.dataset.fruiting];
-  });
-}
+function renderPlantStageControls(){ return; }
 
 function renderFertilizerGuide(){
   const guide = document.getElementById("fertilizerGuide");
@@ -1224,17 +1379,7 @@ function renderFertilizerGuide(){
   }).join("");
 }
 
-function wirePlantStageControls(){
-  const box = document.getElementById("plantStageControl");
-  if(!box || box.dataset.wired === "true") return;
-  box.dataset.wired = "true";
-  box.addEventListener("change", function(e){
-    const input = e.target.closest("input[data-fruiting]");
-    if(!input) return;
-    setFruitingState(input.dataset.fruiting, input.checked);
-    renderAll();
-  });
-}
+function wirePlantStageControls(){ return; }
 
 function dateKey(year, month, day){
   return `${year}-${String(month+1).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
@@ -1963,7 +2108,7 @@ body:not(.tab-overview) #weatherPanel{display:none}body:not(.tab-overview) .stat
     if(title){
       const tools=document.createElement('div');
       tools.className='vault-header-tools';
-      tools.innerHTML='<span class="vault-clock" id="vaultClock">-- --- ---- --:--</span><a class="vault-radio" href="https://open.spotify.com/playlist/4bAeo2ZL6d84q4x1g63MMt?si=-goQChDrRai9y_pNeFaNVw&pi=_MVEkznTSquk-" target="_blank" rel="noopener"><img class="icon" src="images/icons/radio.svg" alt="Radio"> RADIO</a>';
+      tools.innerHTML='<span class="vault-clock" id="vaultClock">-- --- ---- --:--</span>';
       title.appendChild(tools);
     }
     document.querySelectorAll('[data-tab-btn]').forEach(btn=>{const map={overview:'STAT',calendar:'CAL',plants:'CROP',logs:'LOG',data:'DATA'};btn.textContent=map[btn.dataset.tabBtn]||btn.textContent;btn.dataset.pipLabel=btn.textContent;});
@@ -2028,6 +2173,77 @@ body:not(.tab-overview) #weatherPanel{display:none}body:not(.tab-overview) .stat
   function finalPass(){enhanceShell(); tickClock(); setInterval(tickClock,30000); setTabClass(document.querySelector('.pip-content')?.dataset.activeTab||'overview'); if(window.renderAll) window.renderAll(); const legend=document.querySelector('.panel[data-tab="calendar"] .legend'); if(legend){legend.innerHTML=Object.keys(ICONS).map(k=>plants[k]?'<span>'+plantIcon(k,plants[k].name)+' '+plants[k].name+'</span>':'').join('');}}
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',finalPass); else finalPass();
 })();
+</script>
+
+
+<script id="kwen-v5-crop-database-js">
+const cropDbOrder = [
+  "tomatoes","cherrytomatoes","peppers","cucumbers","peas","spinach",
+  "beets","waxbeans","garlic","basil","thaibasil","chives","mint","savory","thyme"
+];
+
+function renderCropDatabase(){
+  const list = document.getElementById("cropDbList");
+  const detail = document.getElementById("cropDbDetail");
+  if(!list || !detail || typeof plants === "undefined") return;
+
+  if(!selectedPlant || !plants[selectedPlant]) selectedPlant = "tomatoes";
+
+  list.innerHTML = cropDbOrder.filter(k => plants[k]).map(key => {
+    const p = plants[key];
+    return `<button type="button" class="crop-db-item ${key===selectedPlant?'active':''}" data-crop-db="${key}">
+      <span class="crop-db-icon">${p.icon || "🌱"}</span>
+      <span>${p.name}</span>
+    </button>`;
+  }).join("");
+
+  const p = plants[selectedPlant];
+  const plan = (typeof getPlantPlan === "function") ? getPlantPlan(selectedPlant) : {};
+  const grab = plan.grab && plan.grab.length ? plan.grab.map(k => fertilizerInventory[k]?.short || k).join(", ") : "No fertilizer";
+  const optional = plan.optional && plan.optional.length ? plan.optional.map(k => fertilizerInventory[k]?.short || k).join(", ") : "None";
+
+  detail.innerHTML = `
+    <div class="crop-detail-hero">
+      <div class="crop-detail-big-icon">${p.icon || "🌱"}</div>
+      <div>
+        <h4 class="crop-detail-title">${p.name}</h4>
+        <div class="crop-detail-sub">${p.stage || ""}</div>
+      </div>
+    </div>
+
+    <div class="crop-info-grid">
+      <div class="crop-info-card"><small>Best Setup</small><b>${p.best || "—"}</b></div>
+      <div class="crop-info-card"><small>Safe Temp</small><b>${p.safeTemp || "—"}</b></div>
+      <div class="crop-info-card"><small>Sow</small><b>${p.sow || "—"}</b></div>
+      <div class="crop-info-card"><small>Move Outside</small><b>${p.move || "—"}</b></div>
+      <div class="crop-info-card"><small>Water</small><b>${p.water || "—"}</b></div>
+      <div class="crop-info-card"><small>Feed</small><b>${p.feed || "—"}</b></div>
+      <div class="crop-info-card"><small>Grab</small><b>${grab}</b></div>
+      <div class="crop-info-card"><small>Optional</small><b>${optional}</b></div>
+      <div class="crop-info-card"><small>Harvest</small><b>${p.harvest || "—"}</b></div>
+      <div class="crop-info-card"><small>Heat Care</small><b>${p.heatCare || "—"}</b></div>
+      <div class="crop-info-card full"><small>Supply Cache Recommendation</small><b>${p.fertilizerBest || plan.note || "—"}</b></div>
+      <div class="crop-info-card full"><small>Notes</small><b>${p.notes || "—"}</b></div>
+    </div>
+  `;
+}
+
+document.addEventListener("click", function(e){
+  const btn = e.target.closest("[data-crop-db]");
+  if(!btn) return;
+  selectedPlant = btn.dataset.cropDb;
+  renderCropDatabase();
+});
+
+const oldRenderAllCropDb = window.renderAll;
+window.renderAll = function(){
+  if(typeof oldRenderAllCropDb === "function") oldRenderAllCropDb();
+  renderCropDatabase();
+};
+
+document.addEventListener("DOMContentLoaded", function(){
+  setTimeout(renderCropDatabase, 0);
+});
 </script>
 
 </body>
