@@ -841,7 +841,45 @@ input[type="radio"] + label,
 }
 </style>
 
-</head>
+
+<style id="kwen-cleanup-pass">
+#radioBtn,
+.radio-btn,
+input[type="checkbox"]{
+  display:none !important;
+}
+
+.crop-card-grid{
+ display:none !important;
+}
+
+.crop-layout{
+ display:grid;
+ grid-template-columns:220px 1fr;
+ gap:16px;
+}
+
+.crop-list-panel button{
+ width:100%;
+ margin-bottom:8px;
+ background:#0b1b0b;
+ color:#9DFF62;
+ border:1px solid rgba(157,255,98,.35);
+ border-radius:10px;
+ padding:10px;
+ text-align:left;
+}
+
+@media(max-width:700px){
+ .crop-layout{
+  grid-template-columns:1fr;
+ }
+}
+</style>
+
+<style>
+input[type=checkbox],input[type=radio],.stage-control,.crop-card-grid,.vault-radio,#radioBtn{display:none!important;}
+</style></head>
 <body>
 <div class="app">
   <aside class="sidebar">
@@ -963,34 +1001,12 @@ input[type="radio"] + label,
       </div>
 
 
-      <div class="panel" data-tab="plants">
-        <h3>Plant Stage</h3>
-        <div class="stage-control" id="plantStageControl">
-          <label class="stage-toggle">
-            <input type="checkbox" data-fruiting="tomatoes">
-            <span><b>🍅 San Marzano fruiting</b><small>Add weekly fruiting-feed reminders to the calendar.</small></span>
-          </label>
-          <label class="stage-toggle">
-            <input type="checkbox" data-fruiting="cherrytomatoes">
-            <span><b>🍒 Cherry tomatoes fruiting</b><small>Add weekly fruiting-feed reminders to the calendar.</small></span>
-          </label>
-          <label class="stage-toggle">
-            <input type="checkbox" data-fruiting="peppers">
-            <span><b>🫑 Sweet red peppers fruiting</b><small>Add weekly fruiting-feed reminders to the calendar.</small></span>
-          </label>
-        </div>
-      </div>
+      
 
 
-      <div class="panel" data-tab="plants">
-        <h3>Crop Cards</h3>
-        <div class="crop-card-grid" id="cropCards"></div>
-      </div>
+      
 
-      <div class="panel" data-tab="data">
-        <h3>What Fertilizer Do I Grab?</h3>
-        <div class="quick-grab-grid" id="quickGrab"></div>
-      </div>
+      
 
       <div class="panel" data-tab="data">
         <h3>Fertilizer Guide</h3>
@@ -1008,7 +1024,7 @@ input[type="radio"] + label,
       </div>
 
       <div class="panel" data-tab="plants">
-        <h3>Selected Plant</h3>
+        <h3>Crop Database</h3>
         <div class="plant-detail" id="plantDetail"></div>
       </div>
       <div class="panel" data-tab="data">
