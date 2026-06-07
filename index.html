@@ -461,118 +461,6 @@ h1{
 
 </style>
 
-<style id="iphone-sidebar-hard-fix">
-@media(max-width:980px){
-  .sidebar{
-    background:#061207 !important;
-    opacity:1 !important;
-    backdrop-filter:none !important;
-    -webkit-backdrop-filter:none !important;
-    width:min(88vw, 350px) !important;
-    max-width:350px !important;
-    height:100dvh !important;
-    max-height:100dvh !important;
-    overflow-y:auto !important;
-    overflow-x:hidden !important;
-    -webkit-overflow-scrolling:touch !important;
-    padding:18px 18px calc(120px + env(safe-area-inset-bottom)) !important;
-    z-index:9999 !important;
-    box-shadow:18px 0 48px rgba(0,0,0,.78), inset 0 0 32px rgba(157,255,98,.08) !important;
-    border-right:2px solid rgba(157,255,98,.75) !important;
-  }
-
-  body.menu-open .sidebar{
-    transform:translateX(0) !important;
-  }
-
-  body.menu-open .backdrop{
-    display:block !important;
-    opacity:.72 !important;
-    background:rgba(0,0,0,.72) !important;
-    z-index:9990 !important;
-  }
-
-  .sidebar .brand,
-  .sidebar .plant-btn,
-  .sidebar .month-btn,
-  .sidebar .year-btn,
-  .sidebar .btn,
-  .sidebar .link-btn{
-    opacity:1 !important;
-    position:relative !important;
-    z-index:10001 !important;
-  }
-
-  .sidebar button,
-  .sidebar a{
-    pointer-events:auto !important;
-    touch-action:manipulation !important;
-    -webkit-tap-highlight-color:rgba(157,255,98,.30) !important;
-  }
-
-  body.menu-open .main{
-    pointer-events:none !important;
-  }
-
-  .mobile-open{
-    z-index:10020 !important;
-  }
-}
-</style>
-
-
-<style id="iphone-v7-stable-menu">
-@media(max-width:980px){
-  .sidebar{
-    background:#061207 !important;
-    opacity:1 !important;
-    width:min(90vw, 360px) !important;
-    max-width:360px !important;
-    height:100dvh !important;
-    max-height:100dvh !important;
-    overflow-y:auto !important;
-    overflow-x:hidden !important;
-    -webkit-overflow-scrolling:touch !important;
-    padding:18px 18px calc(150px + env(safe-area-inset-bottom)) !important;
-    z-index:99999 !important;
-    border-right:2px solid rgba(157,255,98,.85) !important;
-    box-shadow:18px 0 48px rgba(0,0,0,.88), inset 0 0 32px rgba(157,255,98,.08) !important;
-    pointer-events:auto !important;
-  }
-
-  .mobile-open{
-    position:fixed !important;
-    top:calc(12px + env(safe-area-inset-top)) !important;
-    left:12px !important;
-    z-index:100000 !important;
-    pointer-events:auto !important;
-  }
-
-  body.menu-open .sidebar{
-    transform:translateX(0) !important;
-  }
-
-  body.menu-open .backdrop,
-  .backdrop{
-    display:none !important;
-    pointer-events:none !important;
-  }
-
-  .sidebar button,
-  .sidebar a{
-    pointer-events:auto !important;
-    touch-action:manipulation !important;
-    -webkit-tap-highlight-color:rgba(157,255,98,.35) !important;
-  }
-
-  body.menu-open .main{
-    pointer-events:auto !important;
-  }
-}
-</style>
-
-
-
 <style id="kwen-v2-3-calendar-full-month-fix">
 /* v2.3: stop the calendar panel/grid from clipping after the first week */
 .panel,
@@ -803,63 +691,66 @@ h1{
   .harvest-row{grid-template-columns:1fr}
 }
 
-/* v2.8 layout upgrade: Pip-Boy bottom console tabs */
+/* v2.8 cleaned: in-page Pip-Boy header tabs */
 .pip-tabs{
   display:flex;
   justify-content:center;
   align-items:flex-end;
-  gap:10px;
-  width:min(760px, calc(100vw - 28px));
-  margin:0 auto;
-  position:fixed;
-  left:50%;
-  top:calc(10px + env(safe-area-inset-top) + 10px);
-  transform:translateX(-50%);
-  z-index:250;
-  padding:18px 18px 14px;
-  border:2px solid rgba(157,255,98,.35);
-  border-top-color:rgba(201,255,157,.70);
-  border-radius:18px 18px 26px 26px;
-  background:
-    linear-gradient(180deg, rgba(20,24,20,.98), rgba(6,9,7,.98) 58%, rgba(2,5,3,.98)),
-    repeating-linear-gradient(90deg, rgba(255,255,255,.05) 0 1px, transparent 1px 18px);
-  box-shadow:0 -4px 28px rgba(0,0,0,.55), inset 0 0 18px rgba(157,255,98,.09);
+  gap:0;
+  width:100%;
+  max-width:760px;
+  margin:12px auto 18px;
+  position:relative !important;
+  left:auto !important;
+  bottom:auto !important;
+  transform:none !important;
+  z-index:5;
+  padding:0 10px;
+  border:0;
+  border-radius:0;
+  background:transparent;
+  box-shadow:none;
+  overflow:visible;
 }
- .pip-tabs::before{display:none;}
-.pip-tabs::after{display:none;}
+.pip-tabs::before,
+.pip-tabs::after{
+  content:none !important;
+  display:none !important;
+}
 .pip-tab{
   position:relative;
-  min-width:92px;
-  border:2px solid rgba(35,24,6,.85);
-  border-radius:999px;
-  padding:14px 10px 9px;
-  background:linear-gradient(180deg,#5a4a1d,#2f240d);
-  color:#1b1205;
-  font-weight:1000;
-  letter-spacing:.07em;
+  flex:1 1 0;
+  min-width:0;
+  border:1px solid rgba(157,255,98,.55);
+  border-bottom:2px solid rgba(157,255,98,.65);
+  border-radius:12px 12px 0 0;
+  padding:12px 6px 10px;
+  background:
+    linear-gradient(180deg, rgba(18,48,24,.78), rgba(3,14,6,.96));
+  color:var(--green2);
+  font-weight:900;
+  letter-spacing:.08em;
   cursor:pointer;
   text-align:center;
-  text-shadow:0 1px 0 rgba(255,226,136,.45);
-  box-shadow:inset 0 2px 6px rgba(255,255,255,.35), inset 0 -5px 8px rgba(0,0,0,.36), 0 0 0 2px rgba(160,160,140,.35), 0 5px 10px rgba(0,0,0,.55);
+  text-shadow:0 0 8px rgba(157,255,98,.55);
+  box-shadow:inset 0 0 14px rgba(157,255,98,.08);
+}
+.pip-tab + .pip-tab{
+  margin-left:5px;
 }
 .pip-tab::before{
-  content:attr(data-pip-label);
-  position:absolute;
-  top:-25px;
-  left:50%;
-  transform:translateX(-50%);
+  content:none !important;
+  display:none !important;
+}
+.pip-tab:hover,
+.pip-tab.active{
+  background:
+    linear-gradient(180deg, rgba(75,125,50,.48), rgba(7,28,11,.98));
   color:var(--green);
-  font-size:.64rem;
-  letter-spacing:.10em;
-  white-space:nowrap;
-  text-shadow:0 0 9px rgba(157,255,98,.65);
+  border-color:rgba(201,255,157,.9);
+  box-shadow:inset 0 0 18px rgba(157,255,98,.16), 0 0 14px rgba(157,255,98,.22);
 }
-.pip-tab:hover, .pip-tab.active{
-  background:linear-gradient(180deg,#7a6a2a,#3b2d10);
-  box-shadow:inset 0 2px 6px rgba(255,255,255,.48), inset 0 -5px 8px rgba(0,0,0,.32), 0 0 0 2px rgba(225,183,73,.75), 0 0 18px rgba(225,183,73,.50);
-}
-.pip-tab.active::before{color:var(--amber);text-shadow:0 0 10px rgba(225,183,73,.85)}
-.main{padding-top:145px;padding-bottom:40px}
+.main{padding-bottom:18px}
 .pip-content .panel[data-tab]{display:none}
 .pip-content[data-active-tab="overview"] .panel[data-tab~="overview"],
 .pip-content[data-active-tab="calendar"] .panel[data-tab~="calendar"],
@@ -884,21 +775,20 @@ h1{
 .threat-scale{font-size:.58rem;gap:4px}
 @media(max-width:760px){
   .pip-tabs{
-    justify-content:flex-start;
+    max-width:none;
+    width:100%;
+    padding:0 0 10px;
+    margin:10px auto 14px;
     overflow-x:auto;
-    overflow-y:visible;
-    flex-wrap:nowrap;
-    padding:18px 14px 12px;
-    gap:9px;
-    width:calc(100vw - 18px);
-    border-radius:16px 16px 20px 20px;
     -webkit-overflow-scrolling:touch;
   }
-  .pip-tab{min-width:82px;white-space:nowrap;font-size:.72rem;padding:13px 8px 8px}
-  .pip-tab::before{font-size:.56rem;top:-23px}
-  .main{padding-top:145px;padding-bottom:40px}
+  .pip-tab{
+    flex:0 0 82px;
+    font-size:.72rem;
+    padding:11px 6px 9px;
+  }
+  .main{padding-bottom:18px}
 }
-
 </style>
 
 
@@ -921,10 +811,38 @@ h1{
 @media(max-width:620px){.crop-card-grid,.supply-grid,.quick-grab-grid,.data-grid{grid-template-columns:1fr}.crop-card{min-height:auto}}
 </style>
 
+
+<style id="kwen-final-header-cleanup">
+.mobile-open,
+.backdrop{
+  display:none !important;
+}
+.sidebar{
+  position:relative !important;
+  height:auto !important;
+  min-height:100vh;
+  transform:none !important;
+}
+@media(max-width:980px){
+  .app{grid-template-columns:1fr}
+  .sidebar{
+    display:none !important;
+  }
+  .main{
+    padding:14px 12px 18px !important;
+  }
+}
+input[type="radio"],
+input[type="radio"] + label,
+.radio,
+.radio-row,
+.radio-option{
+  display:none !important;
+}
+</style>
+
 </head>
 <body>
-<button class="btn mobile-open" id="menuOpen">☰ MENU</button>
-<div class="backdrop" id="backdrop"></div>
 <div class="app">
   <aside class="sidebar">
     <div class="brand">
@@ -2009,12 +1927,12 @@ body::after{opacity:.28}
 .grid.pip-content{display:block;max-width:1100px;margin:0 auto}.pip-content .panel[data-tab]{margin:0 auto 12px;max-width:1080px}.pip-content[data-active-tab="overview"] .panel[data-tab]:not([data-tab~="overview"]),.pip-content[data-active-tab="calendar"] .panel[data-tab]:not([data-tab~="calendar"]),.pip-content[data-active-tab="plants"] .panel[data-tab]:not([data-tab~="plants"]),.pip-content[data-active-tab="logs"] .panel[data-tab]:not([data-tab~="logs"]),.pip-content[data-active-tab="data"] .panel[data-tab]:not([data-tab~="data"]){display:none!important}
 body:not(.tab-overview) #weatherPanel{display:none}body:not(.tab-overview) .status{display:none}.tab-overview .title-block{min-height:0}.tab-calendar .top,.tab-plants .top,.tab-logs .top,.tab-data .top{grid-template-columns:1fr}.tab-calendar .title-block,.tab-plants .title-block,.tab-logs .title-block,.tab-data .title-block{display:flex;align-items:center;justify-content:space-between;gap:10px}.tab-calendar .farmer-mascot,.tab-plants .farmer-mascot,.tab-logs .farmer-mascot,.tab-data .farmer-mascot{display:none}.tab-calendar .title-block p,.tab-plants .title-block p,.tab-logs .title-block p,.tab-data .title-block p{display:none}
 .panel h3{font-size:.9rem;border-bottom:1px solid rgba(157,255,98,.22);padding-bottom:8px}.panel h3::before{content:"> ";color:var(--green2)}
-.pip-tabs{width:min(820px,calc(100vw - 20px));gap:6px;padding:20px 12px 12px;border-radius:10px;background:linear-gradient(180deg,rgba(28,31,26,.98),rgba(5,9,6,.98));overflow:visible} .pip-tabs::before{display:none;/*content:"STAT      CAL      CROP      LOG      DATA";font-size:.58rem;letter-spacing:.18em;top:5px}.pip-tab{min-width:0;flex:1;border-radius:7px;padding:12px 6px 8px;font-size:.78rem;letter-spacing:.08em}.pip-tab::before{display:none}.pip-tab.active{transform:translateY(-2px)}
+.pip-tabs{width:min(820px,calc(100vw - 20px));gap:6px;padding:20px 12px 12px;border-radius:10px;background:linear-gradient(180deg,rgba(28,31,26,.98),rgba(5,9,6,.98));overflow:visible}.pip-tabs::before{content:"STAT      CAL      CROP      LOG      DATA";font-size:.58rem;letter-spacing:.18em;top:5px}.pip-tab{min-width:0;flex:1;border-radius:7px;padding:12px 6px 8px;font-size:.78rem;letter-spacing:.08em}.pip-tab::before{display:none}.pip-tab.active{transform:translateY(-2px)}
 .icon{width:1.15em;height:1.15em;vertical-align:-.18em;filter:drop-shadow(0 0 5px rgba(157,255,98,.5));margin-right:.18em}.big .icon{width:2.1rem;height:2.1rem;margin:0}.plant-btn .icon{width:1.2rem;height:1.2rem;flex:0 0 auto}.event-pill .icon{width:.85rem;height:.85rem;margin:0}.legend .icon{width:1rem;height:1rem}.crop-card .icon{width:1.35rem;height:1.35rem}.crop-card b{font-size:1rem}.harvest-row{border-radius:10px}.task{border-radius:10px}.stat,.tblock,.data-card,.supply-card,.quick-grab-card,.crop-card{border-radius:9px}
 .month-collapse{border:1px solid rgba(157,255,98,.28);border-radius:10px;background:rgba(157,255,98,.04);padding:8px}.month-collapse summary{cursor:pointer;color:var(--amber);font-weight:900;letter-spacing:.06em}.month-collapse .task-list{margin-top:10px}.active-quests-title{color:var(--amber);font-weight:900;letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px}.vault-empty{border:1px dashed rgba(157,255,98,.26);padding:12px;border-radius:10px;color:var(--dim)}
 .boot-screen{position:fixed;inset:0;z-index:999999;display:grid;place-items:center;background:#020804;color:var(--green);font-family:inherit;transition:opacity .6s ease;}.boot-screen.hide{opacity:0;pointer-events:none}.boot-box{width:min(520px,90vw);border:2px solid rgba(157,255,98,.55);border-radius:10px;padding:24px;background:rgba(1,12,5,.92);box-shadow:0 0 35px rgba(157,255,98,.22),inset 0 0 26px rgba(157,255,98,.08)}.boot-title{font-size:1.7rem;color:var(--green2);text-shadow:var(--glow);font-weight:1000;line-height:1.1}.boot-lines{margin-top:18px;display:grid;gap:8px;color:var(--dim);font-size:.86rem}.boot-lines b{color:var(--amber)}
-@media(max-width:980px){.app{grid-template-columns:1fr}.top{grid-template-columns:1fr}.main{padding:62px 10px 122px}.weather-main{grid-template-columns:repeat(2,1fr)}.pip-tabs{bottom:calc(8px + env(safe-area-inset-bottom));padding:18px 7px 9px} .pip-tabs::before{display:none;/*font-size:.48rem;letter-spacing:.12em}.pip-tab{font-size:.66rem;padding:11px 3px 7px}.title-block{padding:12px}.farmer-mascot{grid-template-columns:62px 1fr}.mascot-art{width:58px;height:58px}}
-@media(max-width:520px){.weather-main{grid-template-columns:1fr 1fr}.risk-scale{font-size:.48rem}.cal{gap:3px}.event-pill{font-size:.58rem} .pip-tabs::before{display:none;/*content:"STAT   CAL   CROP   LOG   DATA"}.vault-clock,.vault-radio{font-size:.66rem;padding:5px 7px}}
+@media(max-width:980px){.app{grid-template-columns:1fr}.top{grid-template-columns:1fr}.main{padding:62px 10px 122px}.weather-main{grid-template-columns:repeat(2,1fr)}.pip-tabs{bottom:calc(8px + env(safe-area-inset-bottom));padding:18px 7px 9px}.pip-tabs::before{font-size:.48rem;letter-spacing:.12em}.pip-tab{font-size:.66rem;padding:11px 3px 7px}.title-block{padding:12px}.farmer-mascot{grid-template-columns:62px 1fr}.mascot-art{width:58px;height:58px}}
+@media(max-width:520px){.weather-main{grid-template-columns:1fr 1fr}.risk-scale{font-size:.48rem}.cal{gap:3px}.event-pill{font-size:.58rem}.pip-tabs::before{content:"STAT   CAL   CROP   LOG   DATA"}.vault-clock,.vault-radio{font-size:.66rem;padding:5px 7px}}
 </style>
 
 <script id="kwen-v4-pip-grow-icons-layout">
