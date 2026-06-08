@@ -9,9 +9,9 @@
   --bg:#041006;
   --panel:#071b0d;
   --panel2:#0b2612;
-  --green:#9DFF62;
-  --green2:#C9FF9D;
-  --dim:#76b86a;
+  --green:#A7B56B;
+  --green2:#C8D394;
+  --dim:#7E8D58;
   --amber:#E1B749;
   --red:#ff6f4f;
   --border:rgba(157,255,98,.45);
@@ -608,7 +608,7 @@ h1{
 .risk-meter.danger .risk-needle{transform:translateX(-50%) rotate(58deg); background:var(--red); box-shadow:0 0 14px rgba(255,111,79,.55)}
 .farmer-mascot{
   display:grid;
-  grid-template-columns:112px 1fr;
+  grid-template-columns:160px 1fr;
   gap:14px;
   align-items:center;
   border:1px solid rgba(157,255,98,.24);
@@ -618,8 +618,8 @@ h1{
   margin-top:12px;
 }
 .mascot-art{
-  width:104px;
-  height:104px;
+  width:140px;
+  height:140px;
   border:2px solid rgba(157,255,98,.65);
   border-radius:18px;
   display:flex;
@@ -686,8 +686,8 @@ h1{
 }
 .harvest-mini-btn.done{background:var(--green);color:#061007}
 @media(max-width:620px){
-  .farmer-mascot{grid-template-columns:76px 1fr}
-  .mascot-art{width:70px;height:70px}
+  .farmer-mascot{grid-template-columns:110px 1fr}
+  .mascot-art{width:100px;height:100px}
   .harvest-row{grid-template-columns:1fr}
 }
 
@@ -1411,21 +1411,14 @@ input[type="radio"]{
       <div class="title-block">
         <div class="kicker">Vault-Tec Industries</div>
         <h2>Seasonal Ops</h2>
-        <p>Live Riverview weather alerts + plant-stage guidance for your actual garden setup. Example: <strong>💧🍅</strong> means fertilize tomatoes.</p>
+        
         <div class="farmer-mascot">
           <div class="mascot-art">
             <img src="images/kwen-vault-farmer.png" alt="kWen Vault Farmer mascot" onerror="this.classList.add('missing');this.style.display='none';">
             <span class="mascot-fallback">👨‍🌾👍</span>
           </div>
-          <div class="mascot-copy"><b>Overseer of Vault 73 says:</b><small id="overseerSays">Daily orders, harvest checks, and weather warnings update from the calendar and Riverview forecast.</small></div>
+          <div class="mascot-copy"><b>OVERSEER REPORT</b><small id="overseerSays">Daily orders, harvest checks, and weather warnings update from the calendar and Riverview forecast.<br><br><em>War never changes… but fertilizer schedules do.</em></small></div>
         </div>
-      </div>
-      <div class="status">
-        <div class="status-row"><span>Region</span><b>Riverview, NB</b></div>
-        <div class="status-row"><span>Frost-Safe Target</span><b>Early June</b></div>
-        <div class="status-row"><span>Mode</span><b>Mixed Garden Planner</b></div>
-        <div class="status-row"><span>Calendar</span><b id="statusMonth">—</b></div>
-        <div class="status-row"><span>Filter</span><b id="statusFilter">All</b></div>
       </div>
       <div class="weather-card" id="weatherPanel">
         <h3>Live Riverview Weather</h3>
