@@ -9,9 +9,9 @@
   --bg:#041006;
   --panel:#071b0d;
   --panel2:#0b2612;
-  --green:#91B05B;
-  --green2:#C4D58A;
-  --dim:#74885f;
+  --green:#92AE5D;
+  --green2:#C4D38D;
+  --dim:#75895C;
   --amber:#E1B749;
   --red:#ff6f4f;
   --border:rgba(157,255,98,.45);
@@ -618,8 +618,8 @@ h1{
   margin-top:12px;
 }
 .mascot-art{
-  width:130px;
-  height:130px;
+  width:140px;
+  height:140px;
   border:2px solid rgba(157,255,98,.65);
   border-radius:18px;
   display:flex;
@@ -687,7 +687,7 @@ h1{
 .harvest-mini-btn.done{background:var(--green);color:#061007}
 @media(max-width:620px){
   .farmer-mascot{grid-template-columns:76px 1fr}
-  .mascot-art{width:70px;height:70px}
+  .mascot-art{width:95px;height:95px}
   .harvest-row{grid-template-columns:1fr}
 }
 
@@ -1411,24 +1411,15 @@ input[type="radio"]{
       <div class="title-block">
         <div class="kicker">Vault-Tec Industries</div>
         <h2>Seasonal Ops</h2>
-        
         <div class="farmer-mascot">
           <div class="mascot-art">
             <img src="images/kwen-vault-farmer.png" alt="kWen Vault Farmer mascot" onerror="this.classList.add('missing');this.style.display='none';">
             <span class="mascot-fallback">👨‍🌾👍</span>
           </div>
-          <div class="mascot-copy"><b>OVERSEER REPORT:</b><small id="overseerSays">Daily orders, harvest checks, and weather warnings update from the calendar and Riverview forecast.<br><br><em>War never changes… but fertilizer schedules do.</em></small></div>
+          <div class="mascot-copy"><b>OVERSEER REPORT</b><small id="overseerSays">Daily orders, harvest checks, and weather warnings update from the calendar and Riverview forecast.<br><br><em>War never changes… but fertilizer schedules do.</em></small></div>
         </div>
       </div>
-      <nav class="pip-tabs" aria-label="Pip-Boy sections">
-      <button type="button" class="pip-tab active" data-tab-btn="overview" data-pip-label="STATUS">STATUS</button>
-      <button type="button" class="pip-tab" data-tab-btn="calendar" data-pip-label="ITEMS">CALENDAR</button>
-      <button type="button" class="pip-tab" data-tab-btn="plants" data-pip-label="DATA">PLANTS</button>
-      <button type="button" class="pip-tab" data-tab-btn="logs" data-pip-label="LOGS">LOGS</button>
-      <button type="button" class="pip-tab" data-tab-btn="data" data-pip-label="DATA">DATA</button>
-    </nav>
-
-<div class="weather-card" id="weatherPanel">
+      <div class="weather-card" id="weatherPanel">
         <h3>Live Riverview Weather</h3>
         <div class="weather-main">
           <div class="weather-chip"><small>Now</small><b id="weatherNow">Loading…</b></div>
@@ -1450,7 +1441,13 @@ input[type="radio"]{
 
     </section>
 
-    
+    <nav class="pip-tabs" aria-label="Pip-Boy sections">
+      <button type="button" class="pip-tab active" data-tab-btn="overview" data-pip-label="STATUS">STATUS</button>
+      <button type="button" class="pip-tab" data-tab-btn="calendar" data-pip-label="ITEMS">CALENDAR</button>
+      <button type="button" class="pip-tab" data-tab-btn="plants" data-pip-label="DATA">PLANTS</button>
+      <button type="button" class="pip-tab" data-tab-btn="logs" data-pip-label="LOGS">LOGS</button>
+      <button type="button" class="pip-tab" data-tab-btn="data" data-pip-label="DATA">DATA</button>
+    </nav>
 
     <section class="grid pip-content" data-active-tab="overview">
       <div class="panel" data-tab="overview">
