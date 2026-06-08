@@ -9,8 +9,8 @@
   --bg:#071008;
   --panel:#10190d;
   --panel2:#162313;
-  --green:#8FA85B;
-  --green2:#C0CD8A;
+  --green:#8A9E54;
+  --green2:#B7C57D;
   --dim:#718258;
   --amber:#C8A04D;
   --red:#ff6f4f;
@@ -608,7 +608,7 @@ h1{
 .risk-meter.danger .risk-needle{transform:translateX(-50%) rotate(58deg); background:var(--red); box-shadow:0 0 14px rgba(255,111,79,.55)}
 .farmer-mascot{
   display:grid;
-  grid-template-columns:112px 1fr;
+  grid-template-columns:170px 1fr;
   gap:14px;
   align-items:center;
   border:1px solid rgba(116,137,75,.24);
@@ -618,8 +618,8 @@ h1{
   margin-top:12px;
 }
 .mascot-art{
-  width:160px;
-  height:160px;
+  width:190px;
+  height:190px;
   border:2px solid rgba(116,137,75,.65);
   border-radius:18px;
   display:flex;
@@ -1419,6 +1419,15 @@ input[type="radio"]{
           <div class="mascot-copy"><b>OVERSEER REPORT</b><small id="overseerSays">Daily orders, harvest checks, and weather warnings update from the calendar and Riverview forecast.<br><br><em>War never changes… but fertilizer schedules do.</em></small></div>
         </div>
       </div>
+
+    <nav class="pip-tabs" aria-label="Pip-Boy sections">
+      <button type="button" class="pip-tab active" data-tab-btn="overview">STATUS</button>
+      <button type="button" class="pip-tab" data-tab-btn="calendar">CALENDAR</button>
+      <button type="button" class="pip-tab" data-tab-btn="plants">PLANTS</button>
+      <button type="button" class="pip-tab" data-tab-btn="logs">LOGS</button>
+      <button type="button" class="pip-tab" data-tab-btn="data">DATA</button>
+    </nav>
+
       <div class="weather-card" id="weatherPanel">
         <h3>Live Riverview Weather</h3>
         <div class="weather-main">
@@ -1441,13 +1450,7 @@ input[type="radio"]{
 
     </section>
 
-    <nav class="pip-tabs" aria-label="Pip-Boy sections">
-      <button type="button" class="pip-tab active" data-tab-btn="overview" data-pip-label="STATUS">STATUS</button>
-      <button type="button" class="pip-tab" data-tab-btn="calendar" data-pip-label="ITEMS">CALENDAR</button>
-      <button type="button" class="pip-tab" data-tab-btn="plants" data-pip-label="DATA">PLANTS</button>
-      <button type="button" class="pip-tab" data-tab-btn="logs" data-pip-label="LOGS">LOGS</button>
-      <button type="button" class="pip-tab" data-tab-btn="data" data-pip-label="DATA">DATA</button>
-    </nav>
+    
 
     <section class="grid pip-content" data-active-tab="overview">
       <div class="panel" data-tab="overview">
