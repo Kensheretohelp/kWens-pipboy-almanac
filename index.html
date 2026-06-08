@@ -14,16 +14,16 @@
   --dim:#75895C;
   --amber:#E1B749;
   --red:#ff6f4f;
-  --border:rgba(157,255,98,.45);
-  --soft:rgba(157,255,98,.10);
-  --glow:0 0 18px rgba(157,255,98,.35);
+  --border:rgba(146,174,93,.45);
+  --soft:rgba(146,174,93,.10);
+  --glow:0 0 18px rgba(146,174,93,.35);
 }
 *{box-sizing:border-box}
 body{
   margin:0;
   min-height:100vh;
   background:
-    radial-gradient(circle at 15% 8%, rgba(157,255,98,.14), transparent 22rem),
+    radial-gradient(circle at 15% 8%, rgba(146,174,93,.14), transparent 22rem),
     radial-gradient(circle at 85% 3%, rgba(225,183,73,.10), transparent 18rem),
     linear-gradient(180deg,#07140c 0%,#081b0f 42%,#040905 100%);
   color:var(--green);
@@ -36,7 +36,7 @@ body::before{
   inset:0;
   pointer-events:none;
   opacity:.14;
-  background:repeating-linear-gradient(0deg,rgba(157,255,98,.22) 0 1px,transparent 1px 4px);
+  background:repeating-linear-gradient(0deg,rgba(146,174,93,.22) 0 1px,transparent 1px 4px);
   mix-blend-mode:screen;
   z-index:10;
 }
@@ -64,7 +64,7 @@ body::after{
   padding:20px;
   border-right:2px solid var(--border);
   background:rgba(1,12,5,.78);
-  box-shadow:inset 0 0 28px rgba(157,255,98,.08);
+  box-shadow:inset 0 0 28px rgba(146,174,93,.08);
 }
 .brand{
   border:1px solid var(--border);
@@ -107,13 +107,13 @@ h1{
   font-weight:900;
   letter-spacing:.04em;
   cursor:pointer;
-  box-shadow:inset 0 0 16px rgba(157,255,98,.08);
+  box-shadow:inset 0 0 16px rgba(146,174,93,.08);
 }
 .btn:hover,.plant-btn:hover,.month-btn:hover,.year-btn:hover,
 .btn.active,.plant-btn.active,.month-btn.active,.year-btn.active{
   background:var(--green);
   color:#061007;
-  box-shadow:0 0 18px rgba(157,255,98,.45);
+  box-shadow:0 0 18px rgba(146,174,93,.45);
 }
 .year-row, .month-row{
   display:flex;
@@ -180,7 +180,7 @@ h1{
   justify-content:space-between;
   gap:12px;
   padding:7px 0;
-  border-bottom:1px dashed rgba(157,255,98,.20);
+  border-bottom:1px dashed rgba(146,174,93,.20);
 }
 .status-row:last-child{border-bottom:0}
 .status b{color:var(--green2)}
@@ -232,7 +232,7 @@ h1{
 }
 .day{
   min-height:88px;
-  border:1px solid rgba(157,255,98,.22);
+  border:1px solid rgba(146,174,93,.22);
   border-radius:12px;
   background:rgba(157,255,98,.04);
   padding:7px;
@@ -259,7 +259,7 @@ h1{
   display:inline-flex;
   align-items:center;
   gap:1px;
-  border:1px solid rgba(157,255,98,.20);
+  border:1px solid rgba(146,174,93,.20);
   background:rgba(0,0,0,.18);
   border-radius:999px;
   padding:2px 4px;
@@ -282,7 +282,7 @@ h1{
   grid-template-columns:52px 1fr;
   gap:12px;
   padding:10px;
-  border:1px solid rgba(157,255,98,.20);
+  border:1px solid rgba(146,174,93,.20);
   border-radius:14px;
   background:rgba(157,255,98,.04);
 }
@@ -308,7 +308,7 @@ h1{
   gap:8px;
 }
 .stat{
-  border:1px solid rgba(157,255,98,.22);
+  border:1px solid rgba(146,174,93,.22);
   border-radius:14px;
   padding:10px;
   background:rgba(157,255,98,.04);
@@ -328,7 +328,7 @@ h1{
   gap:8px;
 }
 .tblock{
-  border:1px solid rgba(157,255,98,.22);
+  border:1px solid rgba(146,174,93,.22);
   border-radius:14px;
   padding:10px;
   min-height:92px;
@@ -409,7 +409,7 @@ h1{
   gap:8px;
 }
 .weather-chip,.alert-card,.stage-chip{
-  border:1px solid rgba(157,255,98,.22);
+  border:1px solid rgba(146,174,93,.22);
   border-radius:14px;
   padding:10px;
   background:rgba(157,255,98,.04);
@@ -450,7 +450,7 @@ h1{
   display:flex;
   justify-content:space-between;
   gap:12px;
-  border-bottom:1px dashed rgba(157,255,98,.20);
+  border-bottom:1px dashed rgba(146,174,93,.20);
   padding-bottom:6px;
   color:var(--green2);
 }
@@ -515,7 +515,7 @@ h1{
 .stage-control{display:grid;gap:10px}
 .stage-toggle{
   display:flex;align-items:flex-start;gap:10px;
-  border:1px solid rgba(157,255,98,.22);border-radius:14px;
+  border:1px solid rgba(146,174,93,.22);border-radius:14px;
   padding:10px;background:rgba(157,255,98,.04);
   color:var(--green2);cursor:pointer;
 }
@@ -524,7 +524,7 @@ h1{
 .stage-toggle small{display:block;color:var(--dim);margin-top:4px;line-height:1.35}
 .fertilizer-guide{display:grid;gap:8px}
 .fertilizer-row{
-  border:1px solid rgba(157,255,98,.22);border-radius:14px;
+  border:1px solid rgba(146,174,93,.22);border-radius:14px;
   padding:10px;background:rgba(157,255,98,.04);
 }
 .fertilizer-row b{color:var(--green2)}
@@ -565,7 +565,7 @@ h1{
   width:150px;
   height:150px;
   transform:translateX(-50%);
-  border:9px solid rgba(157,255,98,.22);
+  border:9px solid rgba(146,174,93,.22);
   border-top-color:rgba(157,255,98,.75);
   border-right-color:rgba(225,183,73,.72);
   border-left-color:rgba(157,255,98,.55);
@@ -608,7 +608,7 @@ h1{
 .risk-meter.danger .risk-needle{transform:translateX(-50%) rotate(58deg); background:var(--red); box-shadow:0 0 14px rgba(255,111,79,.55)}
 .farmer-mascot{
   display:grid;
-  grid-template-columns:112px 1fr;
+  grid-template-columns:150px 1fr;
   gap:14px;
   align-items:center;
   border:1px solid rgba(157,255,98,.24);
@@ -627,7 +627,7 @@ h1{
   justify-content:center;
   overflow:hidden;
   background:radial-gradient(circle at 50% 35%, rgba(157,255,98,.16), rgba(0,0,0,.25));
-  box-shadow:inset 0 0 18px rgba(157,255,98,.08), 0 0 16px rgba(157,255,98,.14);
+  box-shadow:inset 0 0 18px rgba(146,174,93,.08), 0 0 16px rgba(146,174,93,.14);
 }
 .mascot-art img{
   width:100%;
@@ -647,7 +647,7 @@ h1{
   grid-template-columns:1fr auto;
   gap:10px;
   align-items:center;
-  border:1px solid rgba(157,255,98,.22);
+  border:1px solid rgba(146,174,93,.22);
   border-radius:14px;
   padding:10px;
   background:rgba(157,255,98,.04);
@@ -655,8 +655,8 @@ h1{
 .harvest-row b{color:var(--green2)}
 .harvest-row small{display:block;color:var(--dim);margin-top:4px;line-height:1.35}
 .harvest-check{
-  border:1px solid rgba(157,255,98,.45);
-  background:rgba(157,255,98,.08);
+  border:1px solid rgba(146,174,93,.45);
+  background:rgba(146,174,93,.08);
   color:var(--green);
   border-radius:999px;
   padding:8px 10px;
@@ -668,7 +668,7 @@ h1{
   color:#061007;
 }
 .harvest-history{
-  border-top:1px dashed rgba(157,255,98,.22);
+  border-top:1px dashed rgba(146,174,93,.22);
   padding-top:10px;
   color:var(--green2);
   font-size:.86rem;
@@ -676,7 +676,7 @@ h1{
 .harvest-history ul{margin:8px 0 0 18px;padding:0}
 .harvest-mini-btn{
   margin-top:8px;
-  border:1px solid rgba(157,255,98,.35);
+  border:1px solid rgba(146,174,93,.35);
   background:rgba(157,255,98,.06);
   color:var(--green);
   border-radius:999px;
@@ -733,7 +733,7 @@ h1{
   cursor:pointer;
   text-align:center;
   text-shadow:0 0 8px rgba(157,255,98,.55);
-  box-shadow:inset 0 0 14px rgba(157,255,98,.08);
+  box-shadow:inset 0 0 14px rgba(146,174,93,.08);
 }
 .pip-tab + .pip-tab{
   margin-left:5px;
@@ -748,7 +748,7 @@ h1{
     linear-gradient(180deg, rgba(75,125,50,.48), rgba(7,28,11,.98));
   color:var(--green);
   border-color:rgba(201,255,157,.9);
-  box-shadow:inset 0 0 18px rgba(157,255,98,.16), 0 0 14px rgba(157,255,98,.22);
+  box-shadow:inset 0 0 18px rgba(157,255,98,.16), 0 0 14px rgba(146,174,93,.22);
 }
 .main{padding-bottom:18px}
 .pip-content .panel[data-tab]{display:none}
@@ -758,8 +758,8 @@ h1{
 .pip-content[data-active-tab="logs"] .panel[data-tab~="logs"],
 .pip-content[data-active-tab="data"] .panel[data-tab~="data"]{display:block}
 .order-check{
-  border:1px solid rgba(157,255,98,.45);
-  background:rgba(157,255,98,.08);
+  border:1px solid rgba(146,174,93,.45);
+  background:rgba(146,174,93,.08);
   color:var(--green);
   border-radius:999px;
   padding:8px 10px;
@@ -796,14 +796,14 @@ h1{
 <style id="kwen-v3-data-supply-cache">
 .crop-card-grid,.supply-grid,.quick-grab-grid,.data-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px}
 .crop-card,.supply-card,.quick-grab-card,.data-card{
-  border:1px solid rgba(157,255,98,.22);border-radius:14px;padding:12px;background:rgba(157,255,98,.045);
+  border:1px solid rgba(146,174,93,.22);border-radius:14px;padding:12px;background:rgba(157,255,98,.045);
   box-shadow:inset 0 0 14px rgba(157,255,98,.05);
 }
 .crop-card{cursor:pointer;min-height:92px}
-.crop-card:hover,.crop-card.active{background:rgba(157,255,98,.14);border-color:var(--amber);box-shadow:0 0 16px rgba(225,183,73,.12)}
+.crop-card:hover,.crop-card.active{background:rgba(146,174,93,.14);border-color:var(--amber);box-shadow:0 0 16px rgba(225,183,73,.12)}
 .crop-card b,.supply-card b,.quick-grab-card b,.data-card b{display:block;color:var(--green2);margin-bottom:5px}
 .crop-card small,.supply-card small,.quick-grab-card small,.data-card small{display:block;color:var(--dim);line-height:1.35}
-.supply-pill{display:inline-flex;align-items:center;gap:5px;border:1px solid rgba(157,255,98,.22);border-radius:999px;padding:4px 8px;margin:3px 4px 0 0;background:rgba(0,0,0,.18);color:var(--green2);font-size:.78rem}
+.supply-pill{display:inline-flex;align-items:center;gap:5px;border:1px solid rgba(146,174,93,.22);border-radius:999px;padding:4px 8px;margin:3px 4px 0 0;background:rgba(0,0,0,.18);color:var(--green2);font-size:.78rem}
 .vault-callout{border:1px solid rgba(225,183,73,.50);border-radius:16px;background:rgba(225,183,73,.07);padding:12px;margin-top:10px;color:var(--green2)}
 .vault-callout b{color:var(--amber)}
 .plant-recommendation{border:1px solid rgba(225,183,73,.50);border-radius:14px;padding:10px;background:rgba(225,183,73,.06);margin-top:8px}
@@ -864,7 +864,7 @@ input[type="checkbox"]{
  margin-bottom:8px;
  background:#0b1b0b;
  color:#9DFF62;
- border:1px solid rgba(157,255,98,.35);
+ border:1px solid rgba(146,174,93,.35);
  border-radius:10px;
  padding:10px;
  text-align:left;
@@ -889,7 +889,7 @@ input[type="radio"]{
 }
 
 :root{
-  --glow:0 0 10px rgba(157,255,98,.22);
+  --glow:0 0 10px rgba(146,174,93,.22);
 }
 
 .crop-database-panel{
@@ -933,7 +933,7 @@ input[type="radio"]{
 .crop-db-item.active{
   border-color:rgba(201,255,157,.75);
   background:rgba(157,255,98,.12);
-  box-shadow:inset 0 0 12px rgba(157,255,98,.08);
+  box-shadow:inset 0 0 12px rgba(146,174,93,.08);
 }
 
 .crop-db-icon{
@@ -957,7 +957,7 @@ input[type="radio"]{
   grid-template-columns:82px 1fr;
   gap:16px;
   align-items:center;
-  border-bottom:1px solid rgba(157,255,98,.22);
+  border-bottom:1px solid rgba(146,174,93,.22);
   padding-bottom:14px;
   margin-bottom:14px;
 }
@@ -969,7 +969,7 @@ input[type="radio"]{
   display:flex;
   align-items:center;
   justify-content:center;
-  border:1px solid rgba(157,255,98,.35);
+  border:1px solid rgba(146,174,93,.35);
   border-radius:18px;
   background:rgba(157,255,98,.06);
 }
@@ -996,7 +996,7 @@ input[type="radio"]{
 }
 
 .crop-info-card{
-  border:1px solid rgba(157,255,98,.20);
+  border:1px solid rgba(146,174,93,.20);
   border-radius:12px;
   background:rgba(157,255,98,.04);
   padding:10px;
@@ -1177,11 +1177,11 @@ input[type="radio"]{
   display:flex !important;
   align-items:center !important;
   justify-content:center !important;
-  border:2px solid rgba(157,255,98,.45) !important;
+  border:2px solid rgba(146,174,93,.45) !important;
   border-radius:14px !important;
   background:
     radial-gradient(circle at 45% 36%, rgba(157,255,98,.16), rgba(0,0,0,.18) 62%) !important;
-  box-shadow:inset 0 0 16px rgba(157,255,98,.08) !important;
+  box-shadow:inset 0 0 16px rgba(146,174,93,.08) !important;
 }
 
 .crop-detail-title{
@@ -1191,7 +1191,7 @@ input[type="radio"]{
   line-height:1.04 !important;
   text-transform:uppercase !important;
   letter-spacing:.055em !important;
-  text-shadow:0 0 8px rgba(157,255,98,.22) !important;
+  text-shadow:0 0 8px rgba(146,174,93,.22) !important;
 }
 
 .crop-detail-sub{
@@ -1250,7 +1250,7 @@ input[type="radio"]{
   display:block !important;
   margin-top:14px !important;
   padding-top:14px !important;
-  border-top:1px solid rgba(157,255,98,.22) !important;
+  border-top:1px solid rgba(146,174,93,.22) !important;
 }
 
 .crop-info-card.full::before{
@@ -1419,7 +1419,14 @@ input[type="radio"]{
           <div class="mascot-copy"><b>OVERSEER REPORT</b><small id="overseerSays">Daily orders, harvest checks, and weather warnings update from the calendar and Riverview forecast.<br><br><em>War never changes… but fertilizer schedules do.</em></small></div>
         </div>
       </div>
-      <div class="weather-card" id="weatherPanel">
+      <nav class="pip-tabs" aria-label="Pip-Boy sections">
+      <button type="button" class="pip-tab active" data-tab-btn="overview" data-pip-label="STATUS">STATUS</button>
+      <button type="button" class="pip-tab" data-tab-btn="calendar" data-pip-label="ITEMS">CALENDAR</button>
+      <button type="button" class="pip-tab" data-tab-btn="plants" data-pip-label="DATA">PLANTS</button>
+      <button type="button" class="pip-tab" data-tab-btn="logs" data-pip-label="LOGS">LOGS</button>
+      <button type="button" class="pip-tab" data-tab-btn="data" data-pip-label="DATA">DATA</button>
+    </nav>
+<div class="weather-card" id="weatherPanel">
         <h3>Live Riverview Weather</h3>
         <div class="weather-main">
           <div class="weather-chip"><small>Now</small><b id="weatherNow">Loading…</b></div>
@@ -1441,13 +1448,7 @@ input[type="radio"]{
 
     </section>
 
-    <nav class="pip-tabs" aria-label="Pip-Boy sections">
-      <button type="button" class="pip-tab active" data-tab-btn="overview" data-pip-label="STATUS">STATUS</button>
-      <button type="button" class="pip-tab" data-tab-btn="calendar" data-pip-label="ITEMS">CALENDAR</button>
-      <button type="button" class="pip-tab" data-tab-btn="plants" data-pip-label="DATA">PLANTS</button>
-      <button type="button" class="pip-tab" data-tab-btn="logs" data-pip-label="LOGS">LOGS</button>
-      <button type="button" class="pip-tab" data-tab-btn="data" data-pip-label="DATA">DATA</button>
-    </nav>
+    
 
     <section class="grid pip-content" data-active-tab="overview">
       <div class="panel" data-tab="overview">
@@ -2379,9 +2380,9 @@ window.addEventListener('load', startWeatherWhenReady);
 <!-- Weather data: Open-Meteo Forecast API, no API key required. -->
 
 <style id="kwen-v4-pip-grow-visual-layout">
-:root{--crt-shadow:0 0 22px rgba(157,255,98,.22), inset 0 0 28px rgba(157,255,98,.07)}
+:root{--crt-shadow:0 0 22px rgba(146,174,93,.22), inset 0 0 28px rgba(157,255,98,.07)}
 body{background:#020804;}
-body::before{opacity:.11;background:repeating-linear-gradient(0deg,rgba(157,255,98,.20) 0 1px,transparent 1px 5px)}
+body::before{opacity:.11;background:repeating-linear-gradient(0deg,rgba(146,174,93,.20) 0 1px,transparent 1px 5px)}
 body::after{opacity:.28}
 .app{grid-template-columns:300px minmax(0,1fr)}
 .main{padding:18px 18px 128px;}
@@ -2397,14 +2398,14 @@ body::after{opacity:.28}
 .mascot-art{width:74px;height:74px;border-radius:8px;background:rgba(157,255,98,.06)}
 .mascot-copy b{text-transform:uppercase;color:var(--amber);letter-spacing:.09em;font-size:.78rem}.mascot-copy small{font-size:.8rem;line-height:1.32}
 .status{font-size:.78rem}.status-row{padding:6px 0}.weather-card h3{font-size:.84rem}.weather-main{grid-template-columns:repeat(2,1fr)}
-.vault-header-tools{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;align-items:center}.vault-clock,.vault-radio{border:1px solid rgba(157,255,98,.35);border-radius:999px;padding:6px 9px;background:rgba(0,0,0,.22);color:var(--green2);font-weight:900;text-decoration:none;font-size:.75rem;letter-spacing:.06em}.vault-radio{color:#061007;background:var(--amber);border-color:var(--amber)}
+.vault-header-tools{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;align-items:center}.vault-clock,.vault-radio{border:1px solid rgba(146,174,93,.35);border-radius:999px;padding:6px 9px;background:rgba(0,0,0,.22);color:var(--green2);font-weight:900;text-decoration:none;font-size:.75rem;letter-spacing:.06em}.vault-radio{color:#061007;background:var(--amber);border-color:var(--amber)}
 .grid.pip-content{display:block;max-width:1100px;margin:0 auto}.pip-content .panel[data-tab]{margin:0 auto 12px;max-width:1080px}.pip-content[data-active-tab="overview"] .panel[data-tab]:not([data-tab~="overview"]),.pip-content[data-active-tab="calendar"] .panel[data-tab]:not([data-tab~="calendar"]),.pip-content[data-active-tab="plants"] .panel[data-tab]:not([data-tab~="plants"]),.pip-content[data-active-tab="logs"] .panel[data-tab]:not([data-tab~="logs"]),.pip-content[data-active-tab="data"] .panel[data-tab]:not([data-tab~="data"]){display:none!important}
 body:not(.tab-overview) #weatherPanel{display:none}body:not(.tab-overview) .status{display:none}.tab-overview .title-block{min-height:0}.tab-calendar .top,.tab-plants .top,.tab-logs .top,.tab-data .top{grid-template-columns:1fr}.tab-calendar .title-block,.tab-plants .title-block,.tab-logs .title-block,.tab-data .title-block{display:flex;align-items:center;justify-content:space-between;gap:10px}.tab-calendar .farmer-mascot,.tab-plants .farmer-mascot,.tab-logs .farmer-mascot,.tab-data .farmer-mascot{display:none}.tab-calendar .title-block p,.tab-plants .title-block p,.tab-logs .title-block p,.tab-data .title-block p{display:none}
-.panel h3{font-size:.9rem;border-bottom:1px solid rgba(157,255,98,.22);padding-bottom:8px}.panel h3::before{content:"> ";color:var(--green2)}
+.panel h3{font-size:.9rem;border-bottom:1px solid rgba(146,174,93,.22);padding-bottom:8px}.panel h3::before{content:"> ";color:var(--green2)}
 .pip-tabs{width:min(820px,calc(100vw - 20px));gap:6px;padding:20px 12px 12px;border-radius:10px;background:linear-gradient(180deg,rgba(28,31,26,.98),rgba(5,9,6,.98));overflow:visible}.pip-tabs::before{content:"STAT      CAL      CROP      LOG      DATA";font-size:.58rem;letter-spacing:.18em;top:5px}.pip-tab{min-width:0;flex:1;border-radius:7px;padding:12px 6px 8px;font-size:.78rem;letter-spacing:.08em}.pip-tab::before{display:none}.pip-tab.active{transform:translateY(-2px)}
 .icon{width:1.15em;height:1.15em;vertical-align:-.18em;filter:drop-shadow(0 0 5px rgba(157,255,98,.5));margin-right:.18em}.big .icon{width:2.1rem;height:2.1rem;margin:0}.plant-btn .icon{width:1.2rem;height:1.2rem;flex:0 0 auto}.event-pill .icon{width:.85rem;height:.85rem;margin:0}.legend .icon{width:1rem;height:1rem}.crop-card .icon{width:1.35rem;height:1.35rem}.crop-card b{font-size:1rem}.harvest-row{border-radius:10px}.task{border-radius:10px}.stat,.tblock,.data-card,.supply-card,.quick-grab-card,.crop-card{border-radius:9px}
 .month-collapse{border:1px solid rgba(157,255,98,.28);border-radius:10px;background:rgba(157,255,98,.04);padding:8px}.month-collapse summary{cursor:pointer;color:var(--amber);font-weight:900;letter-spacing:.06em}.month-collapse .task-list{margin-top:10px}.active-quests-title{color:var(--amber);font-weight:900;letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px}.vault-empty{border:1px dashed rgba(157,255,98,.26);padding:12px;border-radius:10px;color:var(--dim)}
-.boot-screen{position:fixed;inset:0;z-index:999999;display:grid;place-items:center;background:#020804;color:var(--green);font-family:inherit;transition:opacity .6s ease;}.boot-screen.hide{opacity:0;pointer-events:none}.boot-box{width:min(520px,90vw);border:2px solid rgba(157,255,98,.55);border-radius:10px;padding:24px;background:rgba(1,12,5,.92);box-shadow:0 0 35px rgba(157,255,98,.22),inset 0 0 26px rgba(157,255,98,.08)}.boot-title{font-size:1.7rem;color:var(--green2);text-shadow:var(--glow);font-weight:1000;line-height:1.1}.boot-lines{margin-top:18px;display:grid;gap:8px;color:var(--dim);font-size:.86rem}.boot-lines b{color:var(--amber)}
+.boot-screen{position:fixed;inset:0;z-index:999999;display:grid;place-items:center;background:#020804;color:var(--green);font-family:inherit;transition:opacity .6s ease;}.boot-screen.hide{opacity:0;pointer-events:none}.boot-box{width:min(520px,90vw);border:2px solid rgba(157,255,98,.55);border-radius:10px;padding:24px;background:rgba(1,12,5,.92);box-shadow:0 0 35px rgba(146,174,93,.22),inset 0 0 26px rgba(146,174,93,.08)}.boot-title{font-size:1.7rem;color:var(--green2);text-shadow:var(--glow);font-weight:1000;line-height:1.1}.boot-lines{margin-top:18px;display:grid;gap:8px;color:var(--dim);font-size:.86rem}.boot-lines b{color:var(--amber)}
 @media(max-width:980px){.app{grid-template-columns:1fr}.top{grid-template-columns:1fr}.main{padding:62px 10px 122px}.weather-main{grid-template-columns:repeat(2,1fr)}.pip-tabs{bottom:calc(8px + env(safe-area-inset-bottom));padding:18px 7px 9px}.pip-tabs::before{font-size:.48rem;letter-spacing:.12em}.pip-tab{font-size:.66rem;padding:11px 3px 7px}.title-block{padding:12px}.farmer-mascot{grid-template-columns:62px 1fr}.mascot-art{width:58px;height:58px}}
 @media(max-width:520px){.weather-main{grid-template-columns:1fr 1fr}.risk-scale{font-size:.48rem}.cal{gap:3px}.event-pill{font-size:.58rem}.pip-tabs::before{content:"STAT   CAL   CROP   LOG   DATA"}.vault-clock,.vault-radio{font-size:.66rem;padding:5px 7px}}
 </style>
