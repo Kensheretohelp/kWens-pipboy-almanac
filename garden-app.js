@@ -1,174 +1,445 @@
+const VERSION = "3.2";
+const LS_GARDEN = "kwenGardenV32_myCrops";
+const LS_STAGES = "kwenGardenV32_stages";
+const LS_HARVEST = "kwenGardenV32_harvestLog";
 
-const years = [2026, 2027];
-const monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
-const visibleMonths = [2,3,4,5,6,7,8,9,10];
-const today = new Date();
-let selectedYear = today.getFullYear() < 2026 ? 2026 : today.getFullYear();
-if(!years.includes(selectedYear)) selectedYear = 2026;
-let selectedMonth = visibleMonths.includes(today.getMonth()) ? today.getMonth() : 5;
-let selectedPlant = "tomatoes";
+let activeTab = "stat";
+let selectedYear = new Date().getFullYear();
+let selectedMonth = new Date().getMonth();
+let selectedCropId = null;
 let calendarFilter = "all";
-let selectedCategory = "all";
-let plantSearch = "";
-let plantListMode = "garden";
+let addOpen = false;
 
-const byId = Object.fromEntries(GARDEN_DATABASE.map(c => [c.id, c]));
-const qs = s => document.querySelector(s);
-const qsa = s => Array.from(document.querySelectorAll(s));
-const dateKey = (y,m,d) => `${y}-${String(m+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
-const escapeHtml = s => String(s ?? "").replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
-
+function readJSON(key, fallback){
+  try { return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback)); }
+  catch(e){ return fallback; }
+}
+function writeJSON(key, value){
+  try { localStorage.setItem(key, JSON.stringify(value)); } catch(e){}
+}
 function getMyGarden(){
-  try{ const saved = JSON.parse(localStorage.getItem("kwenMyGarden") || "null"); if(Array.isArray(saved)) return saved.filter(id => byId[id]); }catch(e){}
-  return MY_GARDEN_DEFAULT.filter(id => byId[id]);
+  const saved = readJSON(LS_GARDEN, null);
+  if(Array.isArray(saved) && saved.length) return saved.filter(id => getCrop(id));
+  return DEFAULT_MY_GARDEN.filter(id => getCrop(id));
 }
-function setMyGarden(ids){ localStorage.setItem("kwenMyGarden", JSON.stringify([...new Set(ids)].filter(id => byId[id]))); }
-function isInMyGarden(id){ return getMyGarden().includes(id); }
-function addPlant(id){ const ids=getMyGarden(); if(!ids.includes(id)) ids.push(id); setMyGarden(ids); selectedPlant=id; calendarFilter=id; plantListMode="garden"; renderAll(); }
-function removePlant(id){ const ids=getMyGarden().filter(x=>x!==id); setMyGarden(ids); if(selectedPlant===id) selectedPlant=ids[0]||GARDEN_DATABASE.find(p=>!ids.includes(p.id))?.id||GARDEN_DATABASE[0].id; if(calendarFilter===id) calendarFilter="all"; renderAll(); }
+function setMyGarden(ids){ writeJSON(LS_GARDEN, ids.filter(id => getCrop(id))); }
+function getStages(){ return readJSON(LS_STAGES, {}); }
+function setStages(stages){ writeJSON(LS_STAGES, stages); }
+function getCropStage(crop){
+  const stages = getStages();
+  return stages[crop.id]?.stage || crop.defaultStage || "growing";
+}
+function setCropStage(id, stage){
+  const stages = getStages();
+  stages[id] = { stage, changedAt: dateKey(new Date()) };
+  setStages(stages);
+}
+function activeEvents(){
+  return buildEventsForYear(selectedYear, getMyGarden(), getStages());
+}
+function escapeHTML(s){
+  return String(s ?? "").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+}
+function productPills(keys){
+  if(!keys || !keys.length) return '<span class="pill">No fertilizer</span>';
+  return keys.map(k => {
+    const item = SUPPLY_DATABASE[k];
+    return `<span class="pill">✓ ${escapeHTML(item ? item.short : k)}</span>`;
+  }).join(" ");
+}
 
-function getFruitingState(){ try{return JSON.parse(localStorage.getItem("kwenGardenFruitingState")||"{}")}catch(e){return {}} }
-function setFruitingState(id,val){ const s=getFruitingState(); s[id]=!!val; localStorage.setItem("kwenGardenFruitingState",JSON.stringify(s)); }
-function getHarvestState(){ try{return JSON.parse(localStorage.getItem("kwenHarvestLog")||"{}")}catch(e){return {}} }
-function setHarvestDone(id,val){ const s=getHarvestState(); s[id]=!!val; localStorage.setItem("kwenHarvestLog",JSON.stringify(s)); }
-function getOrderState(){ try{return JSON.parse(localStorage.getItem("kwenOrderLog")||"{}")}catch(e){return {}} }
-function setOrderDone(id,val){ const s=getOrderState(); s[id]=!!val; localStorage.setItem("kwenOrderLog",JSON.stringify(s)); }
+function setTab(tab){
+  activeTab = tab;
+  document.querySelectorAll(".pip-btn").forEach(btn => btn.classList.toggle("active", btn.dataset.tab === tab));
+  addOpen = false;
+  render();
+}
 
-function monthFromText(txt){
-  const t=String(txt||"").toLowerCase();
-  const map={jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11};
-  const found=[]; Object.keys(map).forEach(k=>{ if(t.includes(k)) found.push(map[k]); });
-  return found;
+function render(){
+  const garden = getMyGarden();
+  if(!selectedCropId || !garden.includes(selectedCropId)) selectedCropId = garden[0] || null;
+  renderStatusStrip();
+  if(activeTab === "stat") renderStat();
+  if(activeTab === "cal") renderCalendarTab();
+  if(activeTab === "crops") renderCropsTab();
+  if(activeTab === "log") renderLogTab();
+  if(activeTab === "data") renderDataTab();
 }
-function expandWindowMonths(label, fallback=[]){
-  const found=monthFromText(label); if(found.length) {
-    const min=Math.min(...found), max=Math.max(...found); const arr=[]; for(let m=min;m<=max;m++) arr.push(m); return arr;
-  }
-  return fallback;
-}
-function eventDayForMonth(type, month){
-  if(type==='sow') return month===3?15:8;
-  if(type==='move') return month===4?28:5;
-  if(type==='feed') return 16;
-  if(type==='harvest') return 20;
-  return 10;
-}
-function buildEventsForYear(year){
-  const ids=getMyGarden(); const events=[]; const fruit=getFruitingState();
-  ids.forEach(id=>{
-    const p=byId[id]; if(!p) return;
-    const add=(type,action,label,months)=>months.forEach(m=>{ if(m>=0&&m<12) events.push({date:dateKey(year,m,eventDayForMonth(type,m)),action,plant:id,text:`${p.name}: ${label}`}) });
-    add('sow','🌱',p.directSowWindow && p.directSowWindow !== 'Not recommended' ? p.directSowWindow : p.sowWindow, expandWindowMonths((p.directSowWindow && p.directSowWindow !== 'Not recommended') ? p.directSowWindow : p.sowWindow, [3,4]));
-    if(p.transplantWindow && !/direct sow preferred|no transplanting|not needed/i.test(p.transplantWindow)) add('move','🪴',p.transplantWindow, expandWindowMonths(p.transplantWindow,[4,5]));
-    add('harvest','🧺',p.harvestWindow, expandWindowMonths(p.harvestWindow,[6,7,8]));
-    const feedMonths = /none|skip|no fertilizer/i.test(p.fertilizerSchedule) ? [] : expandWindowMonths(p.harvestWindow,[5,6,7,8]);
-    feedMonths.forEach(m=>{
-      const days = fruit[id] && p.supportsFruitingMode ? [7,14,21,28] : [14,28];
-      days.forEach(d=>events.push({date:dateKey(year,m,d),action:'💧',plant:id,text:`${p.name}: ${fruit[id]&&p.supportsFruitingMode?'Fruiting mode feed':p.fertilizerSchedule}`}));
-    });
-  });
-  return events.sort((a,b)=>a.date.localeCompare(b.date));
-}
-function eventsForSelected(){ return buildEventsForYear(selectedYear).filter(e => calendarFilter==='all' || e.plant===calendarFilter); }
 
-function plantLabel(id){ const p=byId[id]; return p ? `${p.icon} ${p.name}` : id; }
-function renderControls(){
-  qs('#yearRow').innerHTML = years.map(y=>`<button class="year-btn ${y===selectedYear?'active':''}" data-year="${y}">${y}</button>`).join('');
-  qs('#monthRow').innerHTML = visibleMonths.map(m=>`<button class="year-btn ${m===selectedMonth?'active':''}" data-month="${m}">${monthNames[m].slice(0,3)}</button>`).join('');
-  const ids=getMyGarden();
-  qs('#plantFilter').innerHTML = `<option value="all">📡 All Garden Events</option>` + ids.map(id=>`<option value="${id}" ${calendarFilter===id?'selected':''}>${plantLabel(id)}</option>`).join('');
-  const cats=[...new Set(GARDEN_DATABASE.map(p=>p.category))].sort();
-  qs('#categoryFilter').innerHTML = `<option value="all">All categories</option>` + cats.map(c=>`<option value="${escapeHtml(c)}" ${selectedCategory===c?'selected':''}>${escapeHtml(c)}</option>`).join('');
+function renderStatusStrip(){
+  const strip = document.getElementById("statusStrip");
+  if(activeTab !== "stat"){ strip.innerHTML = ""; return; }
+  strip.innerHTML = `
+    <section class="grid-wide">
+      <div class="panel">
+        <h2>Live Riverview Weather</h2>
+        <div class="weather-main">
+          <div class="weather-chip"><small>Now</small><b id="weatherNow">Loading…</b></div>
+          <div class="weather-chip"><small>Tonight Low</small><b id="weatherLow">—</b></div>
+          <div class="weather-chip"><small>Tomorrow High</small><b id="weatherHigh">—</b></div>
+          <div class="weather-chip"><small>Threat Level</small><b id="weatherRisk">Checking…</b></div>
+        </div>
+      </div>
+      <div class="panel">
+        <h2>Garden Alerts</h2>
+        <div id="gardenAlerts" class="task-list">
+          <div class="alert-card"><b>Checking Riverview forecast…</b><small>Cold, heat, watering, and shade alerts appear here.</small></div>
+        </div>
+      </div>
+    </section>
+  `;
+  loadWeather();
 }
-function renderCalendar(){
-  qs('#monthTitle').textContent = `${monthNames[selectedMonth]} ${selectedYear}`;
-  const cal=qs('#calendar'); const events=eventsForSelected(); const byDate={}; events.forEach(e=>(byDate[e.date] ||= []).push(e));
-  const first=new Date(selectedYear,selectedMonth,1); const start=new Date(first); start.setDate(1-first.getDay());
-  let html=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d=>`<div class="dow">${d}</div>`).join('');
-  for(let i=0;i<42;i++){
-    const d=new Date(start); d.setDate(start.getDate()+i); const key=dateKey(d.getFullYear(),d.getMonth(),d.getDate()); const dayEvents=byDate[key]||[];
-    const cls=[d.getMonth()!==selectedMonth?'muted':'', key===dateKey(today.getFullYear(),today.getMonth(),today.getDate())?'today':''].join(' ');
-    html += `<div class="day ${cls}"><div class="day-num">${d.getDate()}</div><div class="icons">${dayEvents.slice(0,4).map(e=>`<span class="event-pill" title="${escapeHtml(e.text)}">${e.action}${byId[e.plant]?.icon||''}</span>`).join('')}</div></div>`;
-  }
-  cal.innerHTML=html;
-  qs('#calendarLegend').innerHTML = getMyGarden().map(id=>`<span>${plantLabel(id)}</span>`).join('');
-}
-function taskCard(e, done=false){ const id=encodeURIComponent(`${e.date}|${e.plant}|${e.text}`); return `<div class="task"><div class="big">${e.action}</div><div><b>${escapeHtml(e.text)}</b><small>${e.date} • ${plantLabel(e.plant)}</small><button class="mini-btn ${done?'done':''}" data-order-id="${id}">${done?'DONE':'MARK DONE'}</button></div></div>`; }
-function renderTasks(){
-  const monthPrefix=`${selectedYear}-${String(selectedMonth+1).padStart(2,'0')}`; const events=eventsForSelected().filter(e=>e.date.startsWith(monthPrefix));
-  qs('#monthTasks').innerHTML = events.length ? events.map(e=>taskCard(e,getOrderState()[`${e.date}|${e.plant}|${e.text}`])).join('') : '<div class="alert-card safe"><b>No scheduled tasks</b><small>Nothing queued for this month/filter.</small></div>';
-}
-function renderTodaysOrders(){
-  const key=dateKey(today.getFullYear(),today.getMonth(),today.getDate()); let events=buildEventsForYear(today.getFullYear()).filter(e=>e.date===key);
-  if(!events.length) events=buildEventsForYear(selectedYear).filter(e=>e.date>=key).slice(0,5);
-  qs('#todaysOrders').innerHTML = events.length ? events.map(e=>taskCard(e,getOrderState()[`${e.date}|${e.plant}|${e.text}`])).join('') : '<div class="alert-card safe"><b>No active garden orders</b><small>Vault-Tec says you may drink coffee and admire dirt.</small></div>';
-}
-function renderAlerts(){
-  const ids=getMyGarden(); const fruit=getFruitingState(); const cards=[];
-  const fruiting=ids.filter(id=>byId[id]?.supportsFruitingMode && fruit[id]);
-  if(fruiting.length) cards.push(`<div class="alert-card warn"><b>Fruiting mode active</b><small>${fruiting.map(plantLabel).join(', ')} now generate weekly fertilizer reminders.</small></div>`);
-  if(selectedMonth>=6 && selectedMonth<=7) cards.push(`<div class="alert-card heat"><b>Heat watch</b><small>Grow bags dry faster in July/August. Check moisture before fertilizing.</small></div>`);
-  cards.push(`<div class="alert-card safe"><b>${ids.length} plants in My Garden</b><small>Calendar, crop page, fertilizer guide, and logs are all reading from the same database items.</small></div>`);
-  qs('#gardenAlerts').innerHTML=cards.join('');
-}
-function cropLine(label,value,full=false){return `<div class="crop-info-card ${full?'full':''}"><small>${escapeHtml(label)}</small><b>${escapeHtml(value||'—')}</b></div>`}
-function filteredCrops(){
-  const q=plantSearch.toLowerCase().trim();
-  const mine=getMyGarden();
-  const base = plantListMode === "add"
-    ? GARDEN_DATABASE.filter(p => !mine.includes(p.id))
-    : mine.map(id => byId[id]).filter(Boolean);
-  return base.filter(p => (selectedCategory==='all'||p.category===selectedCategory) && (!q || [p.name,p.category,p.type,p.notes].join(' ').toLowerCase().includes(q)));
-}
-function renderCropDatabase(){
-  const list=qs('#cropDbList'); const detail=qs('#cropDbDetail'); const mine=getMyGarden();
-  const visible=filteredCrops();
-  if(plantListMode === "garden" && !mine.includes(selectedPlant)) selectedPlant = mine[0] || GARDEN_DATABASE.find(p=>!mine.includes(p.id))?.id || GARDEN_DATABASE[0].id;
-  if(plantListMode === "add" && mine.includes(selectedPlant)) selectedPlant = visible[0]?.id || selectedPlant;
-  const title = plantListMode === "add" ? "AVAILABLE PLANTS" : "MY GARDEN";
-  const empty = plantListMode === "add" ? "No available plants match this search." : "No active garden crops yet. Tap Add Plant.";
-  list.innerHTML = `<div class="crop-list-title">${title}</div>` +
-    (visible.length ? visible.map(p=>`<button type="button" class="crop-db-item ${p.id===selectedPlant?'active':''}" data-crop-db="${p.id}"><span class="crop-db-icon">${p.icon}</span><span>${escapeHtml(p.name)}</span></button>`).join('') : `<div class="crop-empty"><b>${empty}</b></div>`) +
-    `<div class="crop-list-footer"><button type="button" class="mini-btn add-plant-btn ${plantListMode==='add'?'done':''}" data-add-mode="${plantListMode==='add'?'garden':'add'}">${plantListMode==='add'?'SHOW MY GARDEN':'＋ ADD PLANT'}</button></div>`;
-  const p=byId[selectedPlant] || visible[0] || byId[mine[0]] || GARDEN_DATABASE[0]; if(!p) return; const inGarden=mine.includes(p.id); const fruit=getFruitingState()[p.id];
-  const supplyNames=(p.supplies||[]).map(id=>SUPPLY_DATABASE[id]?.short||id).join(', ') || 'None / compost';
-  detail.innerHTML = `<div class="crop-detail-hero"><div class="crop-detail-big-icon">${p.icon}</div><div><h4 class="crop-detail-title">${escapeHtml(p.name)}</h4><div class="crop-detail-sub">${escapeHtml(p.category)} • ${escapeHtml(p.type)} • ${escapeHtml(p.zone)}</div><div class="mini-row"><button class="mini-btn ${inGarden?'done':''}" data-toggle-plant="${p.id}">${inGarden?'REMOVE FROM MY GARDEN':'ADD TO MY GARDEN'}</button>${p.supportsFruitingMode && inGarden ? `<button class="mini-btn ${fruit?'done':''}" data-fruiting="${p.id}">${fruit?'FRUITING ON':'FRUITING OFF'}</button>`:''}</div></div></div><div class="crop-info-grid">${cropLine('Stage',p.stage)}${cropLine('Difficulty',p.difficulty)}${cropLine('Safe temp',p.safeTemp)}${cropLine('Heat care',p.heatCare)}${cropLine('Sow',p.sowWindow)}${cropLine('Direct sow',p.directSowWindow)}${cropLine('Move out',p.transplantWindow)}${cropLine('Harvest',p.harvestWindow)}${cropLine('Days',p.daysToHarvest)}${cropLine('Spacing',p.spacing)}${cropLine('Container',p.containerSize)}${cropLine('Sun',p.sun)}${cropLine('Water',p.water)}${cropLine('Fertilizer',p.fertilizerSchedule)}${cropLine('Supplies',supplyNames)}${cropLine('Notes',p.notes,true)}</div>`;
-}
-function renderFertilizerGuide(){
-  const ids=getMyGarden(); qs('#fertilizerGuide').innerHTML = ids.map(id=>{const p=byId[id]; const supplies=(p.supplies||[]).map(s=>`<span class="supply-pill">${SUPPLY_DATABASE[s]?.short||s}</span>`).join('') || '<span class="supply-pill">No fertilizer</span>'; return `<div class="fertilizer-row"><b>${p.icon} ${p.name}</b><small>${escapeHtml(p.fertilizerSchedule)}</small>${supplies}</div>`}).join('');
-}
-function renderSupplyCache(){ qs('#supplyCache').innerHTML = Object.values(SUPPLY_DATABASE).map(s=>`<div class="supply-card"><b>${escapeHtml(s.name)}</b><small>${escapeHtml(s.role)}</small></div>`).join(''); }
-function renderGardenRules(){ qs('#gardenRules').innerHTML = [
- ['One database rule','Add or edit a crop once and every tab uses that same object.'],
- ['My Garden rule','Calendar and sidebar replacement only show crops saved in My Garden.'],
- ['Fruiting rule','Only crops with supportsFruitingMode:true can create weekly fruiting feed tasks.'],
- ['Container rule','Grow bags dry faster than raised beds; water first, fertilize second.']
-].map(r=>`<div class="data-card"><b>${r[0]}</b><small>${r[1]}</small></div>`).join(''); }
-function renderFieldNotes(){ qs('#fieldNotes').innerHTML = `<p><strong>Grow bags:</strong> they dry faster than beds, especially during heat. Check daily in July/August and water before fertilizing if soil is dry.</p><p><strong>Fruit set:</strong> this means the flower has dropped and a tiny tomato/pepper/cucumber/etc. is visibly forming. Crops with fruiting mode enabled generate weekly feeding reminders.</p><p><strong>Spinach rule:</strong> your 4 inch x 10 inch planters are good for baby spinach. Sow April-June and again mid-August-September.</p>`; }
-function renderHarvestLog(){
-  const state=getHarvestState(); const harvestEvents=buildEventsForYear(selectedYear).filter(e=>e.action==='🧺' && (calendarFilter==='all'||e.plant===calendarFilter));
-  qs('#harvestLog').innerHTML = harvestEvents.length ? harvestEvents.map(e=>{const id=`${e.date}|${e.plant}|harvest`; const done=!!state[id]; return `<div class="harvest-row"><div><b>${e.action} ${escapeHtml(e.text)}</b><small>${e.date}</small></div><button class="mini-btn ${done?'done':''}" data-harvest-id="${encodeURIComponent(id)}">${done?'LOGGED':'LOG'}</button></div>`}).join('') : '<div class="alert-card"><b>No harvest windows</b><small>Add plants to My Garden to generate harvest logs.</small></div>';
-}
-function renderWeatherFallback(){ qs('#weatherNow').textContent='—'; qs('#weatherLow').textContent='—'; qs('#weatherHigh').textContent='—'; qs('#weatherRisk').textContent='Forecast unavailable'; qs('#riskMeterLabel').textContent='STANDBY'; qs('#forecastList').innerHTML='<div class="forecast-day"><span>Weather fetch failed</span><span>Use local forecast</span></div>'; }
+
 async function loadWeather(){
-  try{ const r=await fetch('https://api.open-meteo.com/v1/forecast?latitude=46.06&longitude=-64.81&current=temperature_2m&daily=temperature_2m_max,temperature_2m_min&timezone=America%2FMoncton&forecast_days=3'); const data=await r.json(); const now=data.current?.temperature_2m; const lows=data.daily?.temperature_2m_min||[]; const highs=data.daily?.temperature_2m_max||[]; qs('#weatherNow').textContent = now!=null ? `${Math.round(now)}°C` : '—'; qs('#weatherLow').textContent = lows[0]!=null ? `${Math.round(lows[0])}°C` : '—'; qs('#weatherHigh').textContent = highs[1]!=null ? `${Math.round(highs[1])}°C` : '—'; const low=Math.min(...lows.filter(x=>x!=null)); const high=Math.max(...highs.filter(x=>x!=null)); let risk='ideal', label='IDEAL'; if(low<=0){risk='freeze';label='FROST'} else if(low<8){risk='cold';label='COLD'} else if(high>=32){risk='danger';label='DANGER'} else if(high>=28){risk='hot';label='HOT'} qs('#weatherRisk').textContent=label; qs('#riskMeterLabel').textContent=label; qs('#riskMeter').className=`risk-meter ${risk}`; qs('#forecastList').innerHTML=(data.daily?.time||[]).map((d,i)=>`<div class="forecast-day"><span>${d}</span><span>${Math.round(lows[i])}°C / ${Math.round(highs[i])}°C</span></div>`).join(''); }catch(e){renderWeatherFallback()}
+  const nowEl = document.getElementById("weatherNow");
+  if(!nowEl) return;
+  try{
+    const url = "https://api.open-meteo.com/v1/forecast?latitude=46.061&longitude=-64.805&current=temperature_2m&daily=temperature_2m_min,temperature_2m_max,precipitation_sum&timezone=America%2FMoncton&forecast_days=3";
+    const res = await fetch(url);
+    const data = await res.json();
+    const now = Math.round(data.current.temperature_2m);
+    const low = Math.round(data.daily.temperature_2m_min[0]);
+    const highTomorrow = Math.round(data.daily.temperature_2m_max[1]);
+    document.getElementById("weatherNow").textContent = `${now}°C`;
+    document.getElementById("weatherLow").textContent = `${low}°C`;
+    document.getElementById("weatherHigh").textContent = `${highTomorrow}°C`;
+    const alerts = [];
+    let risk = "IDEAL";
+    if(low <= 2){ risk = "FROST"; alerts.push(["danger","Frost risk","Cover tender crops and move pots if possible."]); }
+    else if(low <= 7){ risk = "COLD"; alerts.push(["warn","Cold night","Basil, peppers, tomatoes, and cucumbers may sulk."]); }
+    if(highTomorrow >= 31){ risk = "HEAT"; alerts.push(["warn","Heat warning","Check grow bags daily. Water before fertilizer."]); }
+    if(!alerts.length) alerts.push(["safe","No major weather threat","Normal watering checks are enough."]);
+    document.getElementById("weatherRisk").textContent = risk;
+    document.getElementById("gardenAlerts").innerHTML = alerts.map(a => `<div class="alert-card ${a[0]}"><b>${a[1]}</b><small>${a[2]}</small></div>`).join("");
+  } catch(err){
+    document.getElementById("weatherNow").textContent = "Offline";
+    document.getElementById("weatherRisk").textContent = "Manual check";
+    const ga = document.getElementById("gardenAlerts");
+    if(ga) ga.innerHTML = `<div class="alert-card warn"><b>Weather unavailable</b><small>Check Riverview forecast manually. The rest of the Pip-Boy still works.</small></div>`;
+  }
 }
-function renderAll(){ renderControls(); renderCalendar(); renderTasks(); renderTodaysOrders(); renderAlerts(); renderCropDatabase(); renderFertilizerGuide(); renderSupplyCache(); renderGardenRules(); renderFieldNotes(); renderHarvestLog(); }
 
-document.addEventListener('click', e=>{
-  const tab=e.target.closest('[data-tab-btn]'); if(tab){ qs('.pip-content').dataset.activeTab=tab.dataset.tabBtn; qsa('.pip-tab').forEach(b=>b.classList.toggle('active',b===tab)); return; }
-  const y=e.target.closest('[data-year]'); if(y){ selectedYear=Number(y.dataset.year); renderAll(); return; }
-  const m=e.target.closest('[data-month]'); if(m){ selectedMonth=Number(m.dataset.month); renderAll(); return; }
-  const prev=e.target.closest('#prevMonth'); if(prev){ const idx=visibleMonths.indexOf(selectedMonth); selectedMonth=visibleMonths[(idx-1+visibleMonths.length)%visibleMonths.length]; renderAll(); return; }
-  const next=e.target.closest('#nextMonth'); if(next){ const idx=visibleMonths.indexOf(selectedMonth); selectedMonth=visibleMonths[(idx+1)%visibleMonths.length]; renderAll(); return; }
-  const addMode=e.target.closest('[data-add-mode]'); if(addMode){ plantListMode=addMode.dataset.addMode; selectedCategory='all'; plantSearch=''; const search=qs('#plantSearch'); if(search) search.value=''; renderControls(); renderCropDatabase(); return; }
-  const crop=e.target.closest('[data-crop-db]'); if(crop){ selectedPlant=crop.dataset.cropDb; renderCropDatabase(); return; }
-  const toggle=e.target.closest('[data-toggle-plant]'); if(toggle){ isInMyGarden(toggle.dataset.togglePlant) ? removePlant(toggle.dataset.togglePlant) : addPlant(toggle.dataset.togglePlant); return; }
-  const fruit=e.target.closest('[data-fruiting]'); if(fruit){ setFruitingState(fruit.dataset.fruiting,!getFruitingState()[fruit.dataset.fruiting]); renderAll(); return; }
-  const harvest=e.target.closest('[data-harvest-id]'); if(harvest){ const id=decodeURIComponent(harvest.dataset.harvestId); setHarvestDone(id,!getHarvestState()[id]); renderHarvestLog(); return; }
-  const order=e.target.closest('[data-order-id]'); if(order){ const id=decodeURIComponent(order.dataset.orderId); setOrderDone(id,!getOrderState()[id]); renderAll(); return; }
-  if(e.target.closest('#resetGardenBtn')){ localStorage.removeItem('kwenMyGarden'); localStorage.removeItem('kwenGardenFruitingState'); calendarFilter='all'; selectedPlant='tomatoes'; renderAll(); return; }
+function renderStat(){
+  const app = document.getElementById("app");
+  const todayKey = dateKey(new Date());
+  const todays = buildEventsForYear(new Date().getFullYear(), getMyGarden(), getStages()).filter(e => e.date === todayKey);
+  const garden = getMyGarden().map(getCrop).filter(Boolean);
+  const counts = {};
+  garden.forEach(c => {
+    const s = getCropStage(c);
+    counts[s] = (counts[s] || 0) + 1;
+  });
+  app.innerHTML = `
+    <section class="grid">
+      <div class="panel">
+        <h2>Today's Tasks</h2>
+        <div class="task-list">
+          ${todays.length ? todays.map(taskHTML).join("") : `<div class="task"><div class="big">✅</div><div><b>No scheduled crop tasks today</b><small>Suspiciously peaceful. Enjoy it.</small></div></div>`}
+        </div>
+      </div>
+      <div class="panel">
+        <h2>Crop Status</h2>
+        <div class="stat-grid">
+          ${Object.keys(counts).length ? Object.entries(counts).map(([stage,count]) => `<div class="card"><b>${stageLabel(stage)}</b><small>${count} crop${count===1?"":"s"}</small></div>`).join("") : `<div class="card"><b>No crops loaded</b><small>Add crops from the CROPS screen.</small></div>`}
+        </div>
+      </div>
+      <div class="panel">
+        <h2>My Crops</h2>
+        <div class="task-list">
+          ${garden.map(c => `<div class="task"><div class="big">${c.icon}</div><div><b>${escapeHTML(c.name)}</b><small>${stageLabel(getCropStage(c))} • ${escapeHTML(c.harvestWindow)}</small></div></div>`).join("")}
+        </div>
+      </div>
+      <div class="panel">
+        <h2>Overseer Report</h2>
+        <div class="card"><b>War never changes… but fertilizer schedules do.</b><small>Stage changes now update future calendar reminders automatically.</small></div>
+      </div>
+    </section>
+  `;
+}
+
+function taskHTML(e){
+  const crop = getCrop(e.plant);
+  return `<div class="task"><div class="big">${e.action}</div><div><b>${crop ? crop.icon + " " + escapeHTML(crop.name) : "Garden Task"}</b><small>${escapeHTML(e.text)} • ${escapeHTML(e.date)}</small></div></div>`;
+}
+
+function renderCalendarTab(){
+  const app = document.getElementById("app");
+  const garden = getMyGarden().map(getCrop).filter(Boolean);
+  const events = activeEvents().filter(e => calendarFilter === "all" || e.plant === calendarFilter);
+  app.innerHTML = `
+    <section class="panel">
+      <h2>Calendar</h2>
+      <div class="controls">
+        <button class="month-btn" data-prev-month>◀</button>
+        <div class="month-title">${MONTH_NAMES[selectedMonth]} ${selectedYear}</div>
+        <button class="month-btn" data-next-month>▶</button>
+        <select data-year-select>${[2026,2027,2028].map(y => `<option value="${y}" ${y===selectedYear?"selected":""}>${y}</option>`).join("")}</select>
+        <select data-filter-select>
+          <option value="all">All Crops</option>
+          ${garden.map(c => `<option value="${c.id}" ${calendarFilter===c.id?"selected":""}>${c.icon} ${escapeHTML(c.name)}</option>`).join("")}
+        </select>
+      </div>
+      <div class="cal">${calendarHTML(events)}</div>
+      <div class="legend">${garden.map(c => `<span>${c.icon} ${escapeHTML(c.name)}</span>`).join("")}</div>
+    </section>
+    <section class="panel">
+      <h2>This Month</h2>
+      <div class="task-list">
+        ${events.filter(e => parseKey(e.date).getMonth() === selectedMonth).length ? events.filter(e => parseKey(e.date).getMonth() === selectedMonth).map(taskHTML).join("") : `<div class="task"><div class="big">📡</div><div><b>No events this month</b><small>Try another month or crop filter.</small></div></div>`}
+      </div>
+    </section>
+  `;
+}
+
+function calendarHTML(events){
+  const first = new Date(selectedYear, selectedMonth, 1);
+  const startDay = first.getDay();
+  const daysInMonth = new Date(selectedYear, selectedMonth+1, 0).getDate();
+  const prevDays = new Date(selectedYear, selectedMonth, 0).getDate();
+  const cells = [];
+  DOW.forEach(d => cells.push(`<div class="dow">${d}</div>`));
+  const total = Math.ceil((startDay + daysInMonth) / 7) * 7;
+  const todayK = dateKey(new Date());
+  for(let i=0;i<total;i++){
+    const dayNum = i - startDay + 1;
+    let m = selectedMonth, y = selectedYear, d = dayNum, muted = false;
+    if(dayNum < 1){ m = selectedMonth-1; if(m<0){m=11;y--;} d = prevDays + dayNum; muted = true; }
+    if(dayNum > daysInMonth){ m = selectedMonth+1; if(m>11){m=0;y++;} d = dayNum - daysInMonth; muted = true; }
+    const k = dateKeyFromParts(y,m,d);
+    const dayEvents = events.filter(e => e.date === k);
+    cells.push(`<div class="day ${muted?"muted":""} ${k===todayK?"today":""}">
+      <div class="day-num">${d}</div>
+      <div class="icons">${dayEvents.slice(0,6).map(e => `<span class="event-pill" title="${escapeHTML(e.text)}">${e.action}${getCrop(e.plant)?.icon || ""}</span>`).join("")}</div>
+    </div>`);
+  }
+  return cells.join("");
+}
+
+function renderCropsTab(){
+  const app = document.getElementById("app");
+  const gardenIds = getMyGarden();
+  const garden = gardenIds.map(getCrop).filter(Boolean);
+  const selected = selectedCropId ? getCrop(selectedCropId) : garden[0];
+  const available = GARDEN_DATABASE.filter(c => !gardenIds.includes(c.id));
+  app.innerHTML = `
+    <section class="panel">
+      <h2>My Crops</h2>
+      <div class="crop-layout">
+        <div>
+          <div class="crop-list">
+            ${garden.map((c,i) => cropRowHTML(c,i,garden.length)).join("")}
+          </div>
+          <button class="add-btn" style="width:100%;margin-top:10px" data-toggle-add>➕ ADD CROP</button>
+          <div class="add-browser ${addOpen ? "open" : ""}">
+            <input data-add-search placeholder="Search crop database…">
+            <div class="add-grid" id="addGrid">
+              ${available.map(c => `<button class="btn add-item" data-add-crop="${c.id}">${c.icon} ${escapeHTML(c.name)} <small style="display:block;color:var(--dim)">${escapeHTML(c.category)} • ${escapeHTML(c.type)}</small></button>`).join("")}
+            </div>
+          </div>
+        </div>
+        <div>${selected ? cropDetailHTML(selected) : `<div class="card"><b>No crop selected</b><small>Add a crop to begin.</small></div>`}</div>
+      </div>
+    </section>
+  `;
+}
+
+function cropRowHTML(c,i,len){
+  return `<div class="crop-row ${selectedCropId===c.id?"active":""}">
+    <button class="crop-row-title" data-select-crop="${c.id}">${c.icon} ${escapeHTML(c.name)}<small style="display:block;color:var(--dim)">${stageLabel(getCropStage(c))}</small></button>
+    <div class="crop-actions">
+      <button class="mini-btn" data-move-crop="${c.id}" data-dir="-1" ${i===0?"disabled":""}>▲</button>
+      <button class="mini-btn" data-move-crop="${c.id}" data-dir="1" ${i===len-1?"disabled":""}>▼</button>
+      <button class="mini-btn danger-btn" data-remove-crop="${c.id}">✖</button>
+    </div>
+  </div>`;
+}
+
+function cropDetailHTML(c){
+  const stage = getCropStage(c);
+  const track = getStageTrack(c);
+  const days = fertilizerDaysForStage(c, stage);
+  return `
+    <div class="crop-detail-hero">
+      <div class="crop-icon-big">${c.icon}</div>
+      <div><h2 class="crop-title">${escapeHTML(c.name)}</h2><div class="crop-sub">${escapeHTML(c.category)} • ${escapeHTML(c.type)} • Zone ${escapeHTML(c.zone)}</div></div>
+    </div>
+    <h3>Growth Stage</h3>
+    <div class="stage-row">
+      ${track.map(s => `<button class="stage-btn ${stage===s?"active":""}" data-stage="${s}" data-stage-crop="${c.id}">${stage===s?"●":"○"} ${stageLabel(s)}</button>`).join("")}
+    </div>
+    <div class="card" style="margin-bottom:12px"><b>Active Fertilizer Rate</b><small>${days ? `Every ${days} days while ${stageLabel(stage).toLowerCase()}. Future calendar reminders update from today's stage change date.` : `No scheduled fertilizer for ${stageLabel(stage).toLowerCase()} stage.`}</small></div>
+    <div class="info-grid">
+      ${info("Sow", c.sowWindow)}
+      ${info("Direct Sow", c.directSow)}
+      ${info("Move Out", c.transplantWindow)}
+      ${info("Harvest", c.harvestWindow)}
+      ${info("Container", c.containerSize)}
+      ${info("Spacing", c.spacing)}
+      ${info("Sun", c.sun)}
+      ${info("Water", c.water)}
+      ${info("Safe Temp", c.safeTemp)}
+      ${info("Heat Care", c.heatCare)}
+      ${info("Fertilizer", `${productPills(c.fertilizer?.main)} ${c.fertilizer?.note || ""}`)}
+      ${info("Companions", c.companionPlants?.length ? c.companionPlants.map(id => getCrop(id)?.name || id).join(", ") : "—")}
+      ${info("Notes", c.notes, true)}
+    </div>
+  `;
+}
+function info(label,value,full=false){
+  return `<div class="info ${full?"full":""}"><small>${escapeHTML(label)}</small><b>${value || "—"}</b></div>`;
+}
+
+function renderLogTab(){
+  const app = document.getElementById("app");
+  const logs = readJSON(LS_HARVEST, []);
+  const garden = getMyGarden().map(getCrop).filter(Boolean);
+  app.innerHTML = `
+    <section class="panel">
+      <h2>Harvest Log</h2>
+      <div class="log-form">
+        <select data-log-crop>${garden.map(c => `<option value="${c.id}">${c.icon} ${escapeHTML(c.name)}</option>`).join("")}</select>
+        <input data-log-note placeholder="Example: 5 tomatoes / handful basil">
+        <button class="btn" data-add-log>ADD</button>
+      </div>
+      <div class="history">
+        ${logs.length ? logs.map((l,idx) => {
+          const c = getCrop(l.crop);
+          return `<div class="task"><div class="big">${c?.icon || "🧺"}</div><div><b>${escapeHTML(c?.name || l.crop)}</b><small>${escapeHTML(l.date)} • ${escapeHTML(l.note)}</small></div><button class="mini-btn danger-btn" data-delete-log="${idx}">✖</button></div>`;
+        }).join("") : `<div class="card"><b>No harvest logged yet</b><small>The tomatoes are plotting quietly.</small></div>`}
+      </div>
+    </section>
+  `;
+}
+
+function renderDataTab(){
+  const app = document.getElementById("app");
+  const garden = getMyGarden().map(getCrop).filter(Boolean);
+  app.innerHTML = `
+    <section class="grid">
+      <div class="panel">
+        <h2>Supply Cache</h2>
+        <div class="supply-grid">
+          ${Object.values(SUPPLY_DATABASE).map(s => `<div class="data-card"><b>${escapeHTML(s.name)}</b><small>${escapeHTML(s.role)}</small></div>`).join("")}
+        </div>
+      </div>
+      <div class="panel">
+        <h2>Fertilizer Guide</h2>
+        <div class="task-list">
+          ${garden.map(c => `<div class="task"><div class="big">${c.icon}</div><div><b>${escapeHTML(c.name)}</b><small>${productPills(c.fertilizer?.main)}<br>${escapeHTML(c.fertilizer?.note || "")}</small></div></div>`).join("")}
+        </div>
+      </div>
+      <div class="panel">
+        <h2>Garden Rules</h2>
+        <div class="data-grid">
+          <div class="data-card"><b>Grow Bags</b><small>They dry faster than beds, especially July/August. Water before fertilizing.</small></div>
+          <div class="data-card"><b>Stage Changes</b><small>Changing a crop stage updates future fertilizer reminders. Past dates are left alone.</small></div>
+          <div class="data-card"><b>Spinach</b><small>4 inch x 10 inch planters are good for baby spinach. Give afternoon shade during heat.</small></div>
+          <div class="data-card"><b>Root Crops</b><small>Use lower nitrogen. Thin seedlings early or the roots stay tiny and sad.</small></div>
+        </div>
+      </div>
+      <div class="panel">
+        <h2>Future Modules</h2>
+        <div class="data-grid">
+          <div class="data-card"><b>Companion Planting</b><small>Database fields are ready.</small></div>
+          <div class="data-card"><b>Crop Rotation</b><small>Future planning hook.</small></div>
+          <div class="data-card"><b>What Can I Sow Today?</b><small>Calendar data can power this next.</small></div>
+          <div class="data-card"><b>Yield Stats</b><small>Harvest log is ready for totals.</small></div>
+        </div>
+      </div>
+    </section>
+  `;
+}
+
+document.addEventListener("click", e => {
+  const tab = e.target.closest("[data-tab]");
+  if(tab){ setTab(tab.dataset.tab); return; }
+
+  if(e.target.closest("[data-prev-month]")){ selectedMonth--; if(selectedMonth<0){selectedMonth=11;selectedYear--;} render(); return; }
+  if(e.target.closest("[data-next-month]")){ selectedMonth++; if(selectedMonth>11){selectedMonth=0;selectedYear++;} render(); return; }
+
+  const sel = e.target.closest("[data-select-crop]");
+  if(sel){ selectedCropId = sel.dataset.selectCrop; addOpen = false; render(); return; }
+
+  const mv = e.target.closest("[data-move-crop]");
+  if(mv){
+    const ids = getMyGarden();
+    const idx = ids.indexOf(mv.dataset.moveCrop);
+    const dir = Number(mv.dataset.dir);
+    const next = idx + dir;
+    if(idx >= 0 && next >= 0 && next < ids.length){
+      [ids[idx],ids[next]] = [ids[next],ids[idx]];
+      setMyGarden(ids);
+      render();
+    }
+    return;
+  }
+
+  const rm = e.target.closest("[data-remove-crop]");
+  if(rm){
+    const ids = getMyGarden().filter(id => id !== rm.dataset.removeCrop);
+    setMyGarden(ids);
+    if(selectedCropId === rm.dataset.removeCrop) selectedCropId = ids[0] || null;
+    render();
+    return;
+  }
+
+  const addToggle = e.target.closest("[data-toggle-add]");
+  if(addToggle){ addOpen = !addOpen; render(); return; }
+
+  const add = e.target.closest("[data-add-crop]");
+  if(add){
+    const ids = getMyGarden();
+    if(!ids.includes(add.dataset.addCrop)) ids.push(add.dataset.addCrop);
+    setMyGarden(ids);
+    selectedCropId = add.dataset.addCrop;
+    addOpen = false;
+    render();
+    return;
+  }
+
+  const st = e.target.closest("[data-stage]");
+  if(st){
+    setCropStage(st.dataset.stageCrop, st.dataset.stage);
+    render();
+    return;
+  }
+
+  const logAdd = e.target.closest("[data-add-log]");
+  if(logAdd){
+    const crop = document.querySelector("[data-log-crop]")?.value;
+    const note = document.querySelector("[data-log-note]")?.value?.trim();
+    if(crop && note){
+      const logs = readJSON(LS_HARVEST, []);
+      logs.unshift({ crop, note, date: dateKey(new Date()) });
+      writeJSON(LS_HARVEST, logs);
+      render();
+    }
+    return;
+  }
+
+  const logDel = e.target.closest("[data-delete-log]");
+  if(logDel){
+    const logs = readJSON(LS_HARVEST, []);
+    logs.splice(Number(logDel.dataset.deleteLog),1);
+    writeJSON(LS_HARVEST, logs);
+    render();
+    return;
+  }
 });
-document.addEventListener('input', e=>{ if(e.target.id==='plantSearch'){ plantSearch=e.target.value; renderCropDatabase(); }});
-document.addEventListener('change', e=>{ if(e.target.id==='plantFilter'){ calendarFilter=e.target.value; renderAll(); } if(e.target.id==='categoryFilter'){ selectedCategory=e.target.value; renderCropDatabase(); }});
-document.addEventListener('DOMContentLoaded', ()=>{ renderAll(); loadWeather(); });
+
+document.addEventListener("change", e => {
+  if(e.target.matches("[data-year-select]")){ selectedYear = Number(e.target.value); render(); }
+  if(e.target.matches("[data-filter-select]")){ calendarFilter = e.target.value; render(); }
+});
+
+document.addEventListener("input", e => {
+  if(e.target.matches("[data-add-search]")){
+    const q = e.target.value.toLowerCase();
+    document.querySelectorAll("[data-add-crop]").forEach(btn => {
+      btn.style.display = btn.textContent.toLowerCase().includes(q) ? "" : "none";
+    });
+  }
+});
+
+document.addEventListener("DOMContentLoaded", render);

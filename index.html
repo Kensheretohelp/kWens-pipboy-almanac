@@ -1,84 +1,39 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Pip-Boy 3000 — Gardening V3.1</title>
-<link rel="stylesheet" href="styles.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>PIP-BOY 3000 — Gardening OS v3.2</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-<div class="app no-sidebar">
-  <main class="main">
-    <section class="top">
-      <div class="title-block">
-        <div class="kicker">kWen Systems // Vault-Tec Industries</div>
-        <h1>Pip-Boy 3000</h1>
-        <div class="subline">Gardening V3.1</div>
-        <div class="top-actions">
-          <a class="btn" href="https://kensheretohelp.github.io/kWens-cookbook/" target="_self" rel="noopener">🍳 Back to Cookbook</a>
-          <button class="btn" type="button" id="resetGardenBtn">Reset My Garden</button>
-        </div>
-      </div>
+  <div class="crt"></div>
+  <main class="shell">
+    <header class="hero">
+      <div class="kicker">Vault-Tec Agricultural Division</div>
+      <h1>PIP-BOY 3000</h1>
+      <div class="version">Gardening OS v3.2</div>
+    </header>
 
-    </section>
-
-    <nav class="pip-tabs" aria-label="Pip-Boy sections">
-      <button type="button" class="pip-tab active" data-tab-btn="overview">STATUS</button>
-      <button type="button" class="pip-tab" data-tab-btn="calendar">CALENDAR</button>
-      <button type="button" class="pip-tab" data-tab-btn="plants">PLANTS</button>
-      <button type="button" class="pip-tab" data-tab-btn="logs">LOGS</button>
-      <button type="button" class="pip-tab" data-tab-btn="data">DATA</button>
+    <nav class="pip-buttons" aria-label="Pip-Boy sections">
+      <button class="pip-btn active" data-tab="stat">STAT</button>
+      <button class="pip-btn" data-tab="cal">CAL</button>
+      <button class="pip-btn" data-tab="crops">CROPS</button>
+      <button class="pip-btn" data-tab="log">LOG</button>
+      <button class="pip-btn" data-tab="data">DATA</button>
     </nav>
 
-    <section class="control-bar">
-      <div><small>YEAR</small><div class="year-row" id="yearRow"></div></div>
-      <div><small>MONTH</small><div class="month-row" id="monthRow"></div></div>
-      <label><small>FILTER</small><select id="plantFilter"></select></label>
-    </section>
+    <section id="statusStrip" class="status-strip"></section>
 
-    <section class="grid pip-content" data-active-tab="overview">
-      <div class="panel" data-tab="overview"><h3>Active Quests</h3><div class="task-list" id="todaysOrders"></div></div>
-      <div class="panel" data-tab="overview"><h3>Garden Alerts</h3><div class="alert-stack" id="gardenAlerts"></div></div>
-      <div class="weather-card panel" data-tab="overview" id="weatherPanel">
-        <h3>Live Riverview Weather</h3>
-        <div class="weather-main">
-          <div class="weather-chip"><small>Now</small><b id="weatherNow">Loading…</b></div>
-          <div class="weather-chip"><small>Tonight Low</small><b id="weatherLow">—</b></div>
-          <div class="weather-chip"><small>Tomorrow High</small><b id="weatherHigh">—</b></div>
-          <div class="weather-chip"><small>Threat Level</small><b id="weatherRisk">Checking…</b></div>
-        </div>
-        <div class="risk-meter-wrap">
-          <div class="risk-meter-title"><span>GARDEN THREAT METER</span><span id="riskMeterLabel">STANDBY</span></div>
-          <div class="risk-meter safe" id="riskMeter"><div class="risk-arc"></div><div class="risk-needle"></div><div class="risk-center"></div></div>
-          <div class="risk-scale threat-scale"><span>❄️ FROST</span><span>🧊 COLD</span><span>✅ IDEAL</span><span>☀️ HOT</span><span>🔥 DANGER</span></div>
-        </div>
-        <div class="forecast-list" id="forecastList"></div>
-      </div>
+    <section id="app" class="content"></section>
 
-      <div class="panel calendar-panel" data-tab="calendar">
-        <div class="calendar-head"><button class="month-btn" id="prevMonth">◀</button><div class="month-title" id="monthTitle">Month</div><button class="month-btn" id="nextMonth">▶</button></div>
-        <div class="cal" id="calendar"></div>
-        <div class="legend" id="calendarLegend"></div>
-      </div>
-      <div class="panel" data-tab="calendar"><h3>This Month</h3><div class="task-list" id="monthTasks"></div></div>
-
-      <div class="panel crop-database-panel" data-tab="plants">
-        <h3>My Garden Crops</h3>
-        <div class="plant-tools"><input id="plantSearch" type="search" placeholder="Search active garden or available plants…"><select id="categoryFilter"><option value="all">All categories</option></select></div>
-        <div class="crop-db-layout"><div class="crop-db-list" id="cropDbList"></div><div class="crop-db-detail" id="cropDbDetail"></div></div>
-      </div>
-
-      <div class="panel" data-tab="logs"><h3>Harvest Log</h3><div class="harvest-log" id="harvestLog"></div></div>
-      <div class="panel" data-tab="data"><h3>Fertilizer Guide</h3><div class="fertilizer-guide" id="fertilizerGuide"></div></div>
-      <div class="panel" data-tab="data"><h3>Vault 73 Supply Cache</h3><div class="supply-grid" id="supplyCache"></div></div>
-      <div class="panel" data-tab="data"><h3>DATA: Garden Rules</h3><div class="data-grid" id="gardenRules"></div></div>
-      <div class="panel" data-tab="data"><h3>Overseer Field Notes</h3><div class="notes" id="fieldNotes"></div></div>
-    </section>
+    <footer class="footer">PIP-BOY 3000 • Gardening OS v3.2 • Riverview / Moncton NB Zone 5b</footer>
   </main>
-</div>
-<script src="garden-database.js"></script>
-<script src="my-garden.js"></script>
-<script src="supply-database.js"></script>
-<script src="garden-app.js"></script>
+
+  <script src="supply-database.js"></script>
+  <script src="garden-database.js"></script>
+  <script src="my-garden.js"></script>
+  <script src="calendar-engine.js"></script>
+  <script src="garden-app.js"></script>
 </body>
 </html>

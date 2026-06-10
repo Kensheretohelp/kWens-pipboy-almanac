@@ -1,4 +1,4 @@
-const MY_GARDEN_DEFAULT = [
+const DEFAULT_MY_GARDEN = [
   "tomatoes",
   "cherrytomatoes",
   "peppers",
@@ -12,6 +12,6 @@ const MY_GARDEN_DEFAULT = [
   "chives",
   "spinach",
   "mint",
-  "savory",
+  "summer_savory",
   "thyme"
 ];
