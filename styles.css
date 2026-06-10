@@ -155,3 +155,35 @@ select,input{
   .legend{font-size:.66rem}
   .log-form{grid-template-columns:1fr}
 }
+
+
+/* v3.2.1 actual patch: clean CROPS controls, Companion AI, Overseer */
+.selected-actions{
+  display:flex; flex-wrap:wrap; gap:8px; margin:0 0 14px; padding-bottom:12px;
+  border-bottom:1px dashed rgba(157,255,98,.25);
+}
+.remove-garden-btn{
+  font-family:inherit; font-weight:900; letter-spacing:.055em; cursor:pointer;
+  color:var(--amber); border:1px solid rgba(225,183,73,.65);
+  background:rgba(225,183,73,.08); border-radius:999px; padding:7px 10px;
+}
+.remove-garden-btn:hover{background:var(--amber); color:#120d02; box-shadow:0 0 18px rgba(225,183,73,.35)}
+.crop-row{grid-template-columns:1fr !important}
+.crop-row-title{width:100%; padding:4px 2px !important}
+.companion-scan{border:1px solid rgba(157,255,98,.22); border-radius:16px; padding:10px; background:rgba(157,255,98,.035); margin-bottom:12px}
+.companion-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:8px}
+.companion-card{border:1px solid rgba(157,255,98,.20); border-radius:12px; padding:9px; background:rgba(0,0,0,.18)}
+.companion-card b{display:block; color:var(--green2); margin-bottom:4px}
+.companion-card small{display:block; color:var(--dim); line-height:1.45}
+.companion-card.good{border-color:rgba(157,255,98,.38)}
+.companion-card.warn{border-color:rgba(225,183,73,.58)}
+.overseer-card{border:1px solid rgba(157,255,98,.28); border-radius:18px; overflow:hidden; background:rgba(0,0,0,.25)}
+.overseer-card img{display:block; width:100%; height:auto}
+.overseer-fallback{padding:18px}
+.overseer-fallback b{display:block; color:var(--green2); font-size:1.2rem; margin-bottom:8px}
+.overseer-fallback small{display:block; color:var(--dim); line-height:1.5}
+@media(max-width:760px){
+  .selected-actions{gap:6px}
+  .remove-garden-btn{font-size:.62rem; padding:6px 8px}
+  .companion-grid{grid-template-columns:1fr}
+}
