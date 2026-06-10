@@ -1,4 +1,4 @@
-const VERSION = "3.2";
+const VERSION = "3.2.2";
 const LS_GARDEN = "kwenGardenV32_myCrops";
 const LS_STAGES = "kwenGardenV32_stages";
 const LS_HARVEST = "kwenGardenV32_harvestLog";
@@ -66,55 +66,204 @@ function render(){
   if(activeTab === "data") renderDataTab();
 }
 
-function renderStatusStrip(){
-  const strip = document.getElementById("statusStrip");
-  if(activeTab !== "stat"){ strip.innerHTML = ""; return; }
-  strip.innerHTML = `
-    <section class="grid-wide">
-      <div class="panel">
-        <h2>Live Riverview Weather</h2>
-        <div class="weather-main">
-          <div class="weather-chip"><small>Now</small><b id="weatherNow">Loading…</b></div>
-          <div class="weather-chip"><small>Tonight Low</small><b id="weatherLow">—</b></div>
-          <div class="weather-chip"><small>Tomorrow High</small><b id="weatherHigh">—</b></div>
-          <div class="weather-chip"><small>Threat Level</small><b id="weatherRisk">Checking…</b></div>
+
+function firstFrostDate(year){
+  return new Date(year, 9, 1); // Oct 1 for Riverview / Moncton planning
+}
+
+function daysUntilFirstFrost(){
+  const now = new Date();
+  let frost = firstFrostDate(now.getFullYear());
+  if(now > frost) frost = firstFrostDate(now.getFullYear() + 1);
+  return Math.ceil((frost - now) / 86400000);
+}
+
+function getOverseerMessage(){
+  const garden = getMyGarden().map(getCrop).filter(Boolean);
+  const todays = buildEventsForYear(new Date().getFullYear(), getMyGarden(), getStages()).filter(e => e.date === dateKey(new Date()));
+  const feeding = todays.filter(e => e.action === "💧").length;
+  const frostDays = daysUntilFirstFrost();
+
+  let headline = "War never changes.";
+  let body = "Fertilizer schedules do.";
+
+  if(feeding > 0){
+    headline = "Supply cache inspection complete.";
+    body = `${feeding} crop${feeding === 1 ? "" : "s"} require feeding today. Water first, fertilize second.`;
+  } else if(frostDays <= 14){
+    headline = "Frost protocol approaching.";
+    body = `${frostDays} day${frostDays === 1 ? "" : "s"} until the planning frost date. Prepare covers and harvest tender crops.`;
+  } else if(garden.some(c => getCropStage(c) === "fruiting")){
+    headline = "Fruit production detected.";
+    body = "Fruiting crops are active. Maintain consistent water and follow the stage-based feeding schedule.";
+  }
+
+  return { headline, body, frostDays };
+}
+
+function overseerHTML(){
+  const msg = getOverseerMessage();
+  return `
+    <section class="panel overview-panel">
+      <h2>Overview</h2>
+      <div class="overseer-dynamic">
+        <div class="overseer-art">
+          <img src="images/vault-overseer.png" alt="Vault Overseer" onerror="this.style.display='none';this.parentElement.classList.add('missing');">
         </div>
-      </div>
-      <div class="panel">
-        <h2>Garden Alerts</h2>
-        <div id="gardenAlerts" class="task-list">
-          <div class="alert-card"><b>Checking Riverview forecast…</b><small>Cold, heat, watering, and shade alerts appear here.</small></div>
+        <div class="overseer-message">
+          <b>${escapeHTML(msg.headline)}</b>
+          <small>${escapeHTML(msg.body)}</small>
+          <ul>
+            <li>${msg.frostDays} day${msg.frostDays === 1 ? "" : "s"} until first frost planning date</li>
+            <li>${getMyGarden().length} active crop${getMyGarden().length === 1 ? "" : "s"} in My Crops</li>
+          </ul>
+          <em>— Overseer of Vault 73</em>
         </div>
       </div>
     </section>
   `;
-  loadWeather();
+}
+
+function riskGaugeHTML(){
+  return `
+    <div class="risk-meter-wrap">
+      <div class="risk-meter-title"><span>Garden Threat Meter</span><span id="riskMeterLabel">STANDBY</span></div>
+      <div class="risk-meter ideal" id="riskMeter">
+        <div class="risk-arc"></div>
+        <div class="risk-needle"></div>
+        <div class="risk-center"></div>
+      </div>
+      <div class="risk-scale"><span>❄️ Frost</span><span>🧊 Cold</span><span>✅ Ideal</span><span>☀️ Hot</span><span>🔥 Danger</span></div>
+    </div>
+  `;
+}
+
+function setRiskGauge(riskClass, label){
+  const meter = document.getElementById("riskMeter");
+  const riskLabel = document.getElementById("riskMeterLabel");
+  if(meter) meter.className = `risk-meter ${riskClass || "ideal"}`;
+  if(riskLabel) riskLabel.textContent = label || "IDEAL";
+}
+
+function companionAIHTML(c){
+  const gardenIds = getMyGarden().filter(id => id !== c.id);
+  const good = (c.companionPlants || []).filter(id => gardenIds.includes(id)).map(getCrop).filter(Boolean);
+  const bad = (c.avoidPlantingNear || []).filter(id => gardenIds.includes(id)).map(getCrop).filter(Boolean);
+  const neutral = gardenIds
+    .filter(id => !(c.companionPlants || []).includes(id) && !(c.avoidPlantingNear || []).includes(id))
+    .map(getCrop).filter(Boolean)
+    .slice(0, 6);
+
+  return `
+    <div class="companion-scan">
+      <h3>Companion AI Scan</h3>
+      <div class="companion-grid">
+        <div class="companion-card good"><b>Good Present</b><small>${good.length ? good.map(x => `✅ ${x.icon} ${escapeHTML(x.name)}`).join("<br>") : "No known good companions currently in My Crops."}</small></div>
+        <div class="companion-card warn"><b>Conflicts Detected</b><small>${bad.length ? bad.map(x => `❌ ${x.icon} ${escapeHTML(x.name)}`).join("<br>") : "No companion conflicts detected."}</small></div>
+        <div class="companion-card neutral"><b>Neutral Nearby</b><small>${neutral.length ? neutral.map(x => `🟡 ${x.icon} ${escapeHTML(x.name)}`).join("<br>") : "No neutral crops to report."}</small></div>
+      </div>
+    </div>
+  `;
+}
+
+function renderStat(){
+  const app = document.getElementById("app");
+  const todayKey = dateKey(new Date());
+  const todays = buildEventsForYear(new Date().getFullYear(), getMyGarden(), getStages()).filter(e => e.date === todayKey);
+  const garden = getMyGarden().map(getCrop).filter(Boolean);
+  const counts = {};
+  garden.forEach(c => {
+    const s = getCropStage(c);
+    counts[s] = (counts[s] || 0) + 1;
+  });
+  app.innerHTML = `
+    <section class="grid">
+      <div class="panel">
+        <h2>Today's Tasks</h2>
+        <div class="task-list">
+          ${todays.length ? todays.map(taskHTML).join("") : `<div class="task"><div class="big">✅</div><div><b>No scheduled crop tasks today</b><small>Suspiciously peaceful. Enjoy it.</small></div></div>`}
+        </div>
+      </div>
+      <div class="panel">
+        <h2>Crop Status</h2>
+        <div class="stat-grid">
+          ${Object.keys(counts).length ? Object.entries(counts).map(([stage,count]) => `<div class="card"><b>${stageLabel(stage)}</b><small>${count} crop${count===1?"":"s"}</small></div>`).join("") : `<div class="card"><b>No crops loaded</b><small>Add crops from the CROPS screen.</small></div>`}
+        </div>
+      </div>
+      <div class="panel">
+        <h2>My Crops</h2>
+        <div class="task-list">
+          ${garden.map(c => `<div class="task"><div class="big">${c.icon}</div><div><b>${escapeHTML(c.name)}</b><small>${stageLabel(getCropStage(c))} • ${escapeHTML(c.harvestWindow)}</small></div></div>`).join("")}
+        </div>
+      </div>
+      <div class="panel">
+        <h2>Season Status</h2>
+        <div class="card"><b>${daysUntilFirstFrost()} days until first frost planning date</b><small>Planning date: October 1. Use this as a conservative Riverview / Moncton countdown.</small></div>
+      </div>
+    </section>
+  `;
 }
 
 async function loadWeather(){
   const nowEl = document.getElementById("weatherNow");
   if(!nowEl) return;
   try{
-    const url = "https://api.open-meteo.com/v1/forecast?latitude=46.061&longitude=-64.805&current=temperature_2m&daily=temperature_2m_min,temperature_2m_max,precipitation_sum&timezone=America%2FMoncton&forecast_days=3";
+    const url = "https://api.open-meteo.com/v1/forecast?latitude=46.061&longitude=-64.805&current=temperature_2m,wind_speed_10m&daily=temperature_2m_min,temperature_2m_max,precipitation_sum,wind_speed_10m_max&timezone=America%2FMoncton&forecast_days=3";
     const res = await fetch(url);
     const data = await res.json();
+
     const now = Math.round(data.current.temperature_2m);
     const low = Math.round(data.daily.temperature_2m_min[0]);
     const highTomorrow = Math.round(data.daily.temperature_2m_max[1]);
+    const rain = Math.round(data.daily.precipitation_sum?.[1] || 0);
+    const wind = Math.round(data.daily.wind_speed_10m_max?.[1] || data.current.wind_speed_10m || 0);
+
     document.getElementById("weatherNow").textContent = `${now}°C`;
     document.getElementById("weatherLow").textContent = `${low}°C`;
     document.getElementById("weatherHigh").textContent = `${highTomorrow}°C`;
+
     const alerts = [];
     let risk = "IDEAL";
-    if(low <= 2){ risk = "FROST"; alerts.push(["danger","Frost risk","Cover tender crops and move pots if possible."]); }
-    else if(low <= 7){ risk = "COLD"; alerts.push(["warn","Cold night","Basil, peppers, tomatoes, and cucumbers may sulk."]); }
-    if(highTomorrow >= 31){ risk = "HEAT"; alerts.push(["warn","Heat warning","Check grow bags daily. Water before fertilizer."]); }
+    let riskClass = "ideal";
+
+    if(low <= 2){
+      risk = "FROST";
+      riskClass = "danger";
+      alerts.push(["danger","Frost risk","Cover tender crops and move pots if possible."]);
+    } else if(low <= 7){
+      risk = "COLD";
+      riskClass = "cold";
+      alerts.push(["warn","Cold night","Basil, peppers, tomatoes, and cucumbers may sulk. Avoid heavy watering late in the day."]);
+    }
+
+    if(highTomorrow >= 32){
+      risk = "DANGER";
+      riskClass = "danger";
+      alerts.push(["danger","Danger heat","Grow bags can dry fast. Check containers twice and avoid fertilizing dry soil."]);
+    } else if(highTomorrow >= 30){
+      if(risk !== "DANGER"){ risk = "HEAT"; riskClass = "hot"; }
+      alerts.push(["warn","Heat warning","Check grow bags daily. Water before fertilizer."]);
+    }
+
+    if(rain >= 15){
+      if(risk === "IDEAL"){ risk = "RAIN"; riskClass = "warn"; }
+      alerts.push(["warn","Heavy rain expected",`${rain} mm possible. Skip watering until soil is checked.`]);
+    }
+
+    if(wind >= 40){
+      if(risk === "IDEAL"){ risk = "WIND"; riskClass = "warn"; }
+      alerts.push(["warn","High wind",`${wind} km/h gusty conditions. Secure tomatoes, peas, and trellises.`]);
+    }
+
     if(!alerts.length) alerts.push(["safe","No major weather threat","Normal watering checks are enough."]);
+
     document.getElementById("weatherRisk").textContent = risk;
+    setRiskGauge(riskClass, risk);
     document.getElementById("gardenAlerts").innerHTML = alerts.map(a => `<div class="alert-card ${a[0]}"><b>${a[1]}</b><small>${a[2]}</small></div>`).join("");
   } catch(err){
     document.getElementById("weatherNow").textContent = "Offline";
     document.getElementById("weatherRisk").textContent = "Manual check";
+    setRiskGauge("warn", "OFFLINE");
     const ga = document.getElementById("gardenAlerts");
     if(ga) ga.innerHTML = `<div class="alert-card warn"><b>Weather unavailable</b><small>Check Riverview forecast manually. The rest of the Pip-Boy still works.</small></div>`;
   }
@@ -246,12 +395,10 @@ function renderCropsTab(){
 
 function cropRowHTML(c,i,len){
   return `<div class="crop-row ${selectedCropId===c.id?"active":""}">
-    <button class="crop-row-title" data-select-crop="${c.id}">${c.icon} ${escapeHTML(c.name)}<small style="display:block;color:var(--dim)">${stageLabel(getCropStage(c))}</small></button>
-    <div class="crop-actions">
-      <button class="mini-btn" data-move-crop="${c.id}" data-dir="-1" ${i===0?"disabled":""}>▲</button>
-      <button class="mini-btn" data-move-crop="${c.id}" data-dir="1" ${i===len-1?"disabled":""}>▼</button>
-      <button class="mini-btn danger-btn" data-remove-crop="${c.id}">✖</button>
-    </div>
+    <button class="crop-row-title" data-select-crop="${c.id}">
+      ${c.icon} ${escapeHTML(c.name)}
+      <small style="display:block;color:var(--dim)">${stageLabel(getCropStage(c))}</small>
+    </button>
   </div>`;
 }
 
@@ -259,16 +406,29 @@ function cropDetailHTML(c){
   const stage = getCropStage(c);
   const track = getStageTrack(c);
   const days = fertilizerDaysForStage(c, stage);
+  const gardenIds = getMyGarden();
+  const cropIndex = gardenIds.indexOf(c.id);
   return `
     <div class="crop-detail-hero">
       <div class="crop-icon-big">${c.icon}</div>
       <div><h2 class="crop-title">${escapeHTML(c.name)}</h2><div class="crop-sub">${escapeHTML(c.category)} • ${escapeHTML(c.type)} • Zone ${escapeHTML(c.zone)}</div></div>
     </div>
+
+    <div class="selected-actions">
+      <button class="mini-btn" data-move-crop="${c.id}" data-dir="-1" ${cropIndex<=0?"disabled":""}>▲ Move Up</button>
+      <button class="mini-btn" data-move-crop="${c.id}" data-dir="1" ${cropIndex<0 || cropIndex>=gardenIds.length-1?"disabled":""}>▼ Move Down</button>
+      <button class="remove-garden-btn" data-remove-crop="${c.id}">Remove From My Garden</button>
+    </div>
+
     <h3>Growth Stage</h3>
     <div class="stage-row">
       ${track.map(s => `<button class="stage-btn ${stage===s?"active":""}" data-stage="${s}" data-stage-crop="${c.id}">${stage===s?"●":"○"} ${stageLabel(s)}</button>`).join("")}
     </div>
+
     <div class="card" style="margin-bottom:12px"><b>Active Fertilizer Rate</b><small>${days ? `Every ${days} days while ${stageLabel(stage).toLowerCase()}. Future calendar reminders update from today's stage change date.` : `No scheduled fertilizer for ${stageLabel(stage).toLowerCase()} stage.`}</small></div>
+
+    ${companionAIHTML(c)}
+
     <div class="info-grid">
       ${info("Sow", c.sowWindow)}
       ${info("Direct Sow", c.directSow)}
