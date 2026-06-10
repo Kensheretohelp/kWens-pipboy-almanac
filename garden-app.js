@@ -1,4 +1,4 @@
-const VERSION = "3.2.2";
+const VERSION = "3.2.2-hotfix";
 const LS_GARDEN = "kwenGardenV32_myCrops";
 const LS_STAGES = "kwenGardenV32_stages";
 const LS_HARVEST = "kwenGardenV32_harvestLog";
@@ -166,43 +166,36 @@ function companionAIHTML(c){
   `;
 }
 
-function renderStat(){
-  const app = document.getElementById("app");
-  const todayKey = dateKey(new Date());
-  const todays = buildEventsForYear(new Date().getFullYear(), getMyGarden(), getStages()).filter(e => e.date === todayKey);
-  const garden = getMyGarden().map(getCrop).filter(Boolean);
-  const counts = {};
-  garden.forEach(c => {
-    const s = getCropStage(c);
-    counts[s] = (counts[s] || 0) + 1;
-  });
-  app.innerHTML = `
-    <section class="grid">
+
+function renderStatusStrip(){
+  const strip = document.getElementById("statusStrip");
+  if(!strip) return;
+  if(activeTab !== "stat"){ strip.innerHTML = ""; return; }
+  strip.innerHTML = `
+    ${overseerHTML()}
+    <section class="grid-wide">
       <div class="panel">
-        <h2>Today's Tasks</h2>
-        <div class="task-list">
-          ${todays.length ? todays.map(taskHTML).join("") : `<div class="task"><div class="big">✅</div><div><b>No scheduled crop tasks today</b><small>Suspiciously peaceful. Enjoy it.</small></div></div>`}
+        <h2>Live Riverview Weather</h2>
+        <div class="weather-main">
+          <div class="weather-chip"><small>Now</small><b id="weatherNow">Loading…</b></div>
+          <div class="weather-chip"><small>Tonight Low</small><b id="weatherLow">—</b></div>
+          <div class="weather-chip"><small>Tomorrow High</small><b id="weatherHigh">—</b></div>
+          <div class="weather-chip"><small>Threat Level</small><b id="weatherRisk">Checking…</b></div>
         </div>
+        ${riskGaugeHTML()}
       </div>
       <div class="panel">
-        <h2>Crop Status</h2>
-        <div class="stat-grid">
-          ${Object.keys(counts).length ? Object.entries(counts).map(([stage,count]) => `<div class="card"><b>${stageLabel(stage)}</b><small>${count} crop${count===1?"":"s"}</small></div>`).join("") : `<div class="card"><b>No crops loaded</b><small>Add crops from the CROPS screen.</small></div>`}
+        <h2>Garden Alerts</h2>
+        <div id="gardenAlerts" class="task-list">
+          <div class="alert-card"><b>Checking Riverview forecast…</b><small>Cold, heat, watering, and shade alerts appear here.</small></div>
         </div>
-      </div>
-      <div class="panel">
-        <h2>My Crops</h2>
-        <div class="task-list">
-          ${garden.map(c => `<div class="task"><div class="big">${c.icon}</div><div><b>${escapeHTML(c.name)}</b><small>${stageLabel(getCropStage(c))} • ${escapeHTML(c.harvestWindow)}</small></div></div>`).join("")}
-        </div>
-      </div>
-      <div class="panel">
-        <h2>Season Status</h2>
-        <div class="card"><b>${daysUntilFirstFrost()} days until first frost planning date</b><small>Planning date: October 1. Use this as a conservative Riverview / Moncton countdown.</small></div>
       </div>
     </section>
   `;
+  loadWeather();
 }
+
+
 
 async function loadWeather(){
   const nowEl = document.getElementById("weatherNow");
