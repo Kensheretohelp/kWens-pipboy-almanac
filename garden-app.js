@@ -10,6 +10,7 @@ let selectedPlant = "tomatoes";
 let calendarFilter = "all";
 let selectedCategory = "all";
 let plantSearch = "";
+let plantListMode = "garden";
 
 const byId = Object.fromEntries(GARDEN_DATABASE.map(c => [c.id, c]));
 const qs = s => document.querySelector(s);
@@ -23,8 +24,8 @@ function getMyGarden(){
 }
 function setMyGarden(ids){ localStorage.setItem("kwenMyGarden", JSON.stringify([...new Set(ids)].filter(id => byId[id]))); }
 function isInMyGarden(id){ return getMyGarden().includes(id); }
-function addPlant(id){ const ids=getMyGarden(); if(!ids.includes(id)) ids.push(id); setMyGarden(ids); selectedPlant=id; calendarFilter=id; renderAll(); }
-function removePlant(id){ const ids=getMyGarden().filter(x=>x!==id); setMyGarden(ids); if(selectedPlant===id) selectedPlant=ids[0]||GARDEN_DATABASE[0].id; if(calendarFilter===id) calendarFilter="all"; renderAll(); }
+function addPlant(id){ const ids=getMyGarden(); if(!ids.includes(id)) ids.push(id); setMyGarden(ids); selectedPlant=id; calendarFilter=id; plantListMode="garden"; renderAll(); }
+function removePlant(id){ const ids=getMyGarden().filter(x=>x!==id); setMyGarden(ids); if(selectedPlant===id) selectedPlant=ids[0]||GARDEN_DATABASE.find(p=>!ids.includes(p.id))?.id||GARDEN_DATABASE[0].id; if(calendarFilter===id) calendarFilter="all"; renderAll(); }
 
 function getFruitingState(){ try{return JSON.parse(localStorage.getItem("kwenGardenFruitingState")||"{}")}catch(e){return {}} }
 function setFruitingState(id,val){ const s=getFruitingState(); s[id]=!!val; localStorage.setItem("kwenGardenFruitingState",JSON.stringify(s)); }
@@ -111,11 +112,25 @@ function renderAlerts(){
   qs('#gardenAlerts').innerHTML=cards.join('');
 }
 function cropLine(label,value,full=false){return `<div class="crop-info-card ${full?'full':''}"><small>${escapeHtml(label)}</small><b>${escapeHtml(value||'—')}</b></div>`}
-function filteredCrops(){ const q=plantSearch.toLowerCase().trim(); return GARDEN_DATABASE.filter(p => (selectedCategory==='all'||p.category===selectedCategory) && (!q || [p.name,p.category,p.type,p.notes].join(' ').toLowerCase().includes(q))); }
+function filteredCrops(){
+  const q=plantSearch.toLowerCase().trim();
+  const mine=getMyGarden();
+  const base = plantListMode === "add"
+    ? GARDEN_DATABASE.filter(p => !mine.includes(p.id))
+    : mine.map(id => byId[id]).filter(Boolean);
+  return base.filter(p => (selectedCategory==='all'||p.category===selectedCategory) && (!q || [p.name,p.category,p.type,p.notes].join(' ').toLowerCase().includes(q)));
+}
 function renderCropDatabase(){
-  if(!byId[selectedPlant]) selectedPlant=getMyGarden()[0]||GARDEN_DATABASE[0].id; const list=qs('#cropDbList'); const detail=qs('#cropDbDetail'); const mine=getMyGarden();
-  list.innerHTML = filteredCrops().map(p=>`<button type="button" class="crop-db-item ${p.id===selectedPlant?'active':''}" data-crop-db="${p.id}"><span class="crop-db-icon">${p.icon}</span><span>${escapeHtml(p.name)}</span>${mine.includes(p.id)?'<span class="badge">MINE</span>':''}</button>`).join('') || '<div class="alert-card"><b>No crops found</b><small>Try a different search.</small></div>';
-  const p=byId[selectedPlant]; if(!p) return; const inGarden=mine.includes(p.id); const fruit=getFruitingState()[p.id];
+  const list=qs('#cropDbList'); const detail=qs('#cropDbDetail'); const mine=getMyGarden();
+  const visible=filteredCrops();
+  if(plantListMode === "garden" && !mine.includes(selectedPlant)) selectedPlant = mine[0] || GARDEN_DATABASE.find(p=>!mine.includes(p.id))?.id || GARDEN_DATABASE[0].id;
+  if(plantListMode === "add" && mine.includes(selectedPlant)) selectedPlant = visible[0]?.id || selectedPlant;
+  const title = plantListMode === "add" ? "AVAILABLE PLANTS" : "MY GARDEN";
+  const empty = plantListMode === "add" ? "No available plants match this search." : "No active garden crops yet. Tap Add Plant.";
+  list.innerHTML = `<div class="crop-list-title">${title}</div>` +
+    (visible.length ? visible.map(p=>`<button type="button" class="crop-db-item ${p.id===selectedPlant?'active':''}" data-crop-db="${p.id}"><span class="crop-db-icon">${p.icon}</span><span>${escapeHtml(p.name)}</span></button>`).join('') : `<div class="crop-empty"><b>${empty}</b></div>`) +
+    `<div class="crop-list-footer"><button type="button" class="mini-btn add-plant-btn ${plantListMode==='add'?'done':''}" data-add-mode="${plantListMode==='add'?'garden':'add'}">${plantListMode==='add'?'SHOW MY GARDEN':'＋ ADD PLANT'}</button></div>`;
+  const p=byId[selectedPlant] || visible[0] || byId[mine[0]] || GARDEN_DATABASE[0]; if(!p) return; const inGarden=mine.includes(p.id); const fruit=getFruitingState()[p.id];
   const supplyNames=(p.supplies||[]).map(id=>SUPPLY_DATABASE[id]?.short||id).join(', ') || 'None / compost';
   detail.innerHTML = `<div class="crop-detail-hero"><div class="crop-detail-big-icon">${p.icon}</div><div><h4 class="crop-detail-title">${escapeHtml(p.name)}</h4><div class="crop-detail-sub">${escapeHtml(p.category)} • ${escapeHtml(p.type)} • ${escapeHtml(p.zone)}</div><div class="mini-row"><button class="mini-btn ${inGarden?'done':''}" data-toggle-plant="${p.id}">${inGarden?'REMOVE FROM MY GARDEN':'ADD TO MY GARDEN'}</button>${p.supportsFruitingMode && inGarden ? `<button class="mini-btn ${fruit?'done':''}" data-fruiting="${p.id}">${fruit?'FRUITING ON':'FRUITING OFF'}</button>`:''}</div></div></div><div class="crop-info-grid">${cropLine('Stage',p.stage)}${cropLine('Difficulty',p.difficulty)}${cropLine('Safe temp',p.safeTemp)}${cropLine('Heat care',p.heatCare)}${cropLine('Sow',p.sowWindow)}${cropLine('Direct sow',p.directSowWindow)}${cropLine('Move out',p.transplantWindow)}${cropLine('Harvest',p.harvestWindow)}${cropLine('Days',p.daysToHarvest)}${cropLine('Spacing',p.spacing)}${cropLine('Container',p.containerSize)}${cropLine('Sun',p.sun)}${cropLine('Water',p.water)}${cropLine('Fertilizer',p.fertilizerSchedule)}${cropLine('Supplies',supplyNames)}${cropLine('Notes',p.notes,true)}</div>`;
 }
@@ -146,6 +161,7 @@ document.addEventListener('click', e=>{
   const m=e.target.closest('[data-month]'); if(m){ selectedMonth=Number(m.dataset.month); renderAll(); return; }
   const prev=e.target.closest('#prevMonth'); if(prev){ const idx=visibleMonths.indexOf(selectedMonth); selectedMonth=visibleMonths[(idx-1+visibleMonths.length)%visibleMonths.length]; renderAll(); return; }
   const next=e.target.closest('#nextMonth'); if(next){ const idx=visibleMonths.indexOf(selectedMonth); selectedMonth=visibleMonths[(idx+1)%visibleMonths.length]; renderAll(); return; }
+  const addMode=e.target.closest('[data-add-mode]'); if(addMode){ plantListMode=addMode.dataset.addMode; selectedCategory='all'; plantSearch=''; const search=qs('#plantSearch'); if(search) search.value=''; renderControls(); renderCropDatabase(); return; }
   const crop=e.target.closest('[data-crop-db]'); if(crop){ selectedPlant=crop.dataset.cropDb; renderCropDatabase(); return; }
   const toggle=e.target.closest('[data-toggle-plant]'); if(toggle){ isInMyGarden(toggle.dataset.togglePlant) ? removePlant(toggle.dataset.togglePlant) : addPlant(toggle.dataset.togglePlant); return; }
   const fruit=e.target.closest('[data-fruiting]'); if(fruit){ setFruitingState(fruit.dataset.fruiting,!getFruitingState()[fruit.dataset.fruiting]); renderAll(); return; }
