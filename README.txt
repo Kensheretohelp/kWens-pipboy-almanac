@@ -1,7 +1,15 @@
-PIP-BOY 3000 Gardening OS v3.2.2
+kWen's PIP-BOY 3000 Gardening OS v3.2
 
-Fixes:
-- Overview is now at the top of STAT, directly under the rounded buttons.
-- Overseer card uses cropped mascot art plus dynamic HTML text.
-- Garden Threat Meter / alert gauge restored under live weather.
-- Weather alerts include heat, cold/frost, heavy rain, and wind.
+Upload all files in this folder to your GitHub Pages repo root.
+Open index.html through the GitHub Pages site.
+
+Main changes:
+- Rounded Pip-Boy buttons: STAT / CAL / CROPS / LOG / DATA
+- Sidebar removed
+- CROPS replaces PLANTS
+- Database-driven crop system
+- Growth stage engine updates future fertilizer reminders
+- My Crops only shown in crop list
+- Add Crop browser shows available database crops
+- Move up/down/remove crop controls
+- Weather and alerts only on STAT
