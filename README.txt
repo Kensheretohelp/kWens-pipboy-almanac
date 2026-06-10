@@ -1,10 +1,7 @@
-kWen's PIP-BOY 3000 Gardening OS v3.2.1 actual patch
+PIP-BOY 3000 Gardening OS v3.2.2
 
-Upload all files/folders to your GitHub Pages repo root.
-
-Changes:
-- CROPS side list cleaned: no ▲ ▼ ✖ on each crop card.
-- Selected crop panel now has ▲ Move Up, ▼ Move Down, and Remove From My Garden.
-- Companion AI Scan added to selected crop panel.
-- Overseer card included at images/vault-overseer.jpg.
-- Weather intelligence expanded for heat, cold/frost, rain, and wind.
+Fixes:
+- Overview is now at the top of STAT, directly under the rounded buttons.
+- Overseer card uses cropped mascot art plus dynamic HTML text.
+- Garden Threat Meter / alert gauge restored under live weather.
+- Weather alerts include heat, cold/frost, heavy rain, and wind.

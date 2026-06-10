@@ -1,4 +1,4 @@
-const VERSION = "3.2.1";
+const VERSION = "3.2.2";
 const LS_GARDEN = "kwenGardenV32_myCrops";
 const LS_STAGES = "kwenGardenV32_stages";
 const LS_HARVEST = "kwenGardenV32_harvestLog";
@@ -66,10 +66,39 @@ function render(){
   if(activeTab === "data") renderDataTab();
 }
 
+
+function getOverseerQuote(){
+  const quotes=[
+    ["War never changes.","Fertilizer schedules do. Keep your crops fed, your soil healthy, and your expectations realistic."],
+    ["A neglected grow bag is merely compost with ambition.","Check containers before they become sad little saunas."],
+    ["Plant like you'll live forever.","Weed like winter is personally coming for you."],
+    ["The Overseer recommends optimism.","But also drainage holes. Mostly drainage holes."],
+    ["Vault 73 field report:","If the basil is dramatic, the tomatoes are probably thirsty too."]
+  ];
+  return quotes[new Date().getDate() % quotes.length];
+}
+function overseerHTML(){
+  const q=getOverseerQuote();
+  return `<section class="panel overseer-panel top-overview">
+    <h2>Overview</h2>
+    <div class="overseer-dynamic-card">
+      <div class="overseer-art"><img src="images/vault-overseer-mascot.jpg" alt="Vault Overseer" onerror="this.style.display='none';this.parentElement.classList.add('missing');"></div>
+      <div class="overseer-message"><b>${escapeHTML(q[0])}</b><small>${escapeHTML(q[1])}</small><em>— Overseer of Vault 73</em></div>
+    </div>
+  </section>`;
+}
+function riskGaugeHTML(){
+  return `<div class="risk-meter-wrap">
+    <div class="risk-meter-title"><span>Garden Threat Meter</span><span id="riskMeterLabel">STANDBY</span></div>
+    <div class="risk-meter safe" id="riskMeter"><div class="risk-arc"></div><div class="risk-needle"></div><div class="risk-center"></div></div>
+    <div class="risk-scale threat-scale"><span>❄️ Frost</span><span>🧊 Cold</span><span>✅ Ideal</span><span>☀️ Hot</span><span>🔥 Danger</span></div>
+  </div>`;
+}
 function renderStatusStrip(){
   const strip = document.getElementById("statusStrip");
   if(activeTab !== "stat"){ strip.innerHTML = ""; return; }
   strip.innerHTML = `
+    ${overseerHTML()}
     <section class="grid-wide">
       <div class="panel">
         <h2>Live Riverview Weather</h2>
@@ -79,6 +108,7 @@ function renderStatusStrip(){
           <div class="weather-chip"><small>Tomorrow High</small><b id="weatherHigh">—</b></div>
           <div class="weather-chip"><small>Threat Level</small><b id="weatherRisk">Checking…</b></div>
         </div>
+        ${riskGaugeHTML()}
       </div>
       <div class="panel">
         <h2>Garden Alerts</h2>
@@ -86,41 +116,47 @@ function renderStatusStrip(){
           <div class="alert-card"><b>Checking Riverview forecast…</b><small>Cold, heat, watering, and shade alerts appear here.</small></div>
         </div>
       </div>
-    </section>
-  `;
+    </section>`;
   loadWeather();
 }
 
-async function loadWeather(){
+async async function loadWeather(){
   const nowEl = document.getElementById("weatherNow");
   if(!nowEl) return;
   try{
-    const url = "https://api.open-meteo.com/v1/forecast?latitude=46.061&longitude=-64.805&current=temperature_2m,wind_speed_10m&daily=temperature_2m_min,temperature_2m_max,precipitation_sum,wind_speed_10m_max&timezone=America%2FMoncton&forecast_days=3";
-    const res = await fetch(url);
-    const data = await res.json();
-    const now = Math.round(data.current.temperature_2m);
-    const low = Math.round(data.daily.temperature_2m_min[0]);
-    const highTomorrow = Math.round(data.daily.temperature_2m_max[1]);
-    document.getElementById("weatherNow").textContent = `${now}°C`;
-    document.getElementById("weatherLow").textContent = `${low}°C`;
-    document.getElementById("weatherHigh").textContent = `${highTomorrow}°C`;
-    const alerts = [];
-    let risk = "IDEAL";
-    if(low <= 2){ risk = "FROST"; alerts.push(["danger","Frost risk","Cover tender crops and move pots if possible."]); }
-    else if(low <= 7){ risk = "COLD"; alerts.push(["warn","Cold night","Basil, peppers, tomatoes, and cucumbers may sulk."]); }
-    const rain = Math.round(data.daily.precipitation_sum?.[1] || 0);
-    const wind = Math.round(data.daily.wind_speed_10m_max?.[1] || data.current.wind_speed_10m || 0);
-    if(highTomorrow >= 30){ risk = "HEAT"; alerts.push(["warn","Heat warning","Grow bags dry rapidly. Check containers before fertilizing."]); }
-    if(rain >= 15){ alerts.push(["warn","Heavy rain expected",`${rain} mm possible. Skip watering until soil is checked.`]); }
-    if(wind >= 40){ alerts.push(["warn","High wind",`${wind} km/h gusty conditions. Secure tomatoes, peas, and trellises.`]); }
+    const url="https://api.open-meteo.com/v1/forecast?latitude=46.061&longitude=-64.805&current=temperature_2m,wind_speed_10m&daily=temperature_2m_min,temperature_2m_max,precipitation_sum,wind_speed_10m_max&timezone=America%2FMoncton&forecast_days=3";
+    const res=await fetch(url);
+    const data=await res.json();
+    const now=Math.round(data.current.temperature_2m);
+    const low=Math.round(data.daily.temperature_2m_min[0]);
+    const highTomorrow=Math.round(data.daily.temperature_2m_max[1]);
+    const rain=Math.round(data.daily.precipitation_sum?.[1]||0);
+    const wind=Math.round(data.daily.wind_speed_10m_max?.[1]||data.current.wind_speed_10m||0);
+    document.getElementById("weatherNow").textContent=`${now}°C`;
+    document.getElementById("weatherLow").textContent=`${low}°C`;
+    document.getElementById("weatherHigh").textContent=`${highTomorrow}°C`;
+    const alerts=[];
+    let risk="IDEAL", riskClass="ideal";
+    if(low<=2){risk="FROST";riskClass="danger";alerts.push(["danger","Frost risk","Cover tender crops and move pots if possible."]);}
+    else if(low<=7){risk="COLD";riskClass="cold";alerts.push(["warn","Cold night","Tomatoes, peppers, cucumbers, and basil may stall. Avoid heavy watering late in the day."]);}
+    if(highTomorrow>=32){risk="DANGER";riskClass="danger";alerts.push(["danger","Danger heat","Grow bags can dry fast. Check containers twice and avoid fertilizing dry soil."]);}
+    else if(highTomorrow>=30){if(risk!=="DANGER"){risk="HOT";riskClass="hot";}alerts.push(["warn","Heat warning","Grow bags dry rapidly. Water before fertilizing and give shallow containers afternoon shade."]);}
+    if(rain>=15){if(risk==="IDEAL"){risk="RAIN";riskClass="warn";}alerts.push(["warn","Heavy rain expected",`${rain} mm possible. Skip watering until soil is checked.`]);}
+    if(wind>=40){if(risk==="IDEAL"){risk="WIND";riskClass="warn";}alerts.push(["warn","High wind",`${wind} km/h gusty conditions. Secure tomatoes, peas, and trellises.`]);}
     if(!alerts.length) alerts.push(["safe","No major weather threat","Normal watering checks are enough."]);
-    document.getElementById("weatherRisk").textContent = risk;
-    document.getElementById("gardenAlerts").innerHTML = alerts.map(a => `<div class="alert-card ${a[0]}"><b>${a[1]}</b><small>${a[2]}</small></div>`).join("");
-  } catch(err){
-    document.getElementById("weatherNow").textContent = "Offline";
-    document.getElementById("weatherRisk").textContent = "Manual check";
-    const ga = document.getElementById("gardenAlerts");
-    if(ga) ga.innerHTML = `<div class="alert-card warn"><b>Weather unavailable</b><small>Check Riverview forecast manually. The rest of the Pip-Boy still works.</small></div>`;
+    document.getElementById("weatherRisk").textContent=risk;
+    const meter=document.getElementById("riskMeter"), label=document.getElementById("riskMeterLabel");
+    if(meter) meter.className=`risk-meter ${riskClass}`;
+    if(label) label.textContent=risk;
+    document.getElementById("gardenAlerts").innerHTML=alerts.map(a=>`<div class="alert-card ${a[0]}"><b>${a[1]}</b><small>${a[2]}</small></div>`).join("");
+  }catch(err){
+    document.getElementById("weatherNow").textContent="Offline";
+    document.getElementById("weatherRisk").textContent="Manual check";
+    const meter=document.getElementById("riskMeter"), label=document.getElementById("riskMeterLabel");
+    if(meter) meter.className="risk-meter warn";
+    if(label) label.textContent="OFFLINE";
+    const ga=document.getElementById("gardenAlerts");
+    if(ga) ga.innerHTML=`<div class="alert-card warn"><b>Weather unavailable</b><small>Check Riverview forecast manually. The rest of the Pip-Boy still works.</small></div>`;
   }
 }
 
@@ -152,15 +188,6 @@ function renderStat(){
         <h2>My Crops</h2>
         <div class="task-list">
           ${garden.map(c => `<div class="task"><div class="big">${c.icon}</div><div><b>${escapeHTML(c.name)}</b><small>${stageLabel(getCropStage(c))} • ${escapeHTML(c.harvestWindow)}</small></div></div>`).join("")}
-        </div>
-      </div>
-      <div class="panel overseer-panel">
-        <h2>Overview</h2>
-        <div class="overseer-card">
-          <img src="images/vault-overseer.jpg" alt="Vault Overseer gardening report" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-          <div class="overseer-fallback" style="display:none;">
-            <b>War never changes.</b><small>Fertilizer schedules do. Keep your crops fed, your soil healthy, and your expectations realistic.</small>
-          </div>
         </div>
       </div>
     </section>
@@ -257,7 +284,7 @@ function cropRowHTML(c,i,len){
   return `<div class="crop-row ${selectedCropId===c.id?"active":""}">
     <button class="crop-row-title" data-select-crop="${c.id}">
       ${c.icon} ${escapeHTML(c.name)}
-      <small style="display:block;color:var(--dim)">${stageLabel(getCropStage(c))}</small>
+      <small style="display:block;color:var(--dim)">${stageLabel(getCropStage(c))} • ${escapeHTML(c.harvestWindow)}</small>
     </button>
   </div>`;
 }
