@@ -1,12 +1,14 @@
-PIP-BOY 3000 Gardening OS v3.2.2
+kWen's Gardening OS v3.2.4 Fertilizer Stage Logic Patch
 
-Built from the confirmed stable/golden v3.2 source.
+Changed files:
+- supply-database.js
+- garden-app.js
 
-Updates included:
-- STAT Overview card at top.
-- Overseer image on left with dynamic HTML message on right.
-- Garden Threat Meter restored under weather.
-- Weather intelligence for heat, cold/frost, heavy rain, and wind.
-- CROPS left list cleaned: no arrows or X on each crop.
-- Selected crop panel now contains Move Up, Move Down, and Remove From My Garden.
-- Companion AI scan restored in selected crop panel.
+What changed:
+- Added stage-aware fertilizer recommendation scoring.
+- Fruiting crops now favour balanced/general feed while growing, then bloom/fruiting fertilizer once flowering or fruiting.
+- Sweet peppers should recommend Miracle-Gro 24-8-16 / balanced feed while growing, and Gaia Green Power Bloom 2-8-4 once flowering or fruiting.
+- Expanded fertilizer database with Gaia Green, Miracle-Gro Canada/common Canadian-available products, Rubicon Organic, and Nurture Growth Bio Fertilizer entries.
+- Preserved legacy fertilizer keys so older crop data/saved inventories do not break.
+
+Upload all files to GitHub together.

@@ -51,7 +51,7 @@ function productPills(keys){
     return `<span class="pill">✓ ${escapeHTML(item ? item.short : k)}</span>`;
   }).join(" ");
 }
-function allSupplyKeys(){ return Object.keys(SUPPLY_DATABASE || {}); }
+function allSupplyKeys(){ return Object.keys(SUPPLY_DATABASE || {}).filter(k => !SUPPLY_DATABASE[k]?.aliasOf); }
 function defaultOwnedSupply(){
   return allSupplyKeys().filter(k => SUPPLY_DATABASE[k]?.ownedDefault);
 }
@@ -165,8 +165,8 @@ function fertilizerRecommendationHTML(c){
       <b>${escapeHTML(ownedMatch.needs.title)}</b>
       <small>${escapeHTML(ownedMatch.needs.note)}</small>
       <div class="data-grid" style="margin-top:10px">
-        <div class="data-card"><b>Best Owned Match</b><small>${ownedBest ? `✓ ${escapeHTML(ownedBest.item.short)} • NPK ${escapeHTML(npkLabel(ownedBest.item))}<br>${escapeHTML(ownedBest.item.role)}` : `No owned fertilizer found. Add one in DATA → Supply Inventory.`}</small></div>
-        <div class="data-card"><b>Best Missing Match</b><small>${missingBest ? `${escapeHTML(missingBest.item.short)} • NPK ${escapeHTML(npkLabel(missingBest.item))}<br>${escapeHTML(missingBest.item.role)}` : `You already own the strongest database match for this crop.`}</small></div>
+        <div class="data-card"><b>Best Owned Match</b><small>${ownedBest ? `✓ ${escapeHTML(ownedBest.item.short)} • Score ${ownedBest.score}<br>NPK ${escapeHTML(npkLabel(ownedBest.item))}<br>${escapeHTML(ownedBest.item.role)}` : `No owned fertilizer found. Add one in DATA → Supply Inventory.`}</small></div>
+        <div class="data-card"><b>Best Missing Match</b><small>${missingBest ? `${escapeHTML(missingBest.item.short)} • Score ${missingBest.score}<br>NPK ${escapeHTML(npkLabel(missingBest.item))}<br>${escapeHTML(missingBest.item.role)}` : `You already own the strongest database match for this crop.`}</small></div>
       </div>
     </div>
   `;
@@ -600,7 +600,7 @@ function renderDataTab(){
         <h2>Supply Inventory</h2>
         <div class="controls">
           <select data-supply-select>
-            ${availableToAdd.length ? availableToAdd.map(k => `<option value="${k}">${escapeHTML(SUPPLY_DATABASE[k].short)} • ${escapeHTML(npkLabel(SUPPLY_DATABASE[k]))}</option>`).join("") : `<option value="">All fertilizers already in inventory</option>`}
+            ${availableToAdd.length ? availableToAdd.map(k => `<option value="${k}">${escapeHTML(SUPPLY_DATABASE[k].brand ? SUPPLY_DATABASE[k].brand + " — " : "")}${escapeHTML(SUPPLY_DATABASE[k].short)} • ${escapeHTML(npkLabel(SUPPLY_DATABASE[k]))}</option>`).join("") : `<option value="">All fertilizers already in inventory</option>`}
           </select>
           <button class="btn" data-add-supply ${availableToAdd.length ? "" : "disabled"}>ADD SUPPLY</button>
           <button class="mini-btn" data-reset-supply>RESET DEFAULTS</button>
@@ -608,7 +608,7 @@ function renderDataTab(){
         <div class="supply-grid">
           ${owned.map(k => {
             const s = SUPPLY_DATABASE[k];
-            return `<div class="data-card"><b>✓ ${escapeHTML(s.name)}</b><small>NPK ${escapeHTML(npkLabel(s))} • ${escapeHTML(s.form || "")}.<br>${escapeHTML(s.role)}</small><button class="mini-btn danger-btn" data-remove-supply="${k}">Remove</button></div>`;
+            return `<div class="data-card"><b>✓ ${escapeHTML(s.name)}</b><small>${escapeHTML(s.brand || "")}${s.brand ? " • " : ""}NPK ${escapeHTML(npkLabel(s))} • ${escapeHTML(s.form || "")}.<br>${escapeHTML(s.role)}</small><button class="mini-btn danger-btn" data-remove-supply="${k}">Remove</button></div>`;
           }).join("") || `<div class="data-card"><b>No owned fertilizer selected</b><small>Add what you own from the dropdown above.</small></div>`}
         </div>
       </div>
@@ -628,7 +628,7 @@ function renderDataTab(){
         <div class="supply-grid">
           ${allSupplyKeys().map(k => {
             const s = SUPPLY_DATABASE[k];
-            return `<div class="data-card"><b>${owned.includes(k) ? "✓ " : ""}${escapeHTML(s.short)}</b><small>${escapeHTML(s.name)}<br>NPK ${escapeHTML(npkLabel(s))} • ${escapeHTML(s.form || "")}.<br>${escapeHTML(s.role)}</small></div>`;
+            return `<div class="data-card"><b>${owned.includes(k) ? "✓ " : ""}${escapeHTML(s.short)}</b><small>${escapeHTML(s.name)}<br>${escapeHTML(s.brand || "")}${s.brand ? " • " : ""}NPK ${escapeHTML(npkLabel(s))} • ${escapeHTML(s.form || "")}.<br>${escapeHTML(s.role)}</small></div>`;
           }).join("")}
         </div>
       </div>
