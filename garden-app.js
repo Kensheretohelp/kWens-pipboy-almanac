@@ -2,6 +2,7 @@ const VERSION = "3.2.2-hotfix";
 const LS_GARDEN = "kwenGardenV32_myCrops";
 const LS_STAGES = "kwenGardenV32_stages";
 const LS_HARVEST = "kwenGardenV32_harvestLog";
+const LS_SUPPLY = "kwenGardenV32_supplyInventory";
 
 let activeTab = "stat";
 let selectedYear = new Date().getFullYear();
@@ -40,12 +41,135 @@ function activeEvents(){
 function escapeHTML(s){
   return String(s ?? "").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
 }
+function npkLabel(item){
+  return item?.npk ? item.npk.join("-") : "—";
+}
 function productPills(keys){
   if(!keys || !keys.length) return '<span class="pill">No fertilizer</span>';
   return keys.map(k => {
     const item = SUPPLY_DATABASE[k];
     return `<span class="pill">✓ ${escapeHTML(item ? item.short : k)}</span>`;
   }).join(" ");
+}
+function allSupplyKeys(){ return Object.keys(SUPPLY_DATABASE || {}); }
+function defaultOwnedSupply(){
+  return allSupplyKeys().filter(k => SUPPLY_DATABASE[k]?.ownedDefault);
+}
+function getOwnedSupply(){
+  const saved = readJSON(LS_SUPPLY, null);
+  if(Array.isArray(saved)) return saved.filter(k => SUPPLY_DATABASE[k]);
+  return defaultOwnedSupply();
+}
+function setOwnedSupply(keys){
+  writeJSON(LS_SUPPLY, [...new Set(keys)].filter(k => SUPPLY_DATABASE[k]));
+}
+function tagScore(item, needs){
+  if(!item || !needs) return -999;
+  const tags = item.tags || [];
+  const wanted = needs.preferredTags || [];
+  const avoided = needs.avoidTags || [];
+  let score = 0;
+  wanted.forEach(t => { if(tags.includes(t)) score += 4; });
+  avoided.forEach(t => { if(tags.includes(t)) score -= 8; });
+  if(item.npk){
+    const [n,p,k] = item.npk;
+    if(needs.nitrogen === "low" && n <= 6) score += 3;
+    if(needs.nitrogen === "low" && n >= 12) score -= 6;
+    if(needs.nitrogen === "moderate" && n > 0 && n <= 12) score += 2;
+    if(needs.nitrogen === "high" && n >= 5) score += 3;
+    if(needs.fruiting && k >= n) score += 2;
+    if(needs.root && p >= n) score += 2;
+  }
+  return score;
+}
+function fertilizerNeedsForCrop(c, stage){
+  const type = String(c.type || "").toLowerCase();
+  const id = String(c.id || "").toLowerCase();
+  const category = String(c.category || "").toLowerCase();
+
+  if(type.includes("root") || type.includes("tuber") || type.includes("bulb") || type.includes("allium")){
+    return {
+      title:"Root / bulb feeding",
+      nitrogen:"low",
+      root:true,
+      preferredTags:["root","low-nitrogen","bloom","bulb","tuber","organic"],
+      avoidTags:["high-nitrogen"],
+      note:"Keep nitrogen lower once roots/bulbs are forming so you do not grow monster tops and sad little roots."
+    };
+  }
+  if(type.includes("legume")){
+    return {
+      title:"Light legume feeding",
+      nitrogen:"low",
+      preferredTags:["soil","gentle","organic","legume","compost"],
+      avoidTags:["high-nitrogen"],
+      note:"Peas and beans usually need compost/soil support more than heavy fertilizer."
+    };
+  }
+  if(type.includes("leafy") || type.includes("green") || type.includes("brassica") || type.includes("herb")){
+    return {
+      title:"Leafy growth feeding",
+      nitrogen:"high",
+      preferredTags:["leafy","nitrogen","general","balanced","quick-feed","organic"],
+      avoidTags:[],
+      note:"Leafy crops and herbs usually appreciate nitrogen, but use lighter doses in containers."
+    };
+  }
+  if(type.includes("berry") || type.includes("fruit") || id.includes("blueberry") || category.includes("berries")){
+    return {
+      title:id.includes("blueberry") ? "Acid-loving berry feeding" : "Berry feeding",
+      nitrogen:"moderate",
+      preferredTags:id.includes("blueberry") ? ["acid-loving","berry","slow-release"] : ["berry","balanced","organic","slow-release"],
+      avoidTags:["high-nitrogen"],
+      note:"Berries prefer steady, moderate feeding rather than big nitrogen blasts."
+    };
+  }
+  if(type.includes("fruiting") || type.includes("melon") || type.includes("large crop")){
+    const early = stage === "seedling" || stage === "growing";
+    return {
+      title:early ? "Early fruiting-crop growth" : "Flowering / fruiting support",
+      nitrogen:early ? "moderate" : "low",
+      fruiting:true,
+      preferredTags:early ? ["balanced","general","container","quick-feed"] : ["fruiting","tomato","bloom","low-nitrogen","container"],
+      avoidTags:early ? [] : ["high-nitrogen"],
+      note:early ? "Balanced feed is okay before flowering." : "Once flowers/fruit show, lower nitrogen and stronger bloom/potassium support is usually better."
+    };
+  }
+  return {
+    title:"General garden feeding",
+    nitrogen:"moderate",
+    preferredTags:["balanced","general","organic","gentle"],
+    avoidTags:[],
+    note:"Use a balanced general feed unless the plant shows a more specific need."
+  };
+}
+function bestFertilizerMatch(c, keys, stage){
+  const needs = fertilizerNeedsForCrop(c, stage);
+  const ranked = keys
+    .map(k => ({ key:k, item:SUPPLY_DATABASE[k], score:tagScore(SUPPLY_DATABASE[k], needs) }))
+    .filter(x => x.item)
+    .sort((a,b) => b.score - a.score);
+  const best = ranked[0] || null;
+  return { needs, best, ranked };
+}
+function fertilizerRecommendationHTML(c){
+  const stage = getCropStage(c);
+  const owned = getOwnedSupply();
+  const ownedMatch = bestFertilizerMatch(c, owned, stage);
+  const missingKeys = allSupplyKeys().filter(k => !owned.includes(k));
+  const missingMatch = bestFertilizerMatch(c, missingKeys, stage);
+  const ownedBest = ownedMatch.best;
+  const missingBest = missingMatch.best;
+  return `
+    <div class="fert-rec">
+      <b>${escapeHTML(ownedMatch.needs.title)}</b>
+      <small>${escapeHTML(ownedMatch.needs.note)}</small>
+      <div class="data-grid" style="margin-top:10px">
+        <div class="data-card"><b>Best Owned Match</b><small>${ownedBest ? `✓ ${escapeHTML(ownedBest.item.short)} • NPK ${escapeHTML(npkLabel(ownedBest.item))}<br>${escapeHTML(ownedBest.item.role)}` : `No owned fertilizer found. Add one in DATA → Supply Inventory.`}</small></div>
+        <div class="data-card"><b>Best Missing Match</b><small>${missingBest ? `${escapeHTML(missingBest.item.short)} • NPK ${escapeHTML(npkLabel(missingBest.item))}<br>${escapeHTML(missingBest.item.role)}` : `You already own the strongest database match for this crop.`}</small></div>
+      </div>
+    </div>
+  `;
 }
 
 function setTab(tab){
@@ -433,7 +557,7 @@ function cropDetailHTML(c){
       ${info("Water", c.water)}
       ${info("Safe Temp", c.safeTemp)}
       ${info("Heat Care", c.heatCare)}
-      ${info("Fertilizer", `${productPills(c.fertilizer?.main)} ${c.fertilizer?.note || ""}`)}
+      ${info("Fertilizer", fertilizerRecommendationHTML(c), true)}
       ${info("Companions", c.companionPlants?.length ? c.companionPlants.map(id => getCrop(id)?.name || id).join(", ") : "—")}
       ${info("Notes", c.notes, true)}
     </div>
@@ -468,18 +592,44 @@ function renderLogTab(){
 function renderDataTab(){
   const app = document.getElementById("app");
   const garden = getMyGarden().map(getCrop).filter(Boolean);
+  const owned = getOwnedSupply();
+  const availableToAdd = allSupplyKeys().filter(k => !owned.includes(k));
   app.innerHTML = `
     <section class="grid">
       <div class="panel">
-        <h2>Supply Cache</h2>
+        <h2>Supply Inventory</h2>
+        <div class="controls">
+          <select data-supply-select>
+            ${availableToAdd.length ? availableToAdd.map(k => `<option value="${k}">${escapeHTML(SUPPLY_DATABASE[k].short)} • ${escapeHTML(npkLabel(SUPPLY_DATABASE[k]))}</option>`).join("") : `<option value="">All fertilizers already in inventory</option>`}
+          </select>
+          <button class="btn" data-add-supply ${availableToAdd.length ? "" : "disabled"}>ADD SUPPLY</button>
+          <button class="mini-btn" data-reset-supply>RESET DEFAULTS</button>
+        </div>
         <div class="supply-grid">
-          ${Object.values(SUPPLY_DATABASE).map(s => `<div class="data-card"><b>${escapeHTML(s.name)}</b><small>${escapeHTML(s.role)}</small></div>`).join("")}
+          ${owned.map(k => {
+            const s = SUPPLY_DATABASE[k];
+            return `<div class="data-card"><b>✓ ${escapeHTML(s.name)}</b><small>NPK ${escapeHTML(npkLabel(s))} • ${escapeHTML(s.form || "")}.<br>${escapeHTML(s.role)}</small><button class="mini-btn danger-btn" data-remove-supply="${k}">Remove</button></div>`;
+          }).join("") || `<div class="data-card"><b>No owned fertilizer selected</b><small>Add what you own from the dropdown above.</small></div>`}
         </div>
       </div>
       <div class="panel">
         <h2>Fertilizer Guide</h2>
         <div class="task-list">
-          ${garden.map(c => `<div class="task"><div class="big">${c.icon}</div><div><b>${escapeHTML(c.name)}</b><small>${productPills(c.fertilizer?.main)}<br>${escapeHTML(c.fertilizer?.note || "")}</small></div></div>`).join("")}
+          ${garden.map(c => {
+            const stage = getCropStage(c);
+            const ownedMatch = bestFertilizerMatch(c, owned, stage).best;
+            const missingMatch = bestFertilizerMatch(c, allSupplyKeys().filter(k => !owned.includes(k)), stage).best;
+            return `<div class="task"><div class="big">${c.icon}</div><div><b>${escapeHTML(c.name)}</b><small>Owned: ${ownedMatch ? escapeHTML(ownedMatch.item.short) : "None"}<br>Missing ideal: ${missingMatch ? escapeHTML(missingMatch.item.short) : "Already covered"}</small></div></div>`;
+          }).join("")}
+        </div>
+      </div>
+      <div class="panel">
+        <h2>Fertilizer Database</h2>
+        <div class="supply-grid">
+          ${allSupplyKeys().map(k => {
+            const s = SUPPLY_DATABASE[k];
+            return `<div class="data-card"><b>${owned.includes(k) ? "✓ " : ""}${escapeHTML(s.short)}</b><small>${escapeHTML(s.name)}<br>NPK ${escapeHTML(npkLabel(s))} • ${escapeHTML(s.form || "")}.<br>${escapeHTML(s.role)}</small></div>`;
+          }).join("")}
         </div>
       </div>
       <div class="panel">
@@ -489,15 +639,6 @@ function renderDataTab(){
           <div class="data-card"><b>Stage Changes</b><small>Changing a crop stage updates future fertilizer reminders. Past dates are left alone.</small></div>
           <div class="data-card"><b>Spinach</b><small>4 inch x 10 inch planters are good for baby spinach. Give afternoon shade during heat.</small></div>
           <div class="data-card"><b>Root Crops</b><small>Use lower nitrogen. Thin seedlings early or the roots stay tiny and sad.</small></div>
-        </div>
-      </div>
-      <div class="panel">
-        <h2>Future Modules</h2>
-        <div class="data-grid">
-          <div class="data-card"><b>Companion Planting</b><small>Database fields are ready.</small></div>
-          <div class="data-card"><b>Crop Rotation</b><small>Future planning hook.</small></div>
-          <div class="data-card"><b>What Can I Sow Today?</b><small>Calendar data can power this next.</small></div>
-          <div class="data-card"><b>Yield Stats</b><small>Harvest log is ready for totals.</small></div>
         </div>
       </div>
     </section>
@@ -554,6 +695,32 @@ document.addEventListener("click", e => {
   const st = e.target.closest("[data-stage]");
   if(st){
     setCropStage(st.dataset.stageCrop, st.dataset.stage);
+    render();
+    return;
+  }
+
+  const addSupply = e.target.closest("[data-add-supply]");
+  if(addSupply){
+    const key = document.querySelector("[data-supply-select]")?.value;
+    if(key && SUPPLY_DATABASE[key]){
+      const owned = getOwnedSupply();
+      if(!owned.includes(key)) owned.push(key);
+      setOwnedSupply(owned);
+      render();
+    }
+    return;
+  }
+
+  const rmSupply = e.target.closest("[data-remove-supply]");
+  if(rmSupply){
+    setOwnedSupply(getOwnedSupply().filter(k => k !== rmSupply.dataset.removeSupply));
+    render();
+    return;
+  }
+
+  const resetSupply = e.target.closest("[data-reset-supply]");
+  if(resetSupply){
+    setOwnedSupply(defaultOwnedSupply());
     render();
     return;
   }
