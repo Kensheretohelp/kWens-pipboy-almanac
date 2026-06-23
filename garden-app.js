@@ -1,7 +1,8 @@
-const VERSION = "3.2.2-hotfix";
+const VERSION = "3.2.6-log-rules";
 const LS_GARDEN = "kwenGardenV32_myCrops";
 const LS_STAGES = "kwenGardenV32_stages";
 const LS_HARVEST = "kwenGardenV32_harvestLog";
+const LS_ACTIVITY = "kwenGardenV326_activityLog";
 const LS_SUPPLY = "kwenGardenV32_supplyInventory";
 
 let activeTab = "stat";
@@ -35,14 +36,63 @@ function setCropStage(id, stage){
   stages[id] = { stage, changedAt: dateKey(new Date()) };
   setStages(stages);
 }
+function getActivityLog(){
+  const current = readJSON(LS_ACTIVITY, null);
+  if(Array.isArray(current)) return current;
+  const oldHarvest = readJSON(LS_HARVEST, []);
+  if(Array.isArray(oldHarvest) && oldHarvest.length){
+    const migrated = oldHarvest.map(l => ({
+      id: cryptoId(),
+      date: l.date || dateKey(new Date()),
+      crop: l.crop,
+      activity: "harvested",
+      note: l.note || "",
+      createdAt: new Date().toISOString()
+    }));
+    writeJSON(LS_ACTIVITY, migrated);
+    return migrated;
+  }
+  return [];
+}
+function setActivityLog(logs){ writeJSON(LS_ACTIVITY, logs); }
+function cryptoId(){ return `log_${Date.now()}_${Math.random().toString(16).slice(2)}`; }
 function activeEvents(){
-  return buildEventsForYear(selectedYear, getMyGarden(), getStages());
+  const base = buildEventsForYear(selectedYear, getMyGarden(), getStages());
+  return mergeLogDrivenEvents(base, selectedYear, getMyGarden());
 }
 function escapeHTML(s){
   return String(s ?? "").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
 }
 function npkLabel(item){
   return item?.npk ? item.npk.join("-") : "—";
+}
+function supplyFrequencyDays(key){
+  const item = SUPPLY_DATABASE[key];
+  if(!item) return 0;
+  if(Number(item.frequencyDays)) return Number(item.frequencyDays);
+  const form = String(item.form || "").toLowerCase();
+  const name = String(item.name || item.short || "").toLowerCase();
+  if(key === "compost" || name.includes("compost") || name.includes("worm casting")) return 45;
+  if(form.includes("water soluble") || form.includes("liquid") || form.includes("soluble")) return 14;
+  if(form.includes("granular") || form.includes("slow release") || form.includes("organic")) return 28;
+  return 28;
+}
+function supplyFrequencyLabel(key){
+  const days = supplyFrequencyDays(key);
+  if(!days) return "No automatic reminder";
+  if(days === 7) return "Every 7 days";
+  if(days === 14) return "Every 14 days";
+  if(days === 28) return "Every 28 days";
+  if(days === 45) return "Every 45 days";
+  return `Every ${days} days`;
+}
+function fertilizerProductOptions(selected=""){
+  const owned = getOwnedSupply();
+  const keys = owned.length ? owned : allSupplyKeys();
+  return [`<option value="">Choose fertilizer / supply…</option>`].concat(keys.map(k => {
+    const s = SUPPLY_DATABASE[k];
+    return `<option value="${k}" ${selected===k?"selected":""}>${escapeHTML(s.brand ? s.brand + " — " : "")}${escapeHTML(s.short)} • ${escapeHTML(supplyFrequencyLabel(k))}</option>`;
+  })).join("");
 }
 function productPills(keys){
   if(!keys || !keys.length) return '<span class="pill">No fertilizer</span>';
@@ -291,6 +341,71 @@ function companionAIHTML(c){
 }
 
 
+function logActivityLabel(activity){
+  const labels = {
+    seed_planted:"🌰 Seed Planted",
+    transplanted:"🌿 Transplanted",
+    fertilized:"🧪 Fertilized",
+    flowering_started:"🌸 Flowering Started",
+    pruned:"✂️ Pruned",
+    watered:"💧 Watered",
+    pest_problem:"🐛 Pest Problem",
+    harvested:"🧺 Harvested",
+    season_finished:"☠️ Season Finished"
+  };
+  return labels[activity] || activity || "Log Entry";
+}
+function logActivityIcon(activity){
+  return (logActivityLabel(activity).match(/^\S+/) || ["📝"])[0];
+}
+function mergeLogDrivenEvents(baseEvents, year, gardenIds){
+  const events = [...baseEvents];
+  const logs = getActivityLog();
+  const activeGarden = new Set(gardenIds);
+  const latestByCropProduct = {};
+  logs.forEach(l => {
+    if(l.activity !== "fertilized" || !l.product || !l.crop || !activeGarden.has(l.crop)) return;
+    const freq = supplyFrequencyDays(l.product);
+    if(!freq) return;
+    const key = `${l.crop}|${l.product}`;
+    if(!latestByCropProduct[key] || String(l.date) > String(latestByCropProduct[key].date)) latestByCropProduct[key] = l;
+  });
+  Object.values(latestByCropProduct).forEach(l => {
+    const due = addDays(parseKey(l.date), supplyFrequencyDays(l.product));
+    if(due.getFullYear() !== year) return;
+    const crop = getCrop(l.crop);
+    const product = SUPPLY_DATABASE[l.product];
+    events.push({
+      date: dateKey(due),
+      action:"🧪",
+      plant:l.crop,
+      text:`${crop?.name || l.crop}: next ${product?.short || "fertilizer"} due (${supplyFrequencyLabel(l.product).toLowerCase()} from log)`
+    });
+  });
+  const seen = new Set();
+  return events.filter(e => {
+    const k = `${e.date}|${e.action}|${e.plant}|${e.text}`;
+    if(seen.has(k)) return false;
+    seen.add(k);
+    return true;
+  }).sort((a,b)=>a.date.localeCompare(b.date) || String(a.plant).localeCompare(String(b.plant)));
+}
+function nextFertilizerSummaryHTML(){
+  const logs = getActivityLog().filter(l => l.activity === "fertilized" && l.product);
+  const latest = {};
+  logs.forEach(l => {
+    const key = `${l.crop}|${l.product}`;
+    if(!latest[key] || String(l.date) > String(latest[key].date)) latest[key] = l;
+  });
+  const rows = Object.values(latest).map(l => {
+    const c = getCrop(l.crop);
+    const s = SUPPLY_DATABASE[l.product];
+    const due = dateKey(addDays(parseKey(l.date), supplyFrequencyDays(l.product)));
+    return `<div class="data-card"><b>${c?.icon || "🌱"} ${escapeHTML(c?.name || l.crop)}</b><small>Last: ${escapeHTML(l.date)} • ${escapeHTML(s?.short || l.product)}<br>Next due: ${escapeHTML(due)} • ${escapeHTML(supplyFrequencyLabel(l.product))}</small></div>`;
+  }).sort().join("");
+  return rows || `<div class="data-card"><b>No fertilizer log yet</b><small>Add a fertilizer activity and the next due date will appear here and on the calendar.</small></div>`;
+}
+
 function renderStatusStrip(){
   const strip = document.getElementById("statusStrip");
   if(!strip) return;
@@ -389,7 +504,7 @@ async function loadWeather(){
 function renderStat(){
   const app = document.getElementById("app");
   const todayKey = dateKey(new Date());
-  const todays = buildEventsForYear(new Date().getFullYear(), getMyGarden(), getStages()).filter(e => e.date === todayKey);
+  const todays = mergeLogDrivenEvents(buildEventsForYear(new Date().getFullYear(), getMyGarden(), getStages()), new Date().getFullYear(), getMyGarden()).filter(e => e.date === todayKey);
   const garden = getMyGarden().map(getCrop).filter(Boolean);
   const counts = {};
   garden.forEach(c => {
@@ -569,24 +684,44 @@ function info(label,value,full=false){
 
 function renderLogTab(){
   const app = document.getElementById("app");
-  const logs = readJSON(LS_HARVEST, []);
+  const logs = getActivityLog();
   const garden = getMyGarden().map(getCrop).filter(Boolean);
   app.innerHTML = `
     <section class="panel">
-      <h2>Harvest Log</h2>
+      <h2>Activity Log</h2>
+      <div class="card" style="margin-bottom:12px"><b>Log-driven calendar</b><small>Fertilizer entries now use the selected product frequency to create the next calendar reminder automatically.</small></div>
       <div class="log-form">
+        <input type="date" data-log-date value="${dateKey(new Date())}">
         <select data-log-crop>${garden.map(c => `<option value="${c.id}">${c.icon} ${escapeHTML(c.name)}</option>`).join("")}</select>
-        <input data-log-note placeholder="Example: 5 tomatoes / handful basil">
+        <select data-log-activity>
+          <option value="seed_planted">🌰 Seed Planted</option>
+          <option value="transplanted">🌿 Transplanted</option>
+          <option value="fertilized" selected>🧪 Fertilized</option>
+          <option value="flowering_started">🌸 Flowering Started</option>
+          <option value="pruned">✂️ Pruned</option>
+          <option value="watered">💧 Watered</option>
+          <option value="pest_problem">🐛 Pest Problem</option>
+          <option value="harvested">🧺 Harvested</option>
+          <option value="season_finished">☠️ Season Finished</option>
+        </select>
+        <select data-log-product>${fertilizerProductOptions()}</select>
+        <input data-log-qty placeholder="Qty/strength, optional">
+        <input data-log-note placeholder="Notes, optional">
         <button class="btn" data-add-log>ADD</button>
       </div>
+      <div class="data-grid" style="margin:12px 0">${nextFertilizerSummaryHTML()}</div>
       <div class="history">
         ${logs.length ? logs.map((l,idx) => {
           const c = getCrop(l.crop);
-          return `<div class="task"><div class="big">${c?.icon || "🧺"}</div><div><b>${escapeHTML(c?.name || l.crop)}</b><small>${escapeHTML(l.date)} • ${escapeHTML(l.note)}</small></div><button class="mini-btn danger-btn" data-delete-log="${idx}">✖</button></div>`;
-        }).join("") : `<div class="card"><b>No harvest logged yet</b><small>The tomatoes are plotting quietly.</small></div>`}
+          const product = l.product ? SUPPLY_DATABASE[l.product] : null;
+          const extra = [product ? product.short : "", l.quantity || "", l.note || ""].filter(Boolean).join(" • ");
+          const next = l.activity === "fertilized" && l.product && supplyFrequencyDays(l.product) ? `Next due ${dateKey(addDays(parseKey(l.date), supplyFrequencyDays(l.product)))}` : "";
+          return `<div class="task"><div class="big">${logActivityIcon(l.activity)}</div><div><b>${c?.icon || "🌱"} ${escapeHTML(c?.name || l.crop)} — ${escapeHTML(logActivityLabel(l.activity).replace(/^\S+\s*/,""))}</b><small>${escapeHTML(l.date)}${extra ? " • " + escapeHTML(extra) : ""}${next ? "<br>" + escapeHTML(next) : ""}</small></div><button class="mini-btn danger-btn" data-delete-log="${idx}">✖</button></div>`;
+        }).join("") : `<div class="card"><b>No activity logged yet</b><small>The garden is quiet. Suspiciously quiet.</small></div>`}
       </div>
     </section>
   `;
+  toggleLogFields();
 }
 
 function renderDataTab(){
@@ -728,11 +863,15 @@ document.addEventListener("click", e => {
   const logAdd = e.target.closest("[data-add-log]");
   if(logAdd){
     const crop = document.querySelector("[data-log-crop]")?.value;
-    const note = document.querySelector("[data-log-note]")?.value?.trim();
-    if(crop && note){
-      const logs = readJSON(LS_HARVEST, []);
-      logs.unshift({ crop, note, date: dateKey(new Date()) });
-      writeJSON(LS_HARVEST, logs);
+    const activity = document.querySelector("[data-log-activity]")?.value;
+    const date = document.querySelector("[data-log-date]")?.value || dateKey(new Date());
+    const product = document.querySelector("[data-log-product]")?.value || "";
+    const quantity = document.querySelector("[data-log-qty]")?.value?.trim() || "";
+    const note = document.querySelector("[data-log-note]")?.value?.trim() || "";
+    if(crop && activity){
+      const logs = getActivityLog();
+      logs.unshift({ id: cryptoId(), crop, activity, product: activity === "fertilized" ? product : "", quantity, note, date, createdAt: new Date().toISOString() });
+      setActivityLog(logs);
       render();
     }
     return;
@@ -740,9 +879,9 @@ document.addEventListener("click", e => {
 
   const logDel = e.target.closest("[data-delete-log]");
   if(logDel){
-    const logs = readJSON(LS_HARVEST, []);
+    const logs = getActivityLog();
     logs.splice(Number(logDel.dataset.deleteLog),1);
-    writeJSON(LS_HARVEST, logs);
+    setActivityLog(logs);
     render();
     return;
   }
@@ -751,6 +890,7 @@ document.addEventListener("click", e => {
 document.addEventListener("change", e => {
   if(e.target.matches("[data-year-select]")){ selectedYear = Number(e.target.value); render(); }
   if(e.target.matches("[data-filter-select]")){ calendarFilter = e.target.value; render(); }
+  if(e.target.matches("[data-log-activity]")){ toggleLogFields(); }
 });
 
 document.addEventListener("input", e => {
@@ -761,5 +901,15 @@ document.addEventListener("input", e => {
     });
   }
 });
+
+function toggleLogFields(){
+  const activity = document.querySelector("[data-log-activity]")?.value;
+  const product = document.querySelector("[data-log-product]");
+  const qty = document.querySelector("[data-log-qty]");
+  if(product) product.style.display = activity === "fertilized" ? "" : "none";
+  if(qty){
+    qty.placeholder = activity === "fertilized" ? "Strength/amount, optional" : activity === "harvested" ? "Quantity/weight, optional" : "Qty/detail, optional";
+  }
+}
 
 document.addEventListener("DOMContentLoaded", render);
