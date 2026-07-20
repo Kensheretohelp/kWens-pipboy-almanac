@@ -38,6 +38,88 @@ const SUPPLY_DATABASE = {
     role:"Organic bloom/root support. Best once peppers/tomatoes are flowering or fruiting, and useful for root crops."
   },
 
+
+  // Schultz liquid feeds
+  schultz_all_purpose_liquid_10_15_10: {
+    brand:"Schultz",
+    name:"Schultz All Purpose Liquid Plant Food 10-15-10",
+    short:"Schultz Liquid 10-15-10",
+    npk:[10,15,10],
+    form:"concentrated liquid",
+    frequencyDays:7,
+    frequencyNote:"Default calendar reminder is weekly. The Canadian label also permits 7 drops per litre with each watering, according to the plant's needs.",
+    tags:["balanced","liquid","quick-feed","container","vegetable","flowering","general"],
+    bestFor:["Tomatoes", "Peppers", "Cucumbers", "herbs", "container vegetables", "general garden plants"],
+    avoidFor:["Dry soil", "overfed plants", "combining at full strength with another fertilizer"],
+    ownedDefault:false,
+    role:"Fast liquid feed for indoor or outdoor plants. The app uses a conservative weekly reminder; always follow the bottle rate."
+  },
+  liquid_tomato_vegetable_feed: {
+    brand:"Generic / Other",
+    name:"Liquid Tomato & Vegetable Fertilizer",
+    short:"Liquid Tomato & Veg Feed",
+    npk:null,
+    form:"liquid",
+    frequencyDays:14,
+    tags:["tomato","fruiting","vegetable","liquid","quick-feed","container"],
+    bestFor:["Tomatoes", "Peppers", "Cucumbers", "fruiting container vegetables"],
+    avoidFor:["Dry soil", "using together with another full-strength fertilizer"],
+    ownedDefault:false,
+    role:"Catch-all option when your exact liquid tomato/vegetable product is not listed. Default reminder: every 14 days."
+  },
+  liquid_all_purpose_feed: {
+    brand:"Generic / Other",
+    name:"Liquid All-Purpose Fertilizer",
+    short:"Liquid All-Purpose Feed",
+    npk:null,
+    form:"liquid",
+    frequencyDays:14,
+    tags:["balanced","liquid","general","quick-feed","container"],
+    bestFor:["General vegetables", "herbs", "containers"],
+    avoidFor:["Dry soil", "unknown-strength concentrates without checking the label"],
+    ownedDefault:false,
+    role:"Catch-all liquid fertilizer option. Default reminder: every 14 days; the product label takes priority."
+  },
+  liquid_fish_emulsion: {
+    brand:"Generic / Other",
+    name:"Liquid Fish Emulsion",
+    short:"Liquid Fish Emulsion",
+    npk:null,
+    form:"liquid organic",
+    frequencyDays:14,
+    tags:["nitrogen","leafy","organic","liquid","quick-feed","gentle"],
+    bestFor:["Leafy greens", "herbs", "young vegetative plants"],
+    avoidFor:["Root crops after roots form", "already lush tomatoes and peppers"],
+    ownedDefault:false,
+    role:"Organic liquid nitrogen support. Default reminder: every 14 days."
+  },
+  liquid_seaweed_kelp: {
+    brand:"Generic / Other",
+    name:"Liquid Seaweed / Kelp Fertilizer",
+    short:"Liquid Seaweed / Kelp",
+    npk:null,
+    form:"liquid organic",
+    frequencyDays:14,
+    tags:["kelp","stress","transplant","fruiting","gentle","liquid"],
+    bestFor:["Transplants", "heat stress", "fruiting crops", "containers"],
+    avoidFor:["Using as the only complete fertilizer when plants need nitrogen or phosphorus"],
+    ownedDefault:false,
+    role:"Gentle seaweed/kelp support. Default reminder: every 14 days."
+  },
+  compost_tea: {
+    brand:"Generic / Other",
+    name:"Compost Tea",
+    short:"Compost Tea",
+    npk:null,
+    form:"liquid organic",
+    frequencyDays:14,
+    tags:["compost","soil","organic","gentle","liquid"],
+    bestFor:["Garden beds", "containers", "general soil support"],
+    avoidFor:["Treating it as a guaranteed complete fertilizer"],
+    ownedDefault:false,
+    role:"Gentle soil-support option. Default reminder: every 14 days."
+  },
+
   // Gaia Green core line
   gaia_all_purpose_4_4_4: {
     brand:"Gaia Green",
@@ -361,7 +443,7 @@ const SUPPLY_DATABASE = {
 
 // Backward-compatible aliases for older crop data / saved inventories.
 SUPPLY_DATABASE.schultz = {
-  aliasOf:"miracle_gro_24_8_16",
+  aliasOf:"schultz_all_purpose_liquid_10_15_10",
   brand:"Schultz",
   name:"Schultz 10-15-10 Liquid Plant Food",
   short:"Schultz 10-15-10",

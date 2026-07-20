@@ -1,4 +1,4 @@
-const VERSION = "3.2.6-log-rules";
+const VERSION = "3.2.7-smart-feeding-calendar";
 const LS_GARDEN = "kwenGardenV32_myCrops";
 const LS_STAGES = "kwenGardenV32_stages";
 const LS_HARVEST = "kwenGardenV32_harvestLog";
@@ -80,6 +80,7 @@ function supplyFrequencyDays(key){
 function supplyFrequencyLabel(key){
   const days = supplyFrequencyDays(key);
   if(!days) return "No automatic reminder";
+  if(key === "schultz_all_purpose_liquid_10_15_10" || key === "schultz") return "Weekly reminder";
   if(days === 7) return "Every 7 days";
   if(days === 14) return "Every 14 days";
   if(days === 28) return "Every 28 days";
@@ -359,18 +360,30 @@ function logActivityIcon(activity){
   return (logActivityLabel(activity).match(/^\S+/) || ["📝"])[0];
 }
 function mergeLogDrivenEvents(baseEvents, year, gardenIds){
-  const events = [...baseEvents];
   const logs = getActivityLog();
   const activeGarden = new Set(gardenIds);
-  const latestByCropProduct = {};
+
+  // One active feeding schedule per crop: the newest fertilizer log wins,
+  // even when the gardener changes products. Static fertilizer events on or
+  // after that real log date are removed and replaced with the next due event.
+  const latestByCrop = {};
   logs.forEach(l => {
     if(l.activity !== "fertilized" || !l.product || !l.crop || !activeGarden.has(l.crop)) return;
-    const freq = supplyFrequencyDays(l.product);
-    if(!freq) return;
-    const key = `${l.crop}|${l.product}`;
-    if(!latestByCropProduct[key] || String(l.date) > String(latestByCropProduct[key].date)) latestByCropProduct[key] = l;
+    if(!supplyFrequencyDays(l.product)) return;
+    if(!latestByCrop[l.crop] || String(l.date) > String(latestByCrop[l.crop].date) ||
+       (String(l.date) === String(latestByCrop[l.crop].date) && String(l.createdAt || "") > String(latestByCrop[l.crop].createdAt || ""))){
+      latestByCrop[l.crop] = l;
+    }
   });
-  Object.values(latestByCropProduct).forEach(l => {
+
+  const events = baseEvents.filter(e => {
+    const log = latestByCrop[e.plant];
+    if(!log) return true;
+    const isStaticFeeding = e.action === "💧" && String(e.text || "").toLowerCase().includes("fertilize");
+    return !(isStaticFeeding && e.date >= log.date);
+  });
+
+  Object.values(latestByCrop).forEach(l => {
     const due = addDays(parseKey(l.date), supplyFrequencyDays(l.product));
     if(due.getFullYear() !== year) return;
     const crop = getCrop(l.crop);
@@ -379,9 +392,10 @@ function mergeLogDrivenEvents(baseEvents, year, gardenIds){
       date: dateKey(due),
       action:"🧪",
       plant:l.crop,
-      text:`${crop?.name || l.crop}: next ${product?.short || "fertilizer"} due (${supplyFrequencyLabel(l.product).toLowerCase()} from log)`
+      text:`${crop?.name || l.crop}: feed with ${product?.short || "fertilizer"} (${supplyFrequencyLabel(l.product).toLowerCase()}, based on the latest log)`
     });
   });
+
   const seen = new Set();
   return events.filter(e => {
     const k = `${e.date}|${e.action}|${e.plant}|${e.text}`;
@@ -390,12 +404,14 @@ function mergeLogDrivenEvents(baseEvents, year, gardenIds){
     return true;
   }).sort((a,b)=>a.date.localeCompare(b.date) || String(a.plant).localeCompare(String(b.plant)));
 }
+
 function nextFertilizerSummaryHTML(){
   const logs = getActivityLog().filter(l => l.activity === "fertilized" && l.product);
   const latest = {};
   logs.forEach(l => {
-    const key = `${l.crop}|${l.product}`;
-    if(!latest[key] || String(l.date) > String(latest[key].date)) latest[key] = l;
+    const key = l.crop;
+    if(!latest[key] || String(l.date) > String(latest[key].date) ||
+       (String(l.date) === String(latest[key].date) && String(l.createdAt || "") > String(latest[key].createdAt || ""))) latest[key] = l;
   });
   const rows = Object.values(latest).map(l => {
     const c = getCrop(l.crop);
@@ -689,7 +705,7 @@ function renderLogTab(){
   app.innerHTML = `
     <section class="panel">
       <h2>Activity Log</h2>
-      <div class="card" style="margin-bottom:12px"><b>Log-driven calendar</b><small>Fertilizer entries now use the selected product frequency to create the next calendar reminder automatically.</small></div>
+      <div class="card" style="margin-bottom:12px"><b>Log-driven calendar</b><small>The newest fertilizer entry for each crop controls its next feeding. Changing products automatically replaces the old future schedule.</small></div>
       <div class="log-form">
         <input type="date" data-log-date value="${dateKey(new Date())}">
         <select data-log-crop>${garden.map(c => `<option value="${c.id}">${c.icon} ${escapeHTML(c.name)}</option>`).join("")}</select>
