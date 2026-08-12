@@ -5,6 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>PIP-BOY 3000 — Gardening OS v3.2.6</title>
   <link rel="stylesheet" href="styles.css">
+
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#163b24">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 </head>
 <body>
   <div class="crt"></div>
@@ -14,7 +20,6 @@
       <h1>PIP-BOY 3000</h1>
       <div class="version">Gardening OS v3.2.6</div>
     </header>
-
     <nav class="pip-buttons" aria-label="Pip-Boy sections">
       <button class="pip-btn active" data-tab="stat">STAT</button>
       <button class="pip-btn" data-tab="cal">CAL</button>
@@ -26,7 +31,6 @@
     <section id="statusStrip" class="status-strip"></section>
 
     <section id="app" class="content"></section>
-
     <footer class="footer">PIP-BOY 3000 • Gardening OS v3.2.6 • Riverview / Moncton NB Zone 5b</footer>
   </main>
 
@@ -35,5 +39,19 @@
   <script src="my-garden.js"></script>
   <script src="calendar-engine.js"></script>
   <script src="garden-app.js"></script>
+
+  <script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('./sw.js')
+        .then(function (registration) {
+          console.log('PIP-BOY Gardening OS PWA ready:', registration.scope);
+        })
+        .catch(function (error) {
+          console.warn('PIP-BOY Gardening OS service worker failed:', error);
+        });
+    });
+  }
+  </script>
 </body>
 </html>
